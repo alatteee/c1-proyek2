@@ -1,7 +1,10 @@
 INI ADALAH MARKDOWN KELOMPOK C1 PROYEK 2
+
 Jurusan Teknik Komputer dan Informatika
+
 Program Studi D3 - Teknik Informatika
-Manager : Pa Yudi Widhiyasana
+
+Proyek Manager : Pa Yudi Widhiyasana
 
 
 - ERSYA HASBY SATRIA          - 241511072
