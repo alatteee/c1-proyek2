@@ -1,4 +1,8 @@
 INI ADALAH MARKDOWN KELOMPOK C1 PROYEK 2
+Jurusan Teknik Komputer dan Informatika
+Program Studi D3 - Teknik In formatika
+Manager : Pa Yudi Widhiyasana
+
 
 - ERSYA HASBY SATRIA          - 241511072
 - YAZID ALRASYID              - 241511093
