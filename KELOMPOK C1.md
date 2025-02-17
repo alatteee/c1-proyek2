@@ -1,6 +1,6 @@
 INI ADALAH MARKDOWN KELOMPOK C1 PROYEK 2
 Jurusan Teknik Komputer dan Informatika
-Program Studi D3 - Teknik In formatika
+Program Studi D3 - Teknik Informatika
 Manager : Pa Yudi Widhiyasana
 
 
