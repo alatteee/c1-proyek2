@@ -3,10 +3,6 @@
 #include "include/jalur.h"
 #include "include/config.h" // Include config.h
 
-// #define SCREEN_WIDTH 800       <- REMOVE these #define lines from main.c
-// #define SCREEN_HEIGHT 600
-// #define PLAYER_CAR_WIDTH 50
-// #define PLAYER_CAR_HEIGHT 100
 
 // Fungsi utama untuk menjalankan game
 int main() {
