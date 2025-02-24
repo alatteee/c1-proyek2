@@ -3,8 +3,14 @@
     {
       "name": "windows-gcc-x86",
       "includePath": [
-        "${workspaceFolder}/**"
-      ],
+        "${workspaceFolder}/**",
+        "C:/MinGW/include" // Ganti dengan path folder 'include' MinGW Anda
+    ],
+    "defines": [
+        "_DEBUG",
+        "UNICODE",
+        "_UNICODE"
+    ],
       "compilerPath": "c:/mingw/bin/gcc.exe",
       "cStandard": "${default}",
       "cppStandard": "${default}",
