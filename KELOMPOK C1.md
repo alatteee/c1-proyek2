@@ -17,9 +17,9 @@ Target Proyek:
 Menyelesaikan proyek 2 pembuatan game dengan judul game C1 Brick Racer
 
 compile file:
-gcc -g "C:/Users/.../main.c" "C:/Users/.../mobil.c" "C:/Users/.../jalur.c" -o "C:/Users/.../main.exe" -I C:/MinGW/include -L C:/MinGW/lib -lmingw32 -lSDL3
+gcc -g "C:/Users/.../main.c" "C:/Users/.../src/mobil.c" "C:/Users/.../jalur.c" "C:/Users/.../src/Main_menu.c" "C:/Users/.../src/rintangan.c" -o "C:/Users/.../src/main.exe" -I C:/MinGW/include -L C:/MinGW/lib -lmingw32 -lSDL3
 
-Pembagian header berdasarkan yang tertera pada pembagian-tugas.c
+Pembagian header
 - Ersya - Main_menu.h
 - Ala - mobil.h
 - Nike - jalur.h
