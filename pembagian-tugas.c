@@ -12,7 +12,7 @@ typedef struct
 void assignTasks(Member members[])
 {
     const char *names[MAX_MEMBERS] = {"Ersya", "Nike", "Ala", "Yazid", "Andin"};
-    const char *tasks[MAX_MEMBERS] = {"Page-Menu", "Jalur", "Jalur", "Rintangan", "Mobil"};
+    const char *tasks[MAX_MEMBERS] = {"Main Menu", "Jalur", "Mobil", "Rintangan", "Mobil"};
 
     for (int i = 0; i < MAX_MEMBERS; i++)
     {
