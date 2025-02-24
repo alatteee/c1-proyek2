@@ -1,7 +1,7 @@
 #include <SDL3/SDL.h>
-#include "../include/mobil.h"
-#include "../include/jalur.h"
-#include "../include/config.h" // Include config.h
+#include "include/mobil.h"
+#include "include/jalur.h"
+#include "include/config.h" // Include config.h
 
 // #define SCREEN_WIDTH 800       <- REMOVE these #define lines from main.c
 // #define SCREEN_HEIGHT 600
