@@ -3,6 +3,8 @@
 #include "include/jalur.h"
 #include "include/config.h" // Include config.h
 
+#define NUM_CARS 5  // Jumlah mobil
+
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -24,8 +26,13 @@ int main() {
         return 1;
     }
 
-    Car playerCar;
-    initCar(&playerCar, (SCREEN_WIDTH - PLAYER_CAR_WIDTH) / 2, SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
+    Car cars[NUM_CARS];  // Array untuk menyimpan banyak mobil
+
+    // Inisialisasi mobil
+    int i;
+    for (i = 0; i < NUM_CARS; i++) {
+        initCar(&cars[i], (SCREEN_WIDTH - PLAYER_CAR_WIDTH) / 2, SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10 - (i * 100), PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
+    }
 
     bool quit = false;
     SDL_Event e;
@@ -39,10 +46,16 @@ int main() {
 
         const Uint8* currentKeyStates = (const Uint8*)SDL_GetKeyboardState(NULL);
         if (currentKeyStates[SDL_SCANCODE_LEFT]) {
-            moveLeft(&playerCar);
+            int i;
+            for (i = 0; i < NUM_CARS; i++) {
+                moveLeft(&cars[i]);
+            }
         }
         if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
-            moveRight(&playerCar, SCREEN_WIDTH);
+            int i;
+            for (i = 0; i < NUM_CARS; i++) {
+                moveRight(&cars[i], SCREEN_WIDTH);
+            }
         }
 
         // Clear screen
@@ -52,11 +65,14 @@ int main() {
         // Gambar jalur
         drawLanes(renderer, SCREEN_WIDTH);
 
-        // Gambar mobil pemain
+        // Gambar semua mobil
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);  // Warna hijau
-        SDL_FRect playerCarRectF;
-        SDL_RectToFRect(&playerCar.rect, &playerCarRectF);
-        SDL_RenderFillRect(renderer, &playerCarRectF);
+        int i;
+        for (i = 0; i < NUM_CARS; i++) {
+            SDL_FRect playerCarRectF;
+            SDL_RectToFRect(&cars[i].rect, &playerCarRectF);
+            SDL_RenderFillRect(renderer, &playerCarRectF);
+        }
 
         // Update layar
         SDL_RenderPresent(renderer);
@@ -70,4 +86,3 @@ int main() {
 
     return 0;
 }
-
