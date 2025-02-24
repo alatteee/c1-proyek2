@@ -20,8 +20,8 @@ compile file:
 gcc -g "C:/Users/.../main.c" "C:/Users/.../mobil.c" "C:/Users/.../jalur.c" -o "C:/Users/.../main.exe" -I C:/MinGW/include -L C:/MinGW/lib -lmingw32 -lSDL3
 
 Pembagian header berdasarkan yang tertera pada pembagian-tugas.c
-Ersya - Main_menu.h
-Ala - mobil.h
-Nike - jalur.h
-Andin - skor.h
-Yazid - rintangan.h
+- Ersya - Main_menu.h
+- Ala - mobil.h
+- Nike - jalur.h
+- Andin - skor.h
+- Yazid - rintangan.h
