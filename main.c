@@ -3,8 +3,6 @@
 #include "include/jalur.h"
 #include "include/config.h" // Include config.h
 
-
-// Fungsi utama untuk menjalankan game
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
 
