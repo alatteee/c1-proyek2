@@ -14,4 +14,4 @@ Anggota:
 - ANDHINI WIDYA PUTRI WASTIKA - 241511068
 
 Target Proyek:
-Menyelesaikan proyek 2 pembuatan game dengan judul  C1 Brick Racer
+Menyelesaikan proyek 2 pembuatan game dengan judul game C1 Brick Racer
