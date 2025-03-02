@@ -62,21 +62,21 @@ void renderMenu(SDL_Renderer *renderer, int selected)
 }
 
 // Fungsi untuk menangani input pada menu
-int handleMenuInput(SDL_Event *event, int *selected)
+void handleMenuInput(SDL_Event *event, int *selected, int menuCount, int (*menuActions[])())
 {
-    if (event->type == SDL_KEYDOWN)
+    if (event->type == SDL_EVENT_KEY_DOWN)
     {
-        if (event->key.keysym.sym == SDLK_DOWN)
+        if (event->keyboard.keysym == SDLK_DOWN)
         {
-            *selected = (*selected + 1) % menuCount; // Menavigasi ke bawah
+            *selected = (*selected + 1) % menuCount; // Navigasi ke bawah
         }
-        if (event->key.keysym.sym == SDLK_UP)
+        if (event->keyboard.keysym == SDLK_UP)
         {
-            *selected = (*selected - 1 + menuCount) % menuCount; // Menavigasi ke atas
+            *selected = (*selected - 1 + menuCount) % menuCount; // Navigasi ke atas
         }
-        if (event->key.keysym.sym == SDLK_RETURN)
+        if (event->keyboard.keysym == SDLK_RETURN)
         {
-            return menuActions[*selected]; // Mengembalikan aksi berdasarkan pilihan
+            menuActions[*selected](); // Eksekusi aksi berdasarkan pilihan
         }
     }
     return -1; // Tidak ada aksi
