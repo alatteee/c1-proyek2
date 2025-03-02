@@ -5,7 +5,12 @@
 #include "include/config.h" // Include config.h
 
 #define NUM_CARS 1  // Jumlah mobil
-#define MOVE_STEP 50  // Langkah pergerakan yang lebih besar (retro)
+#define MOVE_STEP 1  // Langkah pergerakan untuk berpindah antar jalur
+
+// Tentukan posisi X untuk masing-masing jalur
+#define LEFT_LANE_X (SCREEN_WIDTH / 4 - PLAYER_CAR_WIDTH / 2)
+#define MIDDLE_LANE_X (SCREEN_WIDTH / 2 - PLAYER_CAR_WIDTH / 2)
+#define RIGHT_LANE_X (3 * SCREEN_WIDTH / 4 - PLAYER_CAR_WIDTH / 2)
 
 int main() {
     // Inisialisasi SDL
@@ -36,7 +41,7 @@ int main() {
     // Inisialisasi mobil
     int i;
     for (i = 0; i < NUM_CARS; i++) {
-        initCar(&cars[i], (SCREEN_WIDTH - PLAYER_CAR_WIDTH) / 2.0f, SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10.0f - (i * 100), PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
+        initCar(&cars[i], MIDDLE_LANE_X, SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10.0f - (i * 100), PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
     }
 
     bool quit = false;
@@ -52,22 +57,24 @@ int main() {
 
         const Uint8* currentKeyStates = (const Uint8*)SDL_GetKeyboardState(NULL);
 
-        // Jika tombol kiri ditekan
+        // Jika tombol kiri ditekan, pindahkan mobil ke jalur kiri
         if (currentKeyStates[SDL_SCANCODE_LEFT]) {
             for (i = 0; i < NUM_CARS; i++) {
-                if (cars[i].x > 0) {
-                    cars[i].x -= MOVE_STEP;  // Bergerak ke kiri dengan langkah tetap
-                    cars[i].rect.x = cars[i].x;  // Pastikan rect.x juga diperbarui
+                // Pindahkan mobil ke jalur kiri jika mobil belum ada di jalur kiri
+                if (cars[i].x > LEFT_LANE_X) {
+                    cars[i].x = LEFT_LANE_X;
+                    cars[i].rect.x = cars[i].x;  // Perbarui posisi rect
                 }
             }
         }
 
-        // Jika tombol kanan ditekan
+        // Jika tombol kanan ditekan, pindahkan mobil ke jalur kanan
         if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
             for (i = 0; i < NUM_CARS; i++) {
-                if (cars[i].x + cars[i].width < SCREEN_WIDTH) {
-                    cars[i].x += MOVE_STEP;  // Bergerak ke kanan dengan langkah tetap
-                    cars[i].rect.x = cars[i].x;  // Pastikan rect.x juga diperbarui
+                // Pindahkan mobil ke jalur kanan jika mobil belum ada di jalur kanan
+                if (cars[i].x < RIGHT_LANE_X) {
+                    cars[i].x = RIGHT_LANE_X;
+                    cars[i].rect.x = cars[i].x;  // Perbarui posisi rect
                 }
             }
         }
