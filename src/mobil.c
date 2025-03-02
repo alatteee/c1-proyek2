@@ -31,25 +31,25 @@ void moveRight(Car* car, int screenWidth) {
 
 // Fungsi untuk menggambar mobil dengan kotak kecil yang disusun
 void renderCar(SDL_Renderer* renderer, Car* car) {
-    // Warna untuk kotak besar (tubuh mobil)
+    // Warna untuk tubuh mobil
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);  // Merah untuk tubuh mobil
 
     // Gambar bagian tubuh mobil (kotak besar)
-    SDL_FRect mainBody = { car->rect.x + 10.0f, car->rect.y + 10.0f, car->rect.w - 20.0f, car->rect.h - 40.0f };
+    SDL_FRect mainBody = { car->rect.x + 10.0f, car->rect.y + 20.0f, car->rect.w - 20.0f, car->rect.h - 40.0f };
     SDL_RenderFillRect(renderer, &mainBody); // Bagian tubuh mobil
 
     // Gambar kotak kecil di dalam tubuh mobil (seperti pola di gambar)
     SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);  // Warna biru untuk kotak kecil
-    float boxWidth = car->rect.w / 4;
-    float boxHeight = car->rect.h / 5;
-    
-    // Susun kotak kecil dalam bentuk pola
+    float boxWidth = car->rect.w / 2;  // Lebar kotak kecil
+    float boxHeight = car->rect.h / 4;  // Tinggi kotak kecil
+
+    // Susun kotak kecil di tengah tubuh mobil
     float i, j;
-    for (i = 0; i < 4; i++) {
-        for (j = 0; j < 5; j++) {
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < 2; j++) {
             SDL_FRect smallBox = {
                 car->rect.x + 10.0f + i * boxWidth, 
-                car->rect.y + 10.0f + j * boxHeight, 
+                car->rect.y + 20.0f + j * boxHeight, 
                 boxWidth, 
                 boxHeight
             };
