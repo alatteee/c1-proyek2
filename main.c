@@ -79,6 +79,17 @@ int main() {
             }
         }
 
+        // Jika mobil berada di jalur kiri atau kanan, tombol kanan atau kiri akan memindahkannya ke tengah
+        if (currentKeyStates[SDL_SCANCODE_DOWN]) {
+            for (i = 0; i < NUM_CARS; i++) {
+                // Pindahkan mobil ke jalur tengah jika mobil belum ada di jalur tengah
+                if (cars[i].x != MIDDLE_LANE_X) {
+                    cars[i].x = MIDDLE_LANE_X;
+                    cars[i].rect.x = cars[i].x;  // Perbarui posisi rect
+                }
+            }
+        }
+
         // Clear screen
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);  // Warna hitam
         SDL_RenderClear(renderer);
