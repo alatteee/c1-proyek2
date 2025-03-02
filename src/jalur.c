@@ -10,9 +10,10 @@ void draw_lanes(SDL_Renderer *renderer)
     
     // Set lane divider color (white)
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    for (int i = 1; i < NUM_LANES; i++) {
+    int i, y;
+    for (i = 1; i < NUM_LANES; i++) {
         int position_x = i * LANE_WIDTH;
-        for (int y = 0; y < SCREEN_HEIGHT; y += 40) {  // Dashed lane lines
+        for (y = 0; y < SCREEN_HEIGHT; y += 40) {  // Dashed lane lines
             SDL_RenderDrawLine(renderer, position_x, y, position_x, y + 20);
         }
     }
