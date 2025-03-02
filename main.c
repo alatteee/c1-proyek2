@@ -64,7 +64,8 @@ int main() {
         drawLanes(renderer, SCREEN_WIDTH);
 
         // Gambar semua mobil
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);  // Warna hijau
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);  // Merah
+
         for (i = 0; i < NUM_CARS; i++) {
             renderCar(renderer, &cars[i]);  // Gambar mobil dengan SDL_FRect
         }
