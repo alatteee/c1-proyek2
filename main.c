@@ -62,7 +62,7 @@ int main() {
         SDL_RenderClear(renderer);
 
         // Gambar jalur
-        drawLanes(renderer, SCREEN_WIDTH);
+        draw_lanes(renderer);
 
         // Gambar semua mobil
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);  // Merah
