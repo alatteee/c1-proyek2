@@ -1,8 +1,12 @@
-#ifndef JALUR_H
-#define JALUR_H
+#ifndef LANES_H
+#define LANES_H
 
 #include <SDL3/SDL.h>
+#include "config.h"
 
-void drawLanes(SDL_Renderer* renderer, int screenWidth); //diubah oleh nike
+#define NUM_LANES 3  // Number of lanes
+#define LANE_WIDTH (SCREEN_WIDTH / NUM_LANES)  // Calculate lane width dynamically
 
-#endif // JALUR_H
+void draw_lanes(SDL_Renderer *renderer);
+
+#endif // LANES_H
