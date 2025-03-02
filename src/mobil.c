@@ -29,7 +29,7 @@ void moveRight(Car* car, int screenWidth) {
     }
 }
 
-// Fungsi untuk menggambar mobil dengan kotak kecil yang disusun
+// Fungsi untuk menggambar mobil
 void renderCar(SDL_Renderer* renderer, Car* car) {
     // Warna untuk tubuh mobil
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);  // Merah untuk tubuh mobil
@@ -40,13 +40,13 @@ void renderCar(SDL_Renderer* renderer, Car* car) {
 
     // Gambar kotak kecil di dalam tubuh mobil (seperti pola di gambar)
     SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);  // Warna biru untuk kotak kecil
-    float boxWidth = car->rect.w / 2;  // Lebar kotak kecil
-    float boxHeight = car->rect.h / 4;  // Tinggi kotak kecil
+    float boxWidth = car->rect.w / 4;  // Lebar kotak kecil
+    float boxHeight = car->rect.h / 5;  // Tinggi kotak kecil
 
-    // Susun kotak kecil di tengah tubuh mobil
+    // Susun kotak kecil di dalam tubuh mobil
     float i, j;
-    for (i = 0; i < 2; i++) {
-        for (j = 0; j < 2; j++) {
+    for (i = 0; i < 2; i++) {  // Dua kolom
+        for (j = 0; j < 2; j++) {  // Dua baris
             SDL_FRect smallBox = {
                 car->rect.x + 10.0f + i * boxWidth, 
                 car->rect.y + 20.0f + j * boxHeight, 
@@ -66,8 +66,8 @@ void renderCar(SDL_Renderer* renderer, Car* car) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Hitam untuk roda
 
     // Gambar roda mobil
-    SDL_FRect wheel1 = { car->rect.x + 10.0f, car->rect.y + car->rect.h - 15.0f, 25.0f, 15.0f };
-    SDL_FRect wheel2 = { car->rect.x + car->rect.w - 35.0f, car->rect.y + car->rect.h - 15.0f, 25.0f, 15.0f };
+    SDL_FRect wheel1 = { car->rect.x + 10.0f, car->rect.y + car->rect.h - 25.0f, 25.0f, 15.0f };
+    SDL_FRect wheel2 = { car->rect.x + car->rect.w - 35.0f, car->rect.y + car->rect.h - 25.0f, 25.0f, 15.0f };
     SDL_RenderFillRect(renderer, &wheel1); // Roda kiri
     SDL_RenderFillRect(renderer, &wheel2); // Roda kanan
 }
