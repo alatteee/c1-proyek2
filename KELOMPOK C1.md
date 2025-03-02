@@ -20,7 +20,7 @@ compile file:
 gcc -g "C:/Users/.../main.c" "C:/Users/.../src/mobil.c" "C:/Users/.../src/jalur.c" "C:/Users/.../src/Main_menu.c" "C:/Users/.../src/rintangan.c" -o "C:/Users/.../src/main.exe" -I C:/MinGW/include -L C:/MinGW/lib -lmingw32 -lSDL3
 
 Pembagian header
-- Ersya - Main_menu.h
+- Ersya - menu.h
 - Ala - mobil.h
 - Nike - jalur.h
 - Andin - skor.h
