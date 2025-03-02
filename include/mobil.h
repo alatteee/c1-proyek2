@@ -3,14 +3,14 @@
 
 #include <SDL3/SDL.h>
 
-// Structure for Car
+// Struktur untuk mobil
 typedef struct {
-    float x;               // X position of the car (float for SDL_FRect)
-    float y;               // Y position of the car (float for SDL_FRect)
-    float width;           // Width of the car (float for SDL_FRect)
-    float height;          // Height of the car (float for SDL_FRect)
-    SDL_FRect rect;        // SDL_FRect for rendering, synced with x, y, width, height
-    int speed;
+    float x;               // Posisi X mobil
+    float y;               // Posisi Y mobil
+    float width;           // Lebar mobil
+    float height;          // Tinggi mobil
+    SDL_FRect rect;        // SDL_FRect untuk rendering
+    int speed;             // Kecepatan mobil
 } Car;
 
 void initCar(Car* car, float x, float y, float w, float h, int speed);

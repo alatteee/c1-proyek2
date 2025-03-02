@@ -17,7 +17,7 @@ void initCar(Car* car, float x, float y, float width, float height, int speed) {
 void moveLeft(Car* car) {
     if (car->x > 0) {
         car->x -= car->speed;
-        car->rect.x = car->x;
+        car->rect.x = car->x;  // Pastikan rect.x diperbarui
     }
 }
 
@@ -25,7 +25,7 @@ void moveLeft(Car* car) {
 void moveRight(Car* car, int screenWidth) {
     if (car->x + car->width < screenWidth) {
         car->x += car->speed;  // Menggunakan kecepatan yang benar
-        car->rect.x = car->x;
+        car->rect.x = car->x;  // Pastikan rect.x diperbarui
     }
 }
 
@@ -48,5 +48,3 @@ void renderCar(SDL_Renderer* renderer, Car* car) {
     SDL_RenderFillRect(renderer, &wheel1);
     SDL_RenderFillRect(renderer, &wheel2);
 }
-
-
