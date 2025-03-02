@@ -3,7 +3,7 @@
 #include "include/jalur.h"
 #include "include/config.h" // Include config.h
 
-#define NUM_CARS 5  // Jumlah mobil
+#define NUM_CARS 1  // Jumlah mobil
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -31,7 +31,7 @@ int main() {
     // Inisialisasi mobil
     int i;
     for (i = 0; i < NUM_CARS; i++) {
-        initCar(&cars[i], (SCREEN_WIDTH - PLAYER_CAR_WIDTH) / 2, SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10 - (i * 100), PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
+        initCar(&cars[i], (SCREEN_WIDTH - PLAYER_CAR_WIDTH) / 2.0f, SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10.0f - (i * 100), PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
     }
 
     bool quit = false;
@@ -46,13 +46,11 @@ int main() {
 
         const Uint8* currentKeyStates = (const Uint8*)SDL_GetKeyboardState(NULL);
         if (currentKeyStates[SDL_SCANCODE_LEFT]) {
-            int i;
             for (i = 0; i < NUM_CARS; i++) {
                 moveLeft(&cars[i]);
             }
         }
         if (currentKeyStates[SDL_SCANCODE_RIGHT]) {
-            int i;
             for (i = 0; i < NUM_CARS; i++) {
                 moveRight(&cars[i], SCREEN_WIDTH);
             }
@@ -67,11 +65,8 @@ int main() {
 
         // Gambar semua mobil
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);  // Warna hijau
-        int i;
         for (i = 0; i < NUM_CARS; i++) {
-            SDL_FRect playerCarRectF;
-            SDL_RectToFRect(&cars[i].rect, &playerCarRectF);
-            SDL_RenderFillRect(renderer, &playerCarRectF);
+            renderCar(renderer, &cars[i]);  // Gambar mobil dengan SDL_FRect
         }
 
         // Update layar

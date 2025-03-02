@@ -1,7 +1,7 @@
 #include "../include/mobil.h"
 
 // Fungsi untuk inisialisasi mobil
-void initCar(Car* car, int x, int y, int width, int height, int speed) {
+void initCar(Car* car, float x, float y, float width, float height, int speed) {
     car->x = x;
     car->y = y;
     car->width = width;
@@ -24,8 +24,12 @@ void moveLeft(Car* car) {
 // Fungsi untuk menggerakkan mobil ke kanan
 void moveRight(Car* car, int screenWidth) {
     if (car->x + car->width < screenWidth) {
-        car->x += car->speed;
-        car->x += car->speed; // Added one more speed increment here, total of 2x speed.
+        car->x += car->speed;  // Menggunakan kecepatan yang benar
         car->rect.x = car->x;
     }
+}
+
+// Fungsi untuk menggambar mobil
+void renderCar(SDL_Renderer* renderer, Car* car) {
+    SDL_RenderFillRect(renderer, &car->rect);  // Menggunakan SDL_FRect di SDL3
 }
