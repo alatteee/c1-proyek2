@@ -2,7 +2,6 @@
 #define MENU_H
 
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_ttf.h>
 
 // Deklarasi fungsi untuk inisialisasi dan menampilkan menu
 void initMenu(TTF_Font *font);
