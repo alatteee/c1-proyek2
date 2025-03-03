@@ -13,7 +13,8 @@
                 "-I", "C:\\MinGW\\include", // Path ke folder include MinGW (Ganti path Anda)
                 "-L", "C:\\MinGW\\lib",  // Path ke folder lib MinGW (Ganti path Anda)
                 "-lmingw32", // Library mingw32 (mungkin diperlukan di Windows MinGW)
-                "-lSDL3"      // Library SDL3
+                "-lSDL3",      // Library SDL3
+                "-lSDL3_ttf"
             ],
             "options": {
                 "cwd": "${fileDirname}"
