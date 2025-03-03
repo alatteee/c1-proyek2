@@ -6,16 +6,17 @@ Rintangan rintangan[MAX_LANES][MAX_OBSTACLES];
 
 void initRintangan()
 {
-  for (int lane = 0; lane < MAX_LANES; lane++)
+  int i, lane, type;
+  for (lane = 0; lane < MAX_LANES; lane++)
   {
-    for (int i = 0; i < MAX_OBSTACLES; i++)
+    for (i = 0; i < MAX_OBSTACLES; i++)
     {
       rintangan[lane][i].x = (SCREEN_WIDTH / MAX_LANES) * lane + (SCREEN_WIDTH / MAX_LANES) / 2 - PLAYER_CAR_WIDTH / 2;
       rintangan[lane][i].y = -(i * 250 + rand() % 100);
       rintangan[lane][i].width = PLAYER_CAR_WIDTH;
       rintangan[lane][i].height = PLAYER_CAR_HEIGHT;
 
-      int type = rand() % 3;
+      type = rand() % 3;
       rintangan[lane][i].type = type;
     }
   }
@@ -23,9 +24,10 @@ void initRintangan()
 
 void updateRintangan()
 {
-  for (int lane = 0; lane < MAX_LANES; lane++)
+  int lane, i;
+  for (lane = 0; lane < MAX_LANES; lane++)
   {
-    for (int i = 0; i < MAX_OBSTACLES; i++)
+    for (i = 0; i < MAX_OBSTACLES; i++)
     {
       rintangan[lane][i].y += 5;
       if (rintangan[lane][i].y > SCREEN_HEIGHT)
@@ -39,9 +41,10 @@ void updateRintangan()
 
 void drawCircle(SDL_Renderer *renderer, int x, int y, int r)
 {
-  for (int w = -r; w < r; w++)
+  int w, h;
+  for (w = -r; w < r; w++)
   {
-    for (int h = -r; h < r; h++)
+    for (h = -r; h < r; h++)
     {
       if (w * w + h * h <= r * r)
       {
@@ -55,13 +58,14 @@ void drawCircle(SDL_Renderer *renderer, int x, int y, int r)
 
 void drawTriangle(SDL_Renderer *renderer, int x, int y, int size)
 {
+  int i;
   SDL_FPoint points[4] = {
       {x, y - size},
       {x - size / 2, y + size / 2},
       {x + size / 2, y + size / 2},
       {x, y - size}};
   SDL_RenderLines(renderer, points, 4);
-  for (int i = -size / 2; i < size / 2; i += 5)
+  for (i = -size / 2; i < size / 2; i += 5)
   {
     SDL_RenderPoint(renderer, x + i, y + size / 4); // Garis tekstur
   }
@@ -69,12 +73,13 @@ void drawTriangle(SDL_Renderer *renderer, int x, int y, int size)
 
 void drawRintangan(SDL_Renderer *renderer)
 {
-  for (int lane = 0; lane < MAX_LANES; lane++)
+  int lane, i, x, y, j;
+  for (lane = 0; lane < MAX_LANES; lane++)
   {
-    for (int i = 0; i < MAX_OBSTACLES; i++)
+    for (i = 0; i < MAX_OBSTACLES; i++)
     {
-      int x = rintangan[lane][i].x;
-      int y = rintangan[lane][i].y;
+      x = rintangan[lane][i].x;
+      y = rintangan[lane][i].y;
 
       if (rintangan[lane][i].type == 0)
       {
@@ -91,7 +96,7 @@ void drawRintangan(SDL_Renderer *renderer)
         SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); // Mobil (biru)
         SDL_FRect obstacle = {x, y, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT};
         SDL_RenderFillRect(renderer, &obstacle);
-        for (int j = 0; j < PLAYER_CAR_HEIGHT; j += 5)
+        for (j = 0; j < PLAYER_CAR_HEIGHT; j += 5)
         {
           SDL_RenderPoint(renderer, x + PLAYER_CAR_WIDTH / 2, y + j); // Garis tengah
         }
@@ -102,9 +107,10 @@ void drawRintangan(SDL_Renderer *renderer)
 
 bool checkCollision(int carX, int carY, int carWidth, int carHeight)
 {
-  for (int lane = 0; lane < MAX_LANES; lane++)
+  int lane, i;
+  for (lane = 0; lane < MAX_LANES; lane++)
   {
-    for (int i = 0; i < MAX_OBSTACLES; i++)
+    for (i = 0; i < MAX_OBSTACLES; i++)
     {
       int obsX = rintangan[lane][i].x;
       int obsY = rintangan[lane][i].y;

@@ -52,7 +52,8 @@ int main()
 
   // Inisialisasi mobil pemain
   Car cars[NUM_CARS];
-  for (int i = 0; i < NUM_CARS; i++)
+  int i;
+  for (i = 0; i < NUM_CARS; i++)
   {
     initCar(&cars[i], MIDDLE_LANE_X, SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10.0f - (i * 100), PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
   }
@@ -80,7 +81,7 @@ int main()
     // Pergerakan mobil ke kiri
     if (currentKeyStates[SDL_SCANCODE_LEFT])
     {
-      for (int i = 0; i < NUM_CARS; i++)
+      for (i = 0; i < NUM_CARS; i++)
       {
         if (cars[i].x > LEFT_LANE_X)
         {
@@ -93,7 +94,7 @@ int main()
     // Pergerakan mobil ke kanan
     if (currentKeyStates[SDL_SCANCODE_RIGHT])
     {
-      for (int i = 0; i < NUM_CARS; i++)
+      for (i = 0; i < NUM_CARS; i++)
       {
         if (cars[i].x < RIGHT_LANE_X)
         {
@@ -106,7 +107,7 @@ int main()
     // Pergerakan mobil ke tengah
     if (currentKeyStates[SDL_SCANCODE_DOWN])
     {
-      for (int i = 0; i < NUM_CARS; i++)
+      for (i = 0; i < NUM_CARS; i++)
       {
         if (cars[i].x != MIDDLE_LANE_X)
         {
@@ -120,7 +121,7 @@ int main()
     updateRintangan();
 
     // Mengecek tabrakan antara mobil dan rintangan
-    for (int i = 0; i < NUM_CARS; i++)
+    for (i = 0; i < NUM_CARS; i++)
     {
       if (checkCollision(cars[i].x, cars[i].y, cars[i].width, cars[i].height))
       {
@@ -141,7 +142,7 @@ int main()
 
     // Menggambar mobil pemain
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    for (int i = 0; i < NUM_CARS; i++)
+    for (i = 0; i < NUM_CARS; i++)
     {
       renderCar(renderer, &cars[i]);
     }
