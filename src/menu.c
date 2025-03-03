@@ -1,4 +1,4 @@
-#include "menu.h"
+#include "../include/menu.h"
 #include <stdio.h>
 
 #define SCREEN_WIDTH 640
