@@ -1,54 +1,37 @@
 #include "menu.h"
 #include <stdio.h>
+#include <string.h>
 
-// Screen dimensions (should match your project's resolution)
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 720
-
-// Menu items configuration
+// Menu items and actions
 static const char *menuItems[] = {
     "Start Game",
     "Options",
     "Exit"};
 static const int menuItemCount = sizeof(menuItems) / sizeof(menuItems[0]);
 
-// Menu action functions
-static int startGame(void)
-{
-  printf("Starting game...\n");
-  return 1; // Return 1 to indicate game should start
-}
+// Menu action implementations
+static int startGame(void) { return 1; }
+static int showOptions(void) { return 2; }
+static int exitGame(void) { return -1; }
 
-static int showOptions(void)
-{
-  printf("Showing options...\n");
-  return 0;
-}
+static int (*menuActions[])(void) = {
+    startGame,
+    showOptions,
+    exitGame};
 
-static int exitGame(void)
-{
-  printf("Exiting game...\n");
-  return -1; // Return -1 to indicate exit
-}
-
-// Array of menu action function pointers
-static int (*menuActions[])(void) = {startGame, showOptions, exitGame};
-
-// ======================
-// Menu Rendering Function
-// ======================
 void renderMenu(SDL_Renderer *renderer, TTF_Font *font, int selected)
 {
-  SDL_Color white = {255, 255, 255, 255};
-  SDL_Color red = {255, 0, 0, 255};
+  // Color definitions
+  const SDL_Color white = {255, 255, 255, 255};
+  const SDL_Color red = {255, 0, 0, 255};
 
   // Render title
-  SDL_Surface *titleSurface = ITF_RenderText_Solid(font, "Brick Racer", white);
+  SDL_Surface *titleSurface = TTF_RenderText_Solid(font, "C1 Brick Racer", white);
   SDL_Texture *titleTexture = SDL_CreateTextureFromSurface(renderer, titleSurface);
 
   SDL_FRect titleRect = {
       .x = (SCREEN_WIDTH - titleSurface->w) / 2.0f,
-      .y = SCREEN_HEIGHT / 4.0f,
+      .y = TITLE_Y_POS,
       .w = (float)titleSurface->w,
       .h = (float)titleSurface->h};
 
@@ -59,14 +42,15 @@ void renderMenu(SDL_Renderer *renderer, TTF_Font *font, int selected)
   // Render menu items
   for (int i = 0; i < menuItemCount; i++)
   {
-    SDL_Color color = (i == selected) ? red : white;
+    const SDL_Color color = (i == selected) ? red : white;
+    const char *text = menuItems[i];
 
-    SDL_Surface *itemSurface = ITF_RenderText_Solid(font, menuItems[i], color);
+    SDL_Surface *itemSurface = TTF_RenderText_Solid(font, text, color);
     SDL_Texture *itemTexture = SDL_CreateTextureFromSurface(renderer, itemSurface);
 
     SDL_FRect itemRect = {
         .x = (SCREEN_WIDTH - itemSurface->w) / 2.0f,
-        .y = MENU_START_Y_POS + (i * MENU_ITEM_SPACING),
+        .y = SCREEN_HEIGHT / 2.0f + (i * MENU_ITEM_SPACING),
         .w = (float)itemSurface->w,
         .h = (float)itemSurface->h};
 
@@ -76,10 +60,7 @@ void renderMenu(SDL_Renderer *renderer, TTF_Font *font, int selected)
   }
 }
 
-// ========================
-// Input Handling Function
-// ========================
-int handleMenuInput(SDL_Event *event, int *selected, int menuCount, int (*menuActions[])())
+int handleMenuInput(SDL_Event *event, int *selected, int menuCount, int (*menuActions[])(void))
 {
   if (event->type == SDL_EVENT_KEY_DOWN)
   {
@@ -87,11 +68,11 @@ int handleMenuInput(SDL_Event *event, int *selected, int menuCount, int (*menuAc
     {
     case SDL_SCANCODE_DOWN:
       *selected = (*selected + 1) % menuCount;
-      break;
+      return 0;
 
     case SDL_SCANCODE_UP:
       *selected = (*selected - 1 + menuCount) % menuCount;
-      break;
+      return 0;
 
     case SDL_SCANCODE_RETURN:
     case SDL_SCANCODE_SPACE:
@@ -101,5 +82,5 @@ int handleMenuInput(SDL_Event *event, int *selected, int menuCount, int (*menuAc
       break;
     }
   }
-  return 0; // No action taken
+  return 0;
 }
