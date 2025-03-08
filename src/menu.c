@@ -17,48 +17,48 @@ TTF_Font *font = NULL;
 // Fungsi untuk inisialisasi menu
 void initMenu(TTF_Font *newFont)
 {
-    font = newFont;
+  font = newFont;
 }
 
 // Fungsi untuk menampilkan menu
 void renderMenu(SDL_Renderer *renderer, int selected)
 {
-    SDL_Color white = {255, 255, 255, 255};
-    SDL_Surface *surface;
-    SDL_Texture *texture;
-    SDL_Rect destRect;
+  SDL_Color white = {255, 255, 255, 255};
+  SDL_Surface *surface;
+  SDL_Texture *texture;
+  SDL_Rect destRect;
 
-    // Menampilkan judul game
-    surface = TTF_RenderText_Solid(font, "C1 Brick Racer", strlen("C1 Brick Racer"), white);
+  // Menampilkan judul game
+  surface = TTF_RenderText_Solid(font, "C1 Brick Racer", strlen("C1 Brick Racer"), white);
+  texture = SDL_CreateTextureFromSurface(renderer, surface);
+  destRect.x = (SCREEN_WIDTH - surface->w) / 2;
+  destRect.y = SCREEN_HEIGHT / 4;
+  destRect.w = surface->w;
+  destRect.h = surface->h;
+  SDL_RenderCopy(renderer, texture, NULL, &destRect);
+  SDL_FreeSurface(surface);
+  SDL_DestroyTexture(texture);
+
+  // Menampilkan menu pilihan
+  for (int i = 0; i < menuCount; i++)
+  {
+    surface = TTF_RenderText_Solid(font, menuOptions[i], strlen(menuOptions[i]), white);
     texture = SDL_CreateTextureFromSurface(renderer, surface);
     destRect.x = (SCREEN_WIDTH - surface->w) / 2;
-    destRect.y = SCREEN_HEIGHT / 4;
+    destRect.y = SCREEN_HEIGHT / 2 + i * 40;
     destRect.w = surface->w;
     destRect.h = surface->h;
+
+    // Menandakan pilihan yang sedang dipilih
+    if (i == selected)
+    {
+      SDL_SetTextureColorMod(texture, 255, 0, 0); // Warna merah untuk pilihan yang dipilih
+    }
+
     SDL_RenderCopy(renderer, texture, NULL, &destRect);
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
-
-    // Menampilkan menu pilihan
-    for (int i = 0; i < menuCount; i++)
-    {
-        surface = TTF_RenderText_Solid(font, menuOptions[i], strlen(menuOptions[i]), white);
-        texture = SDL_CreateTextureFromSurface(renderer, surface);
-        destRect.x = (SCREEN_WIDTH - surface->w) / 2;
-        destRect.y = SCREEN_HEIGHT / 2 + i * 40;
-        destRect.w = surface->w;
-        destRect.h = surface->h;
-
-        // Menandakan pilihan yang sedang dipilih
-        if (i == selected)
-        {
-            SDL_SetTextureColorMod(texture, 255, 0, 0); // Warna merah untuk pilihan yang dipilih
-        }
-
-        SDL_RenderCopy(renderer, texture, NULL, &destRect);
-        SDL_FreeSurface(surface);
-        SDL_DestroyTexture(texture);
-    }
+  }
 }
 
 // Fungsi untuk menangani input pada menu
@@ -66,33 +66,33 @@ void renderMenu(SDL_Renderer *renderer, int selected)
 
 void handleMenuInput(SDL_Event *event, int *selected, int menuCount, void (*menuActions[])(void))
 {
-    if (event->type == SDL_EVENT_KEY_DOWN)
+  if (event->type == SDL_EVENT_KEY_DOWN)
+  {
+    // PAKAI INI ↓ (langsung akses scancode dari event->key)
+    SDL_Scancode scancode = event->key.scancode;
+
+    switch (scancode)
     {
-        // PAKAI INI ↓ (langsung akses scancode dari event->key)
-        SDL_Scancode scancode = event->key.scancode;
-
-        switch (scancode)
-        {
-        case SDL_SCANCODE_DOWN:
-            *selected = (*selected + 1) % menuCount;
-            break;
-        case SDL_SCANCODE_UP:
-            *selected = (*selected - 1 + menuCount) % menuCount;
-            break;
-        case SDL_SCANCODE_RETURN:
-            menuActions[*selected]();
-            break;
-        }
+    case SDL_SCANCODE_DOWN:
+      *selected = (*selected + 1) % menuCount;
+      break;
+    case SDL_SCANCODE_UP:
+      *selected = (*selected - 1 + menuCount) % menuCount;
+      break;
+    case SDL_SCANCODE_RETURN:
+      menuActions[*selected]();
+      break;
     }
+  }
 
-    return -1; // Tidak ada aksi
+  return -1; // Tidak ada aksi
 }
 
 // Fungsi untuk membersihkan sumber daya (font)
 void cleanupMenu()
 {
-    if (font)
-    {
-        TTF_CloseFont(font);
-    }
+  if (font)
+  {
+    TTF_CloseFont(font);
+  }
 }
