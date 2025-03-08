@@ -1,93 +1,105 @@
-#include "../include/menu.h"
+#include "menu.h"
 #include <stdio.h>
-#include <SDL3/SDL.h>
-#include <SDL3_ttf/SDL_ttf.h>
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+// Screen dimensions (should match your project's resolution)
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 720
 
-// Array untuk menyimpan teks menu
-char *menuOptions[] = {"Start", "Options", "Exit"};
-int menuCount = 3; // Jumlah menu
+// Menu items configuration
+static const char *menuItems[] = {
+    "Start Game",
+    "Options",
+    "Exit"};
+static const int menuItemCount = sizeof(menuItems) / sizeof(menuItems[0]);
 
-// Deklarasi fungsi menu (contoh)
-int startGame(void) { return 0; }
-int showOptions(void) { return 0; }
-int exitGame(void) { return 0; }
+// Menu action functions
+static int startGame(void)
+{
+  printf("Starting game...\n");
+  return 1; // Return 1 to indicate game should start
+}
 
-// Array of function pointers untuk aksi menu
-int (*menuActions[])(void) = { startGame, showOptions, exitGame };
+static int showOptions(void)
+{
+  printf("Showing options...\n");
+  return 0;
+}
 
-// Fungsi untuk menampilkan menu
+static int exitGame(void)
+{
+  printf("Exiting game...\n");
+  return -1; // Return -1 to indicate exit
+}
+
+// Array of menu action function pointers
+static int (*menuActions[])(void) = {startGame, showOptions, exitGame};
+
+// ======================
+// Menu Rendering Function
+// ======================
 void renderMenu(SDL_Renderer *renderer, TTF_Font *font, int selected)
 {
   SDL_Color white = {255, 255, 255, 255};
-  SDL_Surface *surface;
-  SDL_Texture *texture;
-  SDL_Rect destRect;
+  SDL_Color red = {255, 0, 0, 255};
 
-  // Menampilkan judul game
-  surface = ITF_RenderText_Solid(font, "C1 Brick Racer", white);
-  texture = SDL_CreateTextureFromSurface(renderer, surface);
-  destRect.x = (SCREEN_WIDTH - surface->w) / 2;
-  destRect.y = SCREEN_HEIGHT / 4;
-  destRect.w = surface->w;
-  destRect.h = surface->h;
-  SDL_RenderTexture(renderer, texture, NULL, &destRect);
-  SDL_DestroySurface(surface);
-  SDL_DestroyTexture(texture);
+  // Render title
+  SDL_Surface *titleSurface = ITF_RenderText_Solid(font, "Brick Racer", white);
+  SDL_Texture *titleTexture = SDL_CreateTextureFromSurface(renderer, titleSurface);
 
-  // Menampilkan menu pilihan
-  for (int i = 0; i < menuCount; i++)
+  SDL_FRect titleRect = {
+      .x = (SCREEN_WIDTH - titleSurface->w) / 2.0f,
+      .y = SCREEN_HEIGHT / 4.0f,
+      .w = (float)titleSurface->w,
+      .h = (float)titleSurface->h};
+
+  SDL_RenderTexture(renderer, titleTexture, NULL, &titleRect);
+  SDL_DestroySurface(titleSurface);
+  SDL_DestroyTexture(titleTexture);
+
+  // Render menu items
+  for (int i = 0; i < menuItemCount; i++)
   {
-    surface = ITF_RenderText_Solid(font, menuOptions[i], white);
-    texture = SDL_CreateTextureFromSurface(renderer, surface);
-    destRect.x = (SCREEN_WIDTH - surface->w) / 2;
-    destRect.y = SCREEN_HEIGHT / 2 + i * 40;
-    destRect.w = surface->w;
-    destRect.h = surface->h;
+    SDL_Color color = (i == selected) ? red : white;
 
-    // Menandakan pilihan yang sedang dipilih
-    if (i == selected)
-    {
-      SDL_SetTextureColorMod(texture, 255, 0, 0); // Warna merah untuk pilihan yang dipilih
-    }
+    SDL_Surface *itemSurface = ITF_RenderText_Solid(font, menuItems[i], color);
+    SDL_Texture *itemTexture = SDL_CreateTextureFromSurface(renderer, itemSurface);
 
-    SDL_RenderTexture(renderer, texture, NULL, &destRect);
-    SDL_DestroySurface(surface);
-    SDL_DestroyTexture(texture);
+    SDL_FRect itemRect = {
+        .x = (SCREEN_WIDTH - itemSurface->w) / 2.0f,
+        .y = MENU_START_Y_POS + (i * MENU_ITEM_SPACING),
+        .w = (float)itemSurface->w,
+        .h = (float)itemSurface->h};
+
+    SDL_RenderTexture(renderer, itemTexture, NULL, &itemRect);
+    SDL_DestroySurface(itemSurface);
+    SDL_DestroyTexture(itemTexture);
   }
 }
 
-// Fungsi untuk menangani input pada menu
-int handleMenuInput(SDL_Event *event, int *selected, int menuCount, int (*menuActions[])(void))
+// ========================
+// Input Handling Function
+// ========================
+int handleMenuInput(SDL_Event *event, int *selected, int menuCount, int (*menuActions[])())
 {
   if (event->type == SDL_EVENT_KEY_DOWN)
   {
-    SDL_Scancode scancode = event->key.scancode;
-
-    switch (scancode)
+    switch (event->key.scancode)
     {
     case SDL_SCANCODE_DOWN:
       *selected = (*selected + 1) % menuCount;
       break;
+
     case SDL_SCANCODE_UP:
       *selected = (*selected - 1 + menuCount) % menuCount;
       break;
+
     case SDL_SCANCODE_RETURN:
-      return menuActions[*selected](); // Kembalikan hasil eksekusi fungsi menu
+    case SDL_SCANCODE_SPACE:
+      return menuActions[*selected]();
+
     default:
-      break; // Handle other scancodes if needed
+      break;
     }
   }
-  return 0; // Tidak ada aksi yang diambil
-}
-
-// Fungsi untuk membersihkan sumber daya (font)
-void cleanupMenu(TTF_Font *font)
-{
-  if (font)
-  {
-    TTF_CloseFont(font);
-  }
+  return 0; // No action taken
 }
