@@ -94,15 +94,28 @@ int main()
       }
     }
 
-    // Pergerakan mobil ke tengah
+    // Pergerakan mobil ke atas (maju)
+    if (currentKeyStates[SDL_SCANCODE_UP])
+    {
+      for (i = 0; i < NUM_CARS; i++)
+      {
+        if (cars[i].y > 0) // Jangan keluar layar atas
+        {
+          cars[i].y -= cars[i].speed;
+          cars[i].rect.y = cars[i].y;
+        }
+      }
+    }
+
+    // Pergerakan mobil ke bawah (mundur)
     if (currentKeyStates[SDL_SCANCODE_DOWN])
     {
       for (i = 0; i < NUM_CARS; i++)
       {
-        if (cars[i].x != MIDDLE_LANE_X)
+        if (cars[i].y + cars[i].height < SCREEN_HEIGHT) // Jangan keluar layar bawah
         {
-          cars[i].x = MIDDLE_LANE_X;
-          cars[i].rect.x = cars[i].x;
+          cars[i].y += cars[i].speed;
+          cars[i].rect.y = cars[i].y;
         }
       }
     }

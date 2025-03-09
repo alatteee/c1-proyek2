@@ -1,15 +1,13 @@
+// filepath: c:\Users\Yazid Alrasyid\OneDrive\Documents\Kurang Tahu\Tugas Kuliah\Proyek 2\c1-proyek2\include\rintangan.h
 #ifndef RINTANGAN_H
 #define RINTANGAN_H
 
 #include <SDL3/SDL.h>
+#include "config.h"
 
-// Constants
+// Constants for rintangan
 #define MAX_LANES 3
 #define MAX_OBSTACLES 5
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
-#define PLAYER_CAR_WIDTH 40
-#define PLAYER_CAR_HEIGHT 80
 
 // Structure for obstacles
 typedef struct {
