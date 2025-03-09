@@ -4,7 +4,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
-// Configuration
+// Konfigurasi
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 #define MENU_ITEM_SPACING 60
