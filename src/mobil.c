@@ -34,101 +34,112 @@ void moveRight(Car *car, int screenWidth)
   }
 }
 
-// Fungsi untuk menggambar mobil dengan desain yang lebih baik dan realistis
+// Fungsi untuk menggambar mobil dengan desain top-down seperti gambar sport car kuning
 void renderCar(SDL_Renderer *renderer, Car *car)
 {
     // Warna-warna yang akan digunakan
-    SDL_Color bodyColor = {30, 144, 255, 255};       // Biru laut untuk badan
-    SDL_Color windowColor = {135, 206, 250, 255};    // Biru muda untuk kaca
-    SDL_Color wheelColor = {40, 40, 40, 255};        // Hitam gelap untuk ban
-    SDL_Color wheelRimColor = {192, 192, 192, 255};  // Silver untuk velg
-    SDL_Color headlightColor = {255, 255, 224, 255}; // Kuning pucat untuk lampu
-    SDL_Color grillColor = {50, 50, 50, 255};        // Abu-abu gelap untuk grill
+    SDL_Color bodyColor = {255, 165, 0, 255};         // Orange-kuning untuk badan
+    SDL_Color windowColor = {0, 0, 0, 255};           // Hitam untuk kaca
+    SDL_Color highlightColor = {255, 215, 0, 255};    // Kuning emas untuk highlight
+    SDL_Color headlightColor = {255, 255, 224, 255};  // Kuning pucat untuk lampu depan
+    SDL_Color tailLightColor = {255, 0, 0, 255};      // Merah untuk lampu belakang
+    SDL_Color detailColor = {100, 100, 100, 255};     // Abu-abu untuk detail
     
     float carWidth = car->rect.w;
     float carHeight = car->rect.h;
     float carX = car->rect.x;
     float carY = car->rect.y;
     
-    // Menambahkan bayangan di bawah mobil
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 100);
-    SDL_FRect shadow = {carX + 5.0f, carY + carHeight - 5.0f, carWidth - 10.0f, 10.0f};
+    // Bayangan mobil (opsional)
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 50);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_FRect shadow = {carX + 3.0f, carY + 3.0f, carWidth, carHeight};
     SDL_RenderFillRect(renderer, &shadow);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
     
-    // Badan mobil utama (lebih aerodinamis)
+    // Badan mobil utama (bentuk oval)
     SDL_SetRenderDrawColor(renderer, bodyColor.r, bodyColor.g, bodyColor.b, bodyColor.a);
-    SDL_FRect body = {carX + 10.0f, carY + 50.0f, carWidth - 20.0f, 45.0f};
-    SDL_RenderFillRect(renderer, &body);
+    // Pada SDL kita perlu menggambar bentuk oval dengan beberapa persegi panjang
     
-    // Kap mesin (depan mobil)
-    SDL_SetRenderDrawColor(renderer, bodyColor.r, bodyColor.g, bodyColor.b, bodyColor.a);
-    SDL_FRect hood = {carX + 15.0f, carY + 40.0f, carWidth - 90.0f, 10.0f};
-    SDL_RenderFillRect(renderer, &hood);
+    // Bagian tengah badan (bagian terlebar)
+    SDL_FRect bodyMiddle = {carX + carWidth * 0.2f, carY + carHeight * 0.15f, carWidth * 0.6f, carHeight * 0.7f};
+    SDL_RenderFillRect(renderer, &bodyMiddle);
     
-    // Bagian belakang mobil
-    SDL_FRect trunk = {carX + carWidth - 75.0f, carY + 40.0f, 60.0f, 10.0f};
-    SDL_RenderFillRect(renderer, &trunk);
+    // Bagian depan badan (agak meruncing)
+    SDL_FRect bodyFront = {carX + carWidth * 0.3f, carY, carWidth * 0.4f, carHeight * 0.15f};
+    SDL_RenderFillRect(renderer, &bodyFront);
     
-    // Kabin mobil (atap dengan kaca)
-    SDL_SetRenderDrawColor(renderer, bodyColor.r - 20, bodyColor.g - 20, bodyColor.b - 20, bodyColor.a);
-    SDL_FRect cabin = {carX + carWidth - 85.0f, carY + 25.0f, 70.0f, 15.0f};
-    SDL_RenderFillRect(renderer, &cabin);
+    // Bagian belakang badan (agak meruncing)
+    SDL_FRect bodyRear = {carX + carWidth * 0.3f, carY + carHeight * 0.85f, carWidth * 0.4f, carHeight * 0.15f};
+    SDL_RenderFillRect(renderer, &bodyRear);
     
-    // Kaca depan
+    // Garis highlight sepanjang mobil
+    SDL_SetRenderDrawColor(renderer, highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a);
+    SDL_FRect leftHighlight = {carX + carWidth * 0.3f, carY + carHeight * 0.1f, carWidth * 0.05f, carHeight * 0.8f};
+    SDL_RenderFillRect(renderer, &leftHighlight);
+    
+    SDL_FRect rightHighlight = {carX + carWidth * 0.65f, carY + carHeight * 0.1f, carWidth * 0.05f, carHeight * 0.8f};
+    SDL_RenderFillRect(renderer, &rightHighlight);
+    
+    // Kaca depan (bentuk trapesium)
     SDL_SetRenderDrawColor(renderer, windowColor.r, windowColor.g, windowColor.b, windowColor.a);
-    SDL_FRect windshield = {carX + carWidth - 85.0f, carY + 25.0f, 10.0f, 15.0f};
-    SDL_RenderFillRect(renderer, &windshield);
+    SDL_FRect frontWindow = {carX + carWidth * 0.35f, carY + carHeight * 0.2f, carWidth * 0.3f, carHeight * 0.15f};
+    SDL_RenderFillRect(renderer, &frontWindow);
     
-    // Kaca samping
-    SDL_FRect sideWindow = {carX + carWidth - 75.0f, carY + 25.0f, 50.0f, 15.0f};
-    SDL_RenderFillRect(renderer, &sideWindow);
-    
-    // Kaca belakang
-    SDL_FRect rearWindow = {carX + carWidth - 25.0f, carY + 25.0f, 10.0f, 15.0f};
+    // Kaca belakang (bentuk trapesium)
+    SDL_SetRenderDrawColor(renderer, windowColor.r, windowColor.g, windowColor.b, windowColor.a);
+    SDL_FRect rearWindow = {carX + carWidth * 0.35f, carY + carHeight * 0.65f, carWidth * 0.3f, carHeight * 0.15f};
     SDL_RenderFillRect(renderer, &rearWindow);
     
-    // Lampu depan
+    // Spoiler kecil di belakang
+    SDL_SetRenderDrawColor(renderer, detailColor.r, detailColor.g, detailColor.b, detailColor.a);
+    SDL_FRect spoiler = {carX + carWidth * 0.35f, carY + carHeight * 0.9f, carWidth * 0.3f, carHeight * 0.05f};
+    SDL_RenderFillRect(renderer, &spoiler);
+    
+    // Lampu depan (kiri dan kanan)
     SDL_SetRenderDrawColor(renderer, headlightColor.r, headlightColor.g, headlightColor.b, headlightColor.a);
-    SDL_FRect headlight = {carX + 10.0f, carY + 50.0f, 5.0f, 10.0f};
-    SDL_RenderFillRect(renderer, &headlight);
+    SDL_FRect leftHeadlight = {carX + carWidth * 0.3f, carY + carHeight * 0.05f, carWidth * 0.1f, carHeight * 0.05f};
+    SDL_RenderFillRect(renderer, &leftHeadlight);
     
-    // Lampu belakang
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Merah untuk lampu belakang
-    SDL_FRect taillight = {carX + carWidth - 15.0f, carY + 50.0f, 5.0f, 10.0f};
-    SDL_RenderFillRect(renderer, &taillight);
+    SDL_FRect rightHeadlight = {carX + carWidth * 0.6f, carY + carHeight * 0.05f, carWidth * 0.1f, carHeight * 0.05f};
+    SDL_RenderFillRect(renderer, &rightHeadlight);
     
-    // Gril depan
-    SDL_SetRenderDrawColor(renderer, grillColor.r, grillColor.g, grillColor.b, grillColor.a);
-    SDL_FRect grill = {carX + 15.0f, carY + 60.0f, 20.0f, 10.0f};
-    SDL_RenderFillRect(renderer, &grill);
+    // Lampu belakang (kiri dan kanan)
+    SDL_SetRenderDrawColor(renderer, tailLightColor.r, tailLightColor.g, tailLightColor.b, tailLightColor.a);
+    SDL_FRect leftTaillight = {carX + carWidth * 0.3f, carY + carHeight * 0.9f, carWidth * 0.1f, carHeight * 0.05f};
+    SDL_RenderFillRect(renderer, &leftTaillight);
     
-    // Roda-roda mobil dengan velg
-    // Roda depan
-    SDL_SetRenderDrawColor(renderer, wheelColor.r, wheelColor.g, wheelColor.b, wheelColor.a);
-    SDL_FRect frontWheel = {carX + 25.0f, carY + carHeight - 25.0f, 30.0f, 20.0f};
-    SDL_RenderFillRect(renderer, &frontWheel);
+    SDL_FRect rightTaillight = {carX + carWidth * 0.6f, carY + carHeight * 0.9f, carWidth * 0.1f, carHeight * 0.05f};
+    SDL_RenderFillRect(renderer, &rightTaillight);
     
-    // Velg roda depan
-    SDL_SetRenderDrawColor(renderer, wheelRimColor.r, wheelRimColor.g, wheelRimColor.b, wheelRimColor.a);
-    SDL_FRect frontWheelRim = {carX + 35.0f, carY + carHeight - 20.0f, 10.0f, 10.0f};
-    SDL_RenderFillRect(renderer, &frontWheelRim);
+    // Detail tengah mobil (kokpit atau garis tengah)
+    SDL_SetRenderDrawColor(renderer, detailColor.r, detailColor.g, detailColor.b, detailColor.a);
+    SDL_FRect centerLine = {carX + carWidth * 0.48f, carY + carHeight * 0.2f, carWidth * 0.04f, carHeight * 0.6f};
+    SDL_RenderFillRect(renderer, &centerLine);
     
-    // Roda belakang
-    SDL_SetRenderDrawColor(renderer, wheelColor.r, wheelColor.g, wheelColor.b, wheelColor.a);
-    SDL_FRect rearWheel = {carX + carWidth - 55.0f, carY + carHeight - 25.0f, 30.0f, 20.0f};
-    SDL_RenderFillRect(renderer, &rearWheel);
+    // Detail roda (dalam tampilan top-down, roda hanya terlihat sedikit di sisi)
+    SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255); // Warna hitam gelap untuk ban
     
-    // Velg roda belakang
-    SDL_SetRenderDrawColor(renderer, wheelRimColor.r, wheelRimColor.g, wheelRimColor.b, wheelRimColor.a);
-    SDL_FRect rearWheelRim = {carX + carWidth - 45.0f, carY + carHeight - 20.0f, 10.0f, 10.0f};
-    SDL_RenderFillRect(renderer, &rearWheelRim);
+    // Roda depan kiri
+    SDL_FRect frontLeftWheel = {carX + carWidth * 0.15f, carY + carHeight * 0.25f, carWidth * 0.07f, carHeight * 0.15f};
+    SDL_RenderFillRect(renderer, &frontLeftWheel);
     
-    // Menambahkan efek pencahayaan (highlight) pada badan mobil untuk kesan lebih realistis
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 50);
+    // Roda depan kanan
+    SDL_FRect frontRightWheel = {carX + carWidth * 0.78f, carY + carHeight * 0.25f, carWidth * 0.07f, carHeight * 0.15f};
+    SDL_RenderFillRect(renderer, &frontRightWheel);
+    
+    // Roda belakang kiri
+    SDL_FRect rearLeftWheel = {carX + carWidth * 0.15f, carY + carHeight * 0.6f, carWidth * 0.07f, carHeight * 0.15f};
+    SDL_RenderFillRect(renderer, &rearLeftWheel);
+    
+    // Roda belakang kanan
+    SDL_FRect rearRightWheel = {carX + carWidth * 0.78f, carY + carHeight * 0.6f, carWidth * 0.07f, carHeight * 0.15f};
+    SDL_RenderFillRect(renderer, &rearRightWheel);
+    
+    // Tambahkan efek highlight di badan mobil
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 30);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_FRect highlight = {carX + 20.0f, carY + 55.0f, carWidth - 40.0f, 5.0f};
-    SDL_RenderFillRect(renderer, &highlight);
+    SDL_FRect bodyHighlight = {carX + carWidth * 0.4f, carY + carHeight * 0.3f, carWidth * 0.2f, carHeight * 0.4f};
+    SDL_RenderFillRect(renderer, &bodyHighlight);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 }
