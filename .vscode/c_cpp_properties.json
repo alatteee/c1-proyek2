@@ -1,14 +1,20 @@
 {
   "configurations": [
     {
-      "name": "windows-gcc-x64",
+      "name": "windows-gcc-x86",
       "includePath": [
-        "${workspaceFolder}/**"
-      ],
-      "compilerPath": "C:/msys64/mingw64/bin/gcc.exe",
+        "${workspaceFolder}/**",
+        "C:/MinGW/include" // Ganti dengan path folder 'include' MinGW Anda
+    ],
+    "defines": [
+        "_DEBUG",
+        "UNICODE",
+        "_UNICODE"
+    ],
+      "compilerPath": "c:/mingw/bin/gcc.exe",
       "cStandard": "${default}",
       "cppStandard": "${default}",
-      "intelliSenseMode": "windows-gcc-x64",
+      "intelliSenseMode": "windows-gcc-x86",
       "compilerArgs": [
         ""
       ]
