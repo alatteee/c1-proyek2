@@ -1,41 +1,50 @@
+#include <SDL3/SDL.h>
 #include <stdio.h>
 #include "menu.h"
 
-// Fungsi untuk menampilkan menu utama
-void tampilkanMenu()
+int main(int argc, char *argv[])
 {
-    int pilihan;
-
-    do
+    if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
-        printf("\n===== C1 Brick Racer =====\n");
-        printf("1. Mulai Game\n");
-        printf("2. Keluar\n");
-        printf("Pilih menu: ");
-        scanf("%d", &pilihan);
+        printf("SDL gagal diinisialisasi: %s\n", SDL_GetError());
+        return 1;
+    }
 
-        switch (pilihan)
-        {
-        case 1:
-            mulaiGame();
-            break;
-        case 2:
-            keluarGame();
-            break;
-        default:
-            printf("Pilihan tidak valid. Coba lagi!\n");
-        }
-    } while (pilihan != 2);
-}
+    SDL_Window *window = SDL_CreateWindow("C1 Brick Racer Menu", 800, 600, SDL_WINDOW_OPENGL);
+    if (!window)
+    {
+        printf("Gagal membuat window: %s\n", SDL_GetError());
+        SDL_Quit();
+        return 1;
+    }
 
-// Fungsi untuk mulai game (sementara placeholder)
-void mulaiGame()
-{
-    printf("Game dimulai!\n");
-}
+    // GANTI PARAMETER KEDUA DENGAN "opengl" ATAU NULL
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, NULL);
 
-// Fungsi untuk keluar dari game
-void keluarGame()
-{
-    printf("Terima kasih telah bermain!\n");
+    if (!renderer)
+    {
+        printf("Gagal membuat renderer: %s\n", SDL_GetError());
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
+
+    showMenu(renderer);
+
+    SDL_Delay(3000); // Biar menu-nya nongol 3 detik
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
+    if (!window)
+    {
+        printf("Window gagal dibuat\n");
+    }
+    if (!renderer)
+    {
+        printf("Renderer gagal dibuat\n");
+    }
+
+    return 0;
 }
