@@ -32,6 +32,7 @@ void initRintangan()
     }
   }
 }
+
 void drawCircle(SDL_Renderer *renderer, int x, int y, int r)
 {
   int w, h;
@@ -129,4 +130,42 @@ void drawRintangan(SDL_Renderer *renderer)
       }
     }
   }
+}
+
+// Fungsi baru yang perlu ditambahkan
+int checkCollision(float x, float y, float width, float height)
+{
+  int lane, i;
+  
+  // Create player rectangle for collision detection
+  float playerLeft = x;
+  float playerRight = x + width;
+  float playerTop = y;
+  float playerBottom = y + height;
+
+  for (lane = 0; lane < MAX_LANES; lane++)
+  {
+    for (i = 0; i < MAX_OBSTACLES; i++)
+    {
+      if (rintangan[lane][i].y > 0) // Hanya cek rintangan yang terlihat di layar
+      {
+        // Create obstacle rectangle for collision detection
+        float obstacleLeft = rintangan[lane][i].x;
+        float obstacleRight = rintangan[lane][i].x + rintangan[lane][i].width;
+        float obstacleTop = rintangan[lane][i].y;
+        float obstacleBottom = rintangan[lane][i].y + rintangan[lane][i].height;
+
+        // Cek tabrakan
+        if (playerLeft < obstacleRight &&
+            playerRight > obstacleLeft &&
+            playerTop < obstacleBottom &&
+            playerBottom > obstacleTop)
+        {
+          return 1; // Terjadi tabrakan
+        }
+      }
+    }
+  }
+
+  return 0; // Tidak ada tabrakan
 }
