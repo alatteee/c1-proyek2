@@ -23,7 +23,7 @@ void showMenu(SDL_Renderer *renderer)
 
     for (int i = 0; i < 4; i++)
     {
-        if (SDL_RenderFillRect(renderer, &menuItems[i]) != 0)
+        if (!SDL_RenderFillRect(renderer, &menuItems[i]))
         {
             printf("Gagal menggambar kotak menu: %s\n", SDL_GetError());
         }
