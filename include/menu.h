@@ -1,9 +1,8 @@
 #ifndef MENU_H
 #define MENU_H
 
-// Deklarasi fungsi untuk menampilkan menu
-void tampilkanMenu();
-void mulaiGame();
-void keluarGame();
+#include <SDL3/SDL.h>
 
-#endif // MENU_H
+void showMenu(SDL_Renderer *renderer);
+
+#endif

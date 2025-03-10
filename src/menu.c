@@ -1,50 +1,33 @@
-#include <SDL3/SDL.h>
-#include <stdio.h>
 #include "menu.h"
+#include <stdio.h>
 
-int main(int argc, char *argv[])
+void showMenu(SDL_Renderer *renderer)
 {
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
-    {
-        printf("SDL gagal diinisialisasi: %s\n", SDL_GetError());
-        return 1;
-    }
-
-    SDL_Window *window = SDL_CreateWindow("C1 Brick Racer Menu", 800, 600, SDL_WINDOW_OPENGL);
-    if (!window)
-    {
-        printf("Gagal membuat window: %s\n", SDL_GetError());
-        SDL_Quit();
-        return 1;
-    }
-
-    // GANTI PARAMETER KEDUA DENGAN "opengl" ATAU NULL
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, NULL);
-
     if (!renderer)
     {
-        printf("Gagal membuat renderer: %s\n", SDL_GetError());
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-        return 1;
+        printf("Renderer tidak valid\n");
+        return;
     }
 
-    showMenu(renderer);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
 
-    SDL_Delay(3000); // Biar menu-nya nongol 3 detik
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+    SDL_FRect menuItems[4] = {
+        {100.0f, 100.0f, 200.0f, 50.0f}, // Start Game
+        {100.0f, 160.0f, 200.0f, 50.0f}, // Options
+        {100.0f, 220.0f, 200.0f, 50.0f}, // Level
+        {100.0f, 280.0f, 200.0f, 50.0f}  // Exit
+    };
 
-    if (!window)
+    for (int i = 0; i < 4; i++)
     {
-        printf("Window gagal dibuat\n");
-    }
-    if (!renderer)
-    {
-        printf("Renderer gagal dibuat\n");
+        if (SDL_RenderFillRect(renderer, &menuItems[i]) != 0)
+        {
+            printf("Gagal menggambar kotak menu: %s\n", SDL_GetError());
+        }
     }
 
-    return 0;
+    SDL_RenderPresent(renderer);
 }
