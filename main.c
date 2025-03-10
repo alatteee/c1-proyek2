@@ -3,8 +3,8 @@
 #include "include/menu.h"
 #include "include/jalur.h"
 #include "include/rintangan.h"
-#include "include/skor.h" // Include skor.h
-#include "include/config.h" // Include config.h
+#include "include/skor.h" 
+#include "include/config.h" 
 
 #define NUM_CARS 1  // Jumlah mobil pemain
 #define MOVE_STEP 1 // Langkah perpindahan mobil

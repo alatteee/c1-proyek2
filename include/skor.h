@@ -3,16 +3,24 @@
 
 #include <SDL3/SDL.h>
 
-// Struktur untuk menyimpan skor
+// Struktur untuk menyimpan nilai skor
 typedef struct {
-    int nilai;
+    int nilai; // Nilai skor pemain
 } Skor;
 
-// Fungsi untuk mengelola skor
+// Inisialisasi skor
 void initSkor(Skor *skor);
-void tambahSkor(Skor *skor, int poin);
-void kurangiSkor(Skor *skor, int poin);
-int getSkor(Skor *skor);
-void tampilkanSkor(SDL_Renderer *renderer, Skor *skor);
 
-#endif
+// Menambah poin ke skor
+void tambahSkor(Skor *skor, int poin);
+
+// Mengurangi poin dari skor (tidak boleh negatif)
+void kurangiSkor(Skor *skor, int poin);
+
+// Mengambil nilai skor saat ini
+int getSkor(const Skor *skor);
+
+// Menampilkan skor ke dalam log SDL
+void tampilkanSkor(SDL_Renderer *renderer, const Skor *skor);
+
+#endif // SKOR_H
