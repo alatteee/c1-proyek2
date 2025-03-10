@@ -1,107 +1,41 @@
-#include "menu.h"
 #include <stdio.h>
-#include <string.h>
-#include <SDL3/SDL.h>
-#include <SDL3_ttf/SDL_ttf.h>
+#include "menu.h"
 
-// Menu items
-static const char *menuItems[MENU_ITEM_COUNT] = {
-    "Start Game",
-    "Options",
-    "Exit"};
-
-// Menu action function prototypes
-static int startGame(void);
-static int showOptions(void);
-static int exitGame(void);
-
-// Menu action function pointers
-static int (*menuActions[MENU_ITEM_COUNT])(void) = {
-    startGame,
-    showOptions,
-    exitGame};
-
-void renderMenu(SDL_Renderer *renderer, TTF_Font *font, int selected)
+// Fungsi untuk menampilkan menu utama
+void tampilkanMenu()
 {
-    // Color definitions
-    const SDL_Color white = {255, 255, 255, 255};
-    const SDL_Color red = {255, 0, 0, 255};
+    int pilihan;
 
-    // Render title
-    SDL_Surface *titleSurface = TTF_RenderText_Solid(font, "Brick Racer", strlen("Brick Racer"), white);
-    SDL_Texture *titleTexture = SDL_CreateTextureFromSurface(renderer, titleSurface);
-
-    SDL_FRect titleRect = {
-        .x = (SCREEN_WIDTH - titleSurface->w) / 2.0f,
-        .y = TITLE_Y_POS,
-        .w = (float)titleSurface->w,
-        .h = (float)titleSurface->h};
-
-    SDL_RenderTexture(renderer, titleTexture, NULL, &titleRect);
-    SDL_DestroySurface(titleSurface);
-    SDL_DestroyTexture(titleTexture);
-
-    // Render menu items
-    for (int i = 0; i < MENU_ITEM_COUNT; i++)
+    do
     {
-        const SDL_Color color = (i == selected) ? red : white;
+        printf("\n===== C1 Brick Racer =====\n");
+        printf("1. Mulai Game\n");
+        printf("2. Keluar\n");
+        printf("Pilih menu: ");
+        scanf("%d", &pilihan);
 
-        // Perbaikan: Tambahkan strlen(menuItems[i])
-        SDL_Surface *itemSurface = TTF_RenderText_Solid(font, menuItems[i], strlen(menuItems[i]), color);
-        SDL_Texture *itemTexture = SDL_CreateTextureFromSurface(renderer, itemSurface);
-
-        SDL_FRect itemRect = {
-            .x = (SCREEN_WIDTH - itemSurface->w) / 2.0f,
-            .y = SCREEN_HEIGHT / 2.0f + (i * MENU_ITEM_SPACING),
-            .w = (float)itemSurface->w,
-            .h = (float)itemSurface->h};
-
-        SDL_RenderTexture(renderer, itemTexture, NULL, &itemRect);
-        SDL_DestroySurface(itemSurface);
-        SDL_DestroyTexture(itemTexture);
-    }
-}
-
-int handleMenuInput(SDL_Event *event, int *selected)
-{
-    if (event->type == SDL_EVENT_KEY_DOWN)
-    {
-        switch (event->key.scancode)
+        switch (pilihan)
         {
-        case SDL_SCANCODE_DOWN:
-            *selected = (*selected + 1) % MENU_ITEM_COUNT;
-            return 0;
-
-        case SDL_SCANCODE_UP:
-            *selected = (*selected - 1 + MENU_ITEM_COUNT) % MENU_ITEM_COUNT;
-            return 0;
-
-        case SDL_SCANCODE_RETURN:
-        case SDL_SCANCODE_SPACE:
-            return menuActions[*selected]();
-
-        default:
+        case 1:
+            mulaiGame();
             break;
+        case 2:
+            keluarGame();
+            break;
+        default:
+            printf("Pilihan tidak valid. Coba lagi!\n");
         }
-    }
-    return 0;
+    } while (pilihan != 2);
 }
 
-// Menu action implementations
-static int startGame(void)
+// Fungsi untuk mulai game (sementara placeholder)
+void mulaiGame()
 {
-    printf("Starting game...\n");
-    return 1;
+    printf("Game dimulai!\n");
 }
 
-static int showOptions(void)
+// Fungsi untuk keluar dari game
+void keluarGame()
 {
-    printf("Showing options...\n");
-    return 2;
-}
-
-static int exitGame(void)
-{
-    printf("Exiting game...\n");
-    return -1;
+    printf("Terima kasih telah bermain!\n");
 }
