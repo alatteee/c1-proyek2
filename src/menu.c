@@ -1,107 +1,78 @@
 #include "menu.h"
 #include <stdio.h>
-#include <string.h>
-#include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
-// Menu items
-static const char *menuItems[MENU_ITEM_COUNT] = {
-    "Start Game",
-    "Options",
-    "Exit"};
-
-// Menu action function prototypes
-static int startGame(void);
-static int showOptions(void);
-static int exitGame(void);
-
-// Menu action function pointers
-static int (*menuActions[MENU_ITEM_COUNT])(void) = {
-    startGame,
-    showOptions,
-    exitGame};
-
-void renderMenu(SDL_Renderer *renderer, TTF_Font *font, int selected)
+void showMenu(SDL_Renderer *renderer)
 {
-    // Color definitions
-    const SDL_Color white = {255, 255, 255, 255};
-    const SDL_Color red = {255, 0, 0, 255};
-
-    // Render title
-    SDL_Surface *titleSurface = TTF_RenderText_Solid(font, "Brick Racer", strlen("Brick Racer"), white);
-    SDL_Texture *titleTexture = SDL_CreateTextureFromSurface(renderer, titleSurface);
-
-    SDL_FRect titleRect = {
-        .x = (SCREEN_WIDTH - titleSurface->w) / 2.0f,
-        .y = TITLE_Y_POS,
-        .w = (float)titleSurface->w,
-        .h = (float)titleSurface->h};
-
-    SDL_RenderTexture(renderer, titleTexture, NULL, &titleRect);
-    SDL_DestroySurface(titleSurface);
-    SDL_DestroyTexture(titleTexture);
-
-    // Render menu items
-    for (int i = 0; i < MENU_ITEM_COUNT; i++)
+    if (!renderer)
     {
-        const SDL_Color color = (i == selected) ? red : white;
-
-        // Perbaikan: Tambahkan strlen(menuItems[i])
-        SDL_Surface *itemSurface = TTF_RenderText_Solid(font, menuItems[i], strlen(menuItems[i]), color);
-        SDL_Texture *itemTexture = SDL_CreateTextureFromSurface(renderer, itemSurface);
-
-        SDL_FRect itemRect = {
-            .x = (SCREEN_WIDTH - itemSurface->w) / 2.0f,
-            .y = SCREEN_HEIGHT / 2.0f + (i * MENU_ITEM_SPACING),
-            .w = (float)itemSurface->w,
-            .h = (float)itemSurface->h};
-
-        SDL_RenderTexture(renderer, itemTexture, NULL, &itemRect);
-        SDL_DestroySurface(itemSurface);
-        SDL_DestroyTexture(itemTexture);
+        printf("Renderer tidak valid\n");
+        return;
     }
-}
 
-int handleMenuInput(SDL_Event *event, int *selected)
-{
-    if (event->type == SDL_EVENT_KEY_DOWN)
+    if (TTF_Init() == -1)
     {
-        switch (event->key.scancode)
+        printf("Gagal inisialisasi SDL_ttf: %s\n", SDL_GetError());
+        return;
+    }
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+    SDL_FRect menuItems[4] = {
+        {100.0f, 100.0f, 200.0f, 50.0f}, // Start Game
+        {100.0f, 160.0f, 200.0f, 50.0f}, // Options
+        {100.0f, 220.0f, 200.0f, 50.0f}, // Level
+        {100.0f, 280.0f, 200.0f, 50.0f}  // Exit
+    };
+
+    const char *menuTexts[4] = {"Start Game", "Options", "Level", "Exit"};
+
+    TTF_Font *font = TTF_OpenFont("arial.ttf", 24);
+    if (!font)
+    {
+        printf("Gagal memuat font: %s\n", SDL_GetError());
+        TTF_Quit();
+        return;
+    }
+
+    SDL_Color textColor = {0, 0, 0, 255};
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (!SDL_RenderFillRect(renderer, &menuItems[i]))
         {
-        case SDL_SCANCODE_DOWN:
-            *selected = (*selected + 1) % MENU_ITEM_COUNT;
-            return 0;
-
-        case SDL_SCANCODE_UP:
-            *selected = (*selected - 1 + MENU_ITEM_COUNT) % MENU_ITEM_COUNT;
-            return 0;
-
-        case SDL_SCANCODE_RETURN:
-        case SDL_SCANCODE_SPACE:
-            return menuActions[*selected]();
-
-        default:
-            break;
+            printf("Gagal menggambar kotak menu: %s\n", SDL_GetError());
         }
+        SDL_Surface *textSurface = TTF_RenderText_Solid(font, menuTexts[i], strlen(menuTexts[i]), textColor);
+        if (!textSurface)
+        {
+            printf("Gagal membuat permukaan teks: %s\n", SDL_GetError());
+            continue;
+        }
+
+        SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        SDL_DestroySurface(textSurface);
+
+        if (!textTexture)
+        {
+            printf("Gagal membuat tekstur teks: %s\n", SDL_GetError());
+            continue;
+        }
+
+        SDL_FRect textRect = {
+            menuItems[i].x + (menuItems[i].w - textSurface->w) / 2,
+            menuItems[i].y + (menuItems[i].h - textSurface->h) / 2,
+            textSurface->w,
+            textSurface->h};
+
+        SDL_RenderTexture(renderer, textTexture, NULL, &textRect);
+        SDL_DestroyTexture(textTexture);
     }
-    return 0;
-}
 
-// Menu action implementations
-static int startGame(void)
-{
-    printf("Starting game...\n");
-    return 1;
-}
-
-static int showOptions(void)
-{
-    printf("Showing options...\n");
-    return 2;
-}
-
-static int exitGame(void)
-{
-    printf("Exiting game...\n");
-    return -1;
+    SDL_RenderPresent(renderer);
+    TTF_CloseFont(font);
+    TTF_Quit();
 }
