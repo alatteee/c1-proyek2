@@ -5,7 +5,8 @@
 #include "include/menu.h"
 #include "include/jalur.h"
 #include "include/rintangan.h"
-#include "include/config.h" // Include config.h
+#include "include/skor.h" 
+#include "include/config.h" 
 
 #define NUM_CARS 1  // Jumlah mobil pemain
 #define MOVE_STEP 1 // Langkah perpindahan mobil
@@ -74,6 +75,10 @@ int main()
 
   // Inisialisasi rintangan
   initRintangan();
+
+  // Inisialisasi skor
+  Skor skor;
+  initSkor(&skor);
 
   bool quit = false;
   SDL_Event b;
@@ -156,9 +161,11 @@ int main()
       if (checkCollision(cars[i].x, cars[i].y, cars[i].width, cars[i].height))
       {
         lives--; // Mengurangi nyawa jika terjadi tabrakan
+        kurangiSkor(&skor, 10);  // Kurangi skor jika menabrak rintangan
+
         if (lives <= 0)
         {
-          SDL_Log("Game Over!");
+          SDL_Log("Game Over! Your score: %d", getSkor(&skor));
           quit = true; // Akhiri permainan jika nyawa habis
         }
         else
