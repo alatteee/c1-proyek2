@@ -1,8 +1,7 @@
-// filepath: c:\Users\Yazid Alrasyid\OneDrive\Documents\Kurang Tahu\Tugas Kuliah\Proyek 2\c1-proyek2\include\rintangan.h
 #ifndef RINTANGAN_H
 #define RINTANGAN_H
 
-#include <SDL3/SDL.h>
+#include <raylib.h>
 #include "config.h"
 
 // Constants for rintangan
@@ -23,10 +22,8 @@ extern Rintangan rintangan[MAX_LANES][MAX_OBSTACLES];
 
 // Function declarations
 void initRintangan();
-void drawCircle(SDL_Renderer *renderer, int x, int y, int r);
-void drawTriangle(SDL_Renderer *renderer, int x, int y, int size);
 void updateRintangan();
-void drawRintangan(SDL_Renderer *renderer);
+void drawRintangan();
 int checkCollision(float x, float y, float width, float height);
 
-#endif /* RINTANGAN_H */
+#endif

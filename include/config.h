@@ -1,4 +1,4 @@
-// filepath: c:\Users\Yazid Alrasyid\OneDrive\Documents\Kurang Tahu\Tugas Kuliah\Proyek 2\c1-proyek2\include\config.h
+
 #ifndef CONFIG_H
 #define CONFIG_H
 

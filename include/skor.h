@@ -1,7 +1,7 @@
 #ifndef SKOR_H
 #define SKOR_H
 
-#include <SDL3/SDL.h>
+#include <raylib.h>
 
 // Struktur untuk menyimpan nilai skor
 typedef struct {
@@ -20,7 +20,7 @@ void kurangiSkor(Skor *skor, int poin);
 // Mengambil nilai skor saat ini
 int getSkor(const Skor *skor);
 
-// Menampilkan skor ke dalam log SDL
-void tampilkanSkor(SDL_Renderer *renderer, const Skor *skor);
+// Menampilkan skor ke dalam log Raylib
+void tampilkanSkor(const Skor *skor);
 
 #endif // SKOR_H

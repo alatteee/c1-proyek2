@@ -1,8 +1,8 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include <SDL3/SDL.h>
+#include <raylib.h>
 
-void showMenu(SDL_Renderer *renderer);
+void showMenu();
 
 #endif

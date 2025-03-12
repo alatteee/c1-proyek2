@@ -1,6 +1,6 @@
 #include "../include/skor.h"
-#include <SDL3/SDL.h>
 #include <stdio.h>
+#include <raylib.h>
 
 // Inisialisasi skor menjadi 0
 void initSkor(Skor *skor) {
@@ -30,9 +30,9 @@ int getSkor(const Skor *skor) {
     return skor->nilai;
 }
 
-// Menampilkan skor ke dalam log SDL
-void tampilkanSkor(SDL_Renderer *renderer, const Skor *skor) {
+// Menampilkan skor di layar menggunakan Raylib
+void tampilkanSkor(const Skor *skor) {
     char skorText[50];
     snprintf(skorText, sizeof(skorText), "Skor: %d", skor->nilai);
-    SDL_Log("%s", skorText);
+    DrawText(skorText, 10, 10, 20, WHITE);  // Menampilkan teks di kiri atas layar
 }
