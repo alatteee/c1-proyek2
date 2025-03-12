@@ -1,38 +1,49 @@
 #include "../include/rintangan.h"
+#include "../include/skor.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 #include <raylib.h>
 
+
 Rintangan rintangan[MAX_LANES][MAX_OBSTACLES];
+
+Skor skor;  // Mendeklarasikan objek skor
 
 void initRintangan()
 {
     int i, lane, type;
+    int empty_lane = rand() % MAX_LANES; // Menentukan jalur kosong secara acak
 
     // Menginisialisasi rintangan di setiap jalur
     for (lane = 0; lane < MAX_LANES; lane++)
     {
-        // Tentukan beberapa jalur yang akan memiliki rintangan
-        int num_obstacles = rand() % (MAX_OBSTACLES / 2); // Setengah dari MAX_OBSTACLES
+        if (lane == empty_lane) {
+            continue;  // Lewati jalur kosong
+        }
 
-        // Mengacak interval rintangan agar muncul bergiliran
+        int num_obstacles = 1; // Hanya satu rintangan besar per jalur
+
+        // Mengatur rintangan dengan posisi acak
         for (i = 0; i < num_obstacles; i++)
         {
-            // Tentukan apakah rintangan ini muncul di jalur yang sudah ada sebelumnya
-            if (rand() % 2 == 0)
-            {
-                rintangan[lane][i].x = (SCREEN_WIDTH / MAX_LANES) * lane + (SCREEN_WIDTH / MAX_LANES) / 2 - PLAYER_CAR_WIDTH / 2;
-                rintangan[lane][i].y = -(i * 250 + rand() % 100);
-                rintangan[lane][i].width = PLAYER_CAR_WIDTH;
-                rintangan[lane][i].height = PLAYER_CAR_HEIGHT;
+            rintangan[lane][i].x = (SCREEN_WIDTH / MAX_LANES) * lane;  // Lebar jalur
+            rintangan[lane][i].y = -(rand() % 300 + 100); // Posisi Y yang lebih aman di layar
+            rintangan[lane][i].width = SCREEN_WIDTH / MAX_LANES;  // Ukuran lebar rintangan sesuai dengan lebar jalur
+            rintangan[lane][i].height = SCREEN_HEIGHT / 5;  // Menyesuaikan tinggi rintangan
 
-                // Tentukan tipe rintangan secara acak
-                type = rand() % 3;
-                rintangan[lane][i].type = type;
-            }
+            // Tentukan jenis rintangan, misalnya mobil, batu, atau palang
+            type = rand() % 3;  // Variasi rintangan
+            rintangan[lane][i].type = type;
+
+            printf("Lane: %d, Obstacle: %d, Type: %d, X: %f, Y: %f\n", lane, i, rintangan[lane][i].type, rintangan[lane][i].x, rintangan[lane][i].y);
         }
     }
 }
+
+
+
+
 
 void drawCircle(int x, int y, int r)
 {
@@ -58,28 +69,29 @@ void updateRintangan()
     {
         for (i = 0; i < MAX_OBSTACLES; i++)
         {
-            if (rintangan[lane][i].y > 0) // Cek apakah rintangan ada di layar
+            if (rintangan[lane][i].y > SCREEN_HEIGHT)
             {
-                rintangan[lane][i].y += 5; // Gerakkan ke bawah
+                rintangan[lane][i].y = -(rand() % 300 + 100);  // Memberikan jarak antar rintangan
+                rintangan[lane][i].type = rand() % 3;  // Variasi tipe rintangan
             }
+            else
+            {
+                rintangan[lane][i].y += OBSTACLE_SPEED;  // Menggerakkan rintangan ke bawah
+            }
+
 
             if (rintangan[lane][i].y > SCREEN_HEIGHT)
             {
                 // Reset posisi jika rintangan keluar dari layar
-                rintangan[lane][i].y = -rand() % 300;
-
-                // Tentukan tipe rintangan baru secara acak
-                rintangan[lane][i].type = rand() % 3;
-
-                // Tentukan apakah rintangan muncul kembali di jalur yang sama atau tidak
-                if (rand() % 2 == 0)
-                {
-                    rintangan[lane][i].x = (SCREEN_WIDTH / MAX_LANES) * lane + (SCREEN_WIDTH / MAX_LANES) / 2 - PLAYER_CAR_WIDTH / 2;
-                }
+                rintangan[lane][i].y = -(rand() % 300 + 300);  // Memberikan jarak antar rintangan
+                rintangan[lane][i].type = rand() % 3;  // Variasi tipe rintangan
+                tambahSkor(&skor, 10);  // Menambah skor jika rintangan melewati pemain
             }
         }
     }
 }
+
+
 
 void drawRintangan()
 {
@@ -91,29 +103,27 @@ void drawRintangan()
             x = rintangan[lane][i].x;
             y = rintangan[lane][i].y;
 
-            if (rintangan[lane][i].y > 0) // Hanya menggambar rintangan yang masih di layar
-            {
-                if (rintangan[lane][i].type == 0)
+            if (rintangan[lane][i].y >= 0)  // Pastikan rintangan digambar jika posisi Y valid
                 {
-                    // Batu (coklat)
-                    drawCircle(x + 20, y + 20, 20);
+                    // Menggambar rintangan sesuai tipe
+                    if (rintangan[lane][i].type == 0)
+                    {
+                        drawCircle(x + 20, y + 20, 20);  // Batu (coklat)
+                    }
+                    else if (rintangan[lane][i].type == 1)
+                    {
+                        drawTriangle(x + 40, y + 40, 40);  // Palang (merah)
+                    }
+                    else
+                    {
+                        DrawRectangle(x, y, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, BLUE);  // Mobil (biru)
+                    }
                 }
-                else if (rintangan[lane][i].type == 1)
-                {
-                    // Palang (merah)
-                    drawTriangle(x + 40, y + 40, 40);
-                }
-                else
-                {
-                    // Mobil (biru)
-                    DrawRectangle(x, y, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, BLUE);
-                }
-            }
+
         }
     }
 }
 
-// Fungsi baru yang perlu ditambahkan
 int checkCollision(float x, float y, float width, float height)
 {
     int lane, i;
@@ -125,7 +135,7 @@ int checkCollision(float x, float y, float width, float height)
     {
         for (i = 0; i < MAX_OBSTACLES; i++)
         {
-            if (rintangan[lane][i].y > 0) // Hanya cek rintangan yang terlihat di layar
+            if (rintangan[lane][i].y >= 0)  // Hanya cek rintangan yang terlihat di layar
             {
                 // Create obstacle rectangle for collision detection
                 Rectangle obstacleRec = {rintangan[lane][i].x, rintangan[lane][i].y, rintangan[lane][i].width, rintangan[lane][i].height};

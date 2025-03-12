@@ -1,28 +1,27 @@
 #include <raylib.h>
-#include "raylib.h"
 #include "include/mobil.h"
 #include "include/menu.h"
 #include "include/jalur.h"
 #include "include/rintangan.h"
-#include "include/skor.h" 
-#include "include/config.h" 
+#include "include/skor.h"
+#include "include/config.h"
 
 #define NUM_CARS 1  // Jumlah mobil pemain
 #define MOVE_STEP 1 // Langkah perpindahan mobil
 
 // Koordinat jalur untuk mobil
-#define LEFT_LANE_X (SCREEN_WIDTH / 4 - PLAYER_CAR_WIDTH / 2)
+#define LEFT_LANE_X (SCREEN_WIDTH / 4 - PLAYER_CAR_WIDTH / 2) 
 #define MIDDLE_LANE_X (SCREEN_WIDTH / 2 - PLAYER_CAR_WIDTH / 2)
 #define RIGHT_LANE_X (3 * SCREEN_WIDTH / 4 - PLAYER_CAR_WIDTH / 2)
+
+#define NUM_LANES 3        // Tetap dengan 3 jalur
+#define LANE_WIDTH 200     // Lebar jalur menjadi 200 piksel
 
 int main()
 {
     // Inisialisasi Raylib
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Racing Game");
 
-    // // Menggunakan font untuk skor
-    // InitFont();
-    
     // Inisialisasi mobil pemain
     Car cars[NUM_CARS];
     int i;
