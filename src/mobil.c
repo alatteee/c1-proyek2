@@ -136,7 +136,7 @@ void renderCar(SDL_Renderer *renderer, Car *car)
     SDL_FRect rearRightWheel = {carX + carWidth * 0.78f, carY + carHeight * 0.6f, carWidth * 0.07f, carHeight * 0.15f};
     SDL_RenderFillRect(renderer, &rearRightWheel);
     
-    // Tambahkan efek highlight di badan mobil
+    // menambahkan efek highlight di badan mobil
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 30);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_FRect bodyHighlight = {carX + carWidth * 0.4f, carY + carHeight * 0.3f, carWidth * 0.2f, carHeight * 0.4f};
