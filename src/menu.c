@@ -1,4 +1,4 @@
-#include "menu.h"
+#include "../include/menu.h"
 #include <stdio.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
@@ -10,7 +10,7 @@ void showMenu(SDL_Renderer *renderer)
         return;
     }
 
-    if (TTF_Init() == -1)
+    if (TTF_Init() != 0)
     {
         printf("Gagal inisialisasi SDL_ttf: %s\n", SDL_GetError());
         return;
@@ -30,7 +30,7 @@ void showMenu(SDL_Renderer *renderer)
 
     const char *menuTexts[4] = {"Start Game", "Options", "Level", "Exit"};
 
-    TTF_Font *font = TTF_OpenFont("arial.ttf", 24);
+    TTF_Font *font = TTF_OpenFont("/fonts/game_over.ttf", 24);
     if (!font)
     {
         printf("Gagal memuat font: %s\n", SDL_GetError());

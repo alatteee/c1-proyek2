@@ -1,4 +1,6 @@
+
 #include <SDL3/SDL.h>
+#include "include/SDL_ttf.h"
 #include "include/mobil.h"
 #include "include/menu.h"
 #include "include/jalur.h"
@@ -18,23 +20,48 @@ int main()
   // Inisialisasi SDL
   SDL_Init(SDL_INIT_VIDEO);
 
-  // Membuat jendela permainan
-  SDL_Window *window = SDL_CreateWindow("Racing Game", SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-  if (window == NULL)
-  {
-    SDL_Log("Failed to create window: %s", SDL_GetError());
-    SDL_Quit();
-    return 1;
-  }
+    // Membuat jendela permainan
+    SDL_Window *window = SDL_CreateWindow("Racing Game", SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+    if (window == NULL)
+    {
+      SDL_Log("Failed to create window: %s", SDL_GetError());
+      SDL_Quit();
+      return 1;
+    }
+  
+    // Membuat renderer untuk menggambar objek permainan
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, NULL);
+    if (renderer == NULL)
+    {
+      SDL_Log("Failed to create renderer: %s", SDL_GetError());
+      SDL_DestroyWindow(window);
+      SDL_Quit();
+      return 1;
+    }
 
-  // Membuat renderer untuk menggambar objek permainan
-  SDL_Renderer *renderer = SDL_CreateRenderer(window, NULL);
-  if (renderer == NULL)
+  bool menuRunning = true;
+  SDL_Event e;
+
+  // Loop untuk menunggu input dari pengguna
+  while (menuRunning)
   {
-    SDL_Log("Failed to create renderer: %s", SDL_GetError());
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    return 1;
+      while (SDL_PollEvent(&e) != 0)
+      {
+          if (e.type == SDL_EVENT_QUIT)
+          {
+              menuRunning = false;
+          }
+
+          if (e.type == SDL_EVENT_KEY_DOWN)
+          {
+              if (e.key.scancode == SDL_SCANCODE_RETURN)
+              {
+                  menuRunning = false; // Keluar dari menu dan lanjutkan permainan
+              }
+          }
+      }
+      // Render ulang menu di setiap frame
+      showMenu(renderer);
   }
 
   // Inisialisasi mobil pemain
@@ -49,7 +76,7 @@ int main()
   initRintangan();
 
   bool quit = false;
-  SDL_Event e;
+  SDL_Event b;
 
   // Nyawa pemain
   int lives = 3;
@@ -57,9 +84,9 @@ int main()
   while (!quit)
   {
     // Menangani event (input dari pemain)
-    while (SDL_PollEvent(&e) != 0)
+    while (SDL_PollEvent(&b) != 0)
     {
-      if (e.type == SDL_EVENT_QUIT)
+      if (b.type == SDL_EVENT_QUIT)
       {
         quit = true;
       }
