@@ -1,48 +1,36 @@
-#include "../include/menu.h"
-#include <stdio.h>
-#include <raylib.h>
+#include "menu.h"
 
-void showMenu()
+// Fungsi untuk menggambar menu
+void DrawMenu(int selectedOption)
 {
-    // Clear the background with black color
-    ClearBackground(BLACK);
+    const char *options[NUM_OPTIONS] = {"Start Game", "Options", "Exit"};
 
-    // Set the menu item rectangle properties
-    Rectangle menuItems[4] = {
-        {100.0f, 100.0f, 200.0f, 50.0f}, // Start Game
-        {100.0f, 160.0f, 200.0f, 50.0f}, // Options
-        {100.0f, 220.0f, 200.0f, 50.0f}, // Level
-        {100.0f, 280.0f, 200.0f, 50.0f}  // Exit
-    };
+    BeginDrawing();
+    ClearBackground(RAYWHITE);
 
-    const char *menuTexts[4] = {"Start Game", "Options", "Level", "Exit"};
+    // Gambar judul
+    DrawText("C1 Brick Racer", 250, 100, 40, BLACK);
 
-    // Load the font
-    Font font = LoadFont("resources/fonts/game_over.ttf");  // Update this path as needed
-
-    if (font.baseSize == 0)
+    // Gambar opsi menu
+    for (int i = 0; i < NUM_OPTIONS; i++)
     {
-        printf("Failed to load font\n");
-        return;
+        Color color = (i == selectedOption) ? RED : BLACK; // Warna teks berubah jika dipilih
+        DrawText(options[i], 300, 200 + i * 50, 20, color);
     }
 
-    Color textColor = BLACK;
+    EndDrawing();
+}
 
-    // Draw the menu items (rectangles and texts)
-    for (int i = 0; i < 4; i++)
+// Fungsi untuk mengupdate menu berdasarkan input pengguna
+int UpdateMenu(int selectedOption)
+{
+    if (IsKeyPressed(KEY_DOWN))
     {
-        // Draw the menu item rectangles
-        DrawRectangleRec(menuItems[i], WHITE);
-
-        // Draw the text inside the rectangles
-        Vector2 textSize = MeasureTextEx(font, menuTexts[i], font.baseSize, 1);
-        Vector2 textPosition = {
-            menuItems[i].x + (menuItems[i].width - textSize.x) / 2,
-            menuItems[i].y + (menuItems[i].height - textSize.y) / 2
-        };
-        DrawTextEx(font, menuTexts[i], textPosition, font.baseSize, 1, textColor);
+        selectedOption = (selectedOption + 1) % NUM_OPTIONS; // Pindah ke opsi berikutnya
     }
-
-    // Unload the font to free memory
-    UnloadFont(font);
+    if (IsKeyPressed(KEY_UP))
+    {
+        selectedOption = (selectedOption - 1 + NUM_OPTIONS) % NUM_OPTIONS; // Pindah ke opsi sebelumnya
+    }
+    return selectedOption;
 }
