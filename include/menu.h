@@ -1,8 +1,13 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include <raylib.h>
+#include "raylib.h"
 
-void showMenu();
+// Jumlah opsi menu
+#define NUM_OPTIONS 3
+
+// Deklarasi fungsi
+void DrawMenu(int selectedOption);
+int UpdateMenu(int selectedOption);
 
 #endif
