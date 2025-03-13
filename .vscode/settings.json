@@ -58,6 +58,7 @@
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
     "jalur.h": "c",
-    "menu.h": "c"
+    "menu.h": "c",
+    "raylib.h": "c"
   }
 }

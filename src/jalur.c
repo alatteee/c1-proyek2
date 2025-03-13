@@ -4,19 +4,12 @@
 
 void draw_lanes()
 {
-    int i, y;
-    // Set road background color (dark gray)
-    ClearBackground(DARKGRAY);
-
-    // Set lane divider color (white)
-    int num_lanes = 3;
-    int lane_width = SCREEN_WIDTH / num_lanes;
-
-    for (i = 1; i < num_lanes; i++)
+    int lane_width = SCREEN_WIDTH / MAX_LANES;
+    for (int i = 1; i < MAX_LANES; i++)
     {
         int position_x = i * lane_width;
-        for (y = 0; y < SCREEN_HEIGHT; y += 40)
-        { // Dashed lane lines
+        for (int y = 0; y < SCREEN_HEIGHT; y += 40)
+        {
             DrawLine(position_x, y, position_x, y + 20, WHITE);
         }
     }
