@@ -3,11 +3,9 @@
 
 #include "raylib.h"
 
-// Jumlah opsi menu
 #define NUM_OPTIONS 3
 
-// Deklarasi fungsi
-void DrawMenu(int selectedOption);
-int UpdateMenu(int selectedOption);
+// Deklarasi fungsi DrawMenu dengan parameter tambahan Texture2D dan brickOffset
+void DrawMenu(int selectedOption, Texture2D brickTexture, float brickOffset);
 
 #endif
