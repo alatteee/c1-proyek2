@@ -5,7 +5,7 @@
 
 #define NUM_OPTIONS 3
 
-// Deklarasi fungsi DrawMenu dengan parameter tambahan Texture2D dan brickOffset
-void DrawMenu(int selectedOption, Texture2D brickTexture, float brickOffset);
+// Deklarasi fungsi DrawMenu dengan parameter Texture2D saja (brickOffset dihapus)
+void DrawMenu(int selectedOption, Texture2D brickTexture);
 
 #endif

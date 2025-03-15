@@ -2,7 +2,7 @@
 #include <raylib.h>
 #include "config.h" // Pastikan ini di-include
 
-void DrawMenu(int selectedOption, Texture2D brickTexture, float brickOffset)
+void DrawMenu(int selectedOption, Texture2D brickTexture)
 {
     const char *options[NUM_OPTIONS] = {"Start Game", "Options", "Exit"};
     const int optionSpacing = 60; // Jarak antar opsi
@@ -10,20 +10,14 @@ void DrawMenu(int selectedOption, Texture2D brickTexture, float brickOffset)
     const int boxWidth = 200;     // Lebar kotak
     const int boxHeight = 40;     // Tinggi kotak
 
-    // Gambar animasi brick bergerak sebagai latar belakang
-    for (int y = -brickTexture.height; y < SCREEN_HEIGHT; y += brickTexture.height)
-    {
-        for (int x = -brickOffset; x < SCREEN_WIDTH; x += brickTexture.width)
-        {
-            DrawTexture(brickTexture, x, y, WHITE);
-        }
-    }
+    // Gambar latar belakang tanpa animasi
+    DrawTexture(brickTexture, 0, 0, WHITE);
 
     // Gambar judul di tengah layar
     const char *title = "C1 Brick Racer";
     int titleWidth = MeasureText(title, 40);        // Hitung lebar teks judul
     int titleX = SCREEN_WIDTH / 2 - titleWidth / 2; // Posisi X untuk teks judul
-    int titleY = 100;                               // Posisi Y untuk teks judul
+    int titleY = 250;                               // Posisi Y untuk teks judul
     DrawText(title, titleX, titleY, 40, WHITE);
 
     // Gambar opsi menu dengan kotak teks di tengah layar
@@ -31,7 +25,7 @@ void DrawMenu(int selectedOption, Texture2D brickTexture, float brickOffset)
     {
         // Hitung posisi kotak
         int boxX = SCREEN_WIDTH / 2 - boxWidth / 2; // Posisi X untuk kotak (tengah layar)
-        int boxY = 200 + i * optionSpacing;         // Posisi Y untuk kotak
+        int boxY = 350 + i * optionSpacing;         // Posisi Y untuk kotak (dimulai dari 350, lebih ke bawah)
 
         // Warna kotak (berubah jika dipilih)
         Color boxColor = (i == selectedOption) ? RED : LIGHTGRAY;
