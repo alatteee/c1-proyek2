@@ -5,10 +5,9 @@
 #include "../include/skor.h"
 #include "../include/rintangan.h"
 
-
 void DrawMenu(int selectedOption, Texture2D brickTexture)
 {
-    const char *options[NUM_OPTIONS] = {"Start Game", "Options", "Exit"};
+    const char *options[NUM_OPTIONS] = {"Start Game", "Select Level", "Exit"};
     const int optionSpacing = 60; // Jarak antar opsi
     const int boxPadding = 10;    // Padding di dalam kotak
     const int boxWidth = 200;     // Lebar kotak
@@ -77,8 +76,8 @@ void handleMenuInput(int *selectedOption, GameState *gameState, Car cars[], int 
             *gameState = STATE_GAME;
             break;
 
-        case 1: // Options
-            // Tambahkan logika untuk menu Options
+        case 1: // Select Level
+            *gameState = STATE_LEVEL_MENU; // Pindah ke menu level
             break;
 
         case 2: // Exit
@@ -91,4 +90,39 @@ void handleMenuInput(int *selectedOption, GameState *gameState, Car cars[], int 
     }
 }
 
+void DrawLevelMenu(int selectedLevel, Texture2D brickTexture) {
+    // Gambar latar belakang
+    DrawTexture(brickTexture, 0, 0, WHITE);
 
+    // Gambar judul menu
+    const char *title = "Select Level";
+    int titleWidth = MeasureText(title, 40);
+    int titleX = SCREEN_WIDTH / 2 - titleWidth / 2; // Posisi X tetap di tengah
+    int titleY = 250; // Posisi Y judul sama seperti menu utama
+    DrawText(title, titleX, titleY, 40, WHITE);
+
+    // Gambar opsi level
+    for (int i = 0; i < NUM_LEVELS; i++) {
+        int boxX = SCREEN_WIDTH / 2 - 100; // Posisi X tetap di tengah
+        int boxY = 350 + i * 60; // Posisi Y kotak sama seperti menu utama
+        Color boxColor = (i == selectedLevel) ? RED : LIGHTGRAY;
+
+        DrawRectangle(boxX, boxY, 200, 50, boxColor);
+        DrawText(levels[i].name, boxX + 10, boxY + 10, 20, BLACK);
+    }
+}
+
+void handleLevelMenuInput(int *selectedLevel, GameState *gameState) {
+    if (IsKeyPressed(KEY_UP)) {
+        (*selectedLevel)--;
+        if (*selectedLevel < 0) *selectedLevel = NUM_LEVELS - 1;
+    }
+    if (IsKeyPressed(KEY_DOWN)) {
+        (*selectedLevel)++;
+        if (*selectedLevel >= NUM_LEVELS) *selectedLevel = 0;
+    }
+
+    if (IsKeyPressed(KEY_ENTER)) {
+        *gameState = STATE_GAME; // Pindah ke state game dengan level yang dipilih
+    }
+}

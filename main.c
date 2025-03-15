@@ -1,5 +1,6 @@
 #include <raylib.h>
 #include <stddef.h>
+#include <stdio.h>
 #include "include/mobil.h"
 #include "include/menu.h"
 #include "include/jalur.h"
@@ -7,6 +8,7 @@
 #include "include/skor.h"
 #include "include/config.h"
 #include "include/lives.h"
+#include "src/level.c"
 
 int main() {
 
@@ -23,6 +25,8 @@ int main() {
     Car cars[NUM_CARS];
     for (int i = 0; i < NUM_CARS; i++) {
         initCar(&cars[i], MIDDLE_LANE_X, SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10.0f, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
+        // main.c
+        printf("PLAYER_CAR_WIDTH: %d, PLAYER_CAR_HEIGHT: %d\n", PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT);
     }
 
     Skor skor;
@@ -30,6 +34,7 @@ int main() {
 
     bool quit = false;
 
+    int selectedLevel = 0; // Level yang dipilih (default: level 0 / Easy)
     while (!quit) {
         float deltaTime = GetFrameTime();
 
@@ -37,10 +42,17 @@ int main() {
             case STATE_MENU:
                 handleMenuInput(&selectedOption, &gameState, cars, &livesSystem.currentLives, &skor);
                 break;
-        
+    
+            case STATE_LEVEL_MENU:
+                handleLevelMenuInput(&selectedLevel, &gameState);
+                DrawLevelMenu(selectedLevel, brickTexture); // Pastikan ini sesuai
+                break;
+    
             case STATE_GAME:
-                handleCarInput(cars);
-                updateRintangan(&skor);
+                // Gunakan level yang dipilih
+                Level currentLevel = levels[selectedLevel];
+                handleCarInput(&cars[0]);
+                updateRintangan(&skor, currentLevel.obstacleSpeed); // Update rintangan dengan kecepatan sesuai level
                 drawRintangan();
         
                 for (int i = 0; i < NUM_CARS; i++) {

@@ -7,8 +7,8 @@
 #define MAX_LANES 3
 #define MAX_OBSTACLES 5
 
-#define PLAYER_CAR_WIDTH  50  // Lebar mobil
-#define PLAYER_CAR_HEIGHT 100 // Tinggi mobil
+#define PLAYER_CAR_WIDTH  80  // Lebar mobil
+#define PLAYER_CAR_HEIGHT 120 // Tinggi mobil
 #define OBSTACLE_SPEED 5
 
 #define LEFT_LANE_X (SCREEN_WIDTH / 4 - PLAYER_CAR_WIDTH / 2)
@@ -20,9 +20,21 @@
 
 typedef enum {
     STATE_MENU,
+    STATE_LEVEL_MENU, // Tambahkan state untuk menu level
     STATE_GAME,
     STATE_GAME_OVER,
-    STATE_EXIT 
+    STATE_EXIT
 } GameState;
+
+
+#define NUM_LEVELS 3 // Jumlah level yang tersedia
+
+typedef struct {
+    int obstacleSpeed;
+    int numObstacles;
+    const char* name;
+} Level;
+
+extern Level levels[NUM_LEVELS];
 
 #endif

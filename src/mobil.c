@@ -5,17 +5,16 @@
 #include <raylib.h>
 
 // Fungsi untuk inisialisasi mobil
-// Dalam mobil.c
-void initCar(Car *car, float x, float y, float width, float height, int speed)
-{
-    car->x = x;
-    car->y = y;
-    car->width = width;
-    car->height = height;
-    car->speed = speed;
-    car->rect = (Rectangle){car->x, car->y, car->width, car->height}; // Inisialisasi rectangle
-    car->isInvulnerable = false;
-    car->invulnerabilityTimer = 0.0f;
+// mobil.c
+void initCar(Car *car, float x, float y, float width, float height, int speed) {
+  car->x = x;
+  car->y = y;
+  car->width = width;  // Pastikan ini menggunakan parameter width
+  car->height = height; // Pastikan ini menggunakan parameter height
+  car->speed = speed;
+  car->rect = (Rectangle){car->x, car->y, car->width, car->height};
+  car->isInvulnerable = false;
+  car->invulnerabilityTimer = 0.0f;
 }
 
 // Fungsi untuk menggambar mobil dengan desain top-down seperti gambar sport car kuning
@@ -29,8 +28,8 @@ void renderCar(Car *car)
   Color tailLightColor = RED;    // Merah untuk lampu belakang
   Color detailColor = DARKGRAY;  // Abu-abu untuk detail
 
-  float carWidth = car->width;
-  float carHeight = car->height;
+  float carWidth = car->width;  // Gunakan nilai width dari mobil
+  float carHeight = car->height; // Gunakan nilai height dari mobil
   float carX = car->x;
   float carY = car->y;
 
@@ -72,19 +71,18 @@ void renderCar(Car *car)
 }
 
 // Fungsi untuk menangani input gerakan mobil
-void handleCarInput(Car *car)
-{
-    if (IsKeyDown(KEY_LEFT) && car->x > 0) 
-        car->x -= car->speed;
-    if (IsKeyDown(KEY_RIGHT) && car->x + car->width < SCREEN_WIDTH) 
-        car->x += car->speed;
-    if (IsKeyDown(KEY_UP) && car->y > 0) 
-        car->y -= car->speed;
-    if (IsKeyDown(KEY_DOWN) && car->y + car->height < SCREEN_HEIGHT) 
-        car->y += car->speed;
-    
-    // Update car->rect dengan posisi baru
-    car->rect = (Rectangle){car->x, car->y, car->width, car->height};
+void handleCarInput(Car *car) {
+  if (IsKeyDown(KEY_LEFT) && car->x > 0) 
+      car->x -= car->speed;
+  if (IsKeyDown(KEY_RIGHT) && car->x + car->width < SCREEN_WIDTH) 
+      car->x += car->speed;
+  if (IsKeyDown(KEY_UP) && car->y > 0) 
+      car->y -= car->speed;
+  if (IsKeyDown(KEY_DOWN) && car->y + car->height < SCREEN_HEIGHT) 
+      car->y += car->speed;
+
+  // Update rectangle mobil
+  car->rect = (Rectangle){car->x, car->y, car->width, car->height};
 }
 
 

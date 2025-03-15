@@ -14,16 +14,10 @@ Skor skor; // Mendeklarasikan objek skor
 void initRintangan()
 {
     int i, lane, type;
-    int empty_lane = rand() % MAX_LANES; // Menentukan jalur kosong secara acak
 
     // Menginisialisasi rintangan di setiap jalur
     for (lane = 0; lane < MAX_LANES; lane++)
     {
-        if (lane == empty_lane)
-        {
-            continue; // Lewati jalur kosong
-        }
-
         int num_obstacles = 1; // Hanya satu rintangan besar per jalur
 
         // Mengatur rintangan dengan posisi acak
@@ -241,20 +235,16 @@ void drawDog(int x, int y, int width, int height)
     DrawTriangle(tailPoints[0], tailPoints[1], tailPoints[2], dogBody);
 }
 
-// Dalam rintangan.c
-void updateRintangan(Skor *skor)
-{
+/// rintangan.c
+void updateRintangan(Skor *skor, int obstacleSpeed) {
     int lane, i;
-    for (lane = 0; lane < MAX_LANES; lane++)
-    {
-        for (i = 0; i < MAX_OBSTACLES; i++)
-        {
-            // Gerakkan rintangan ke bawah
-            rintangan[lane][i].y += OBSTACLE_SPEED;
+    for (lane = 0; lane < MAX_LANES; lane++) {
+        for (i = 0; i < MAX_OBSTACLES; i++) {
+            // Gerakkan rintangan ke bawah dengan kecepatan sesuai level
+            rintangan[lane][i].y += obstacleSpeed;
 
             // Jika rintangan melewati layar dan belum dihitung
-            if (rintangan[lane][i].y > SCREEN_HEIGHT && !rintangan[lane][i].hasPassed)
-            {
+            if (rintangan[lane][i].y > SCREEN_HEIGHT && !rintangan[lane][i].hasPassed) {
                 // Tandai rintangan sudah melewati layar
                 rintangan[lane][i].hasPassed = true;
 
@@ -264,8 +254,7 @@ void updateRintangan(Skor *skor)
             }
 
             // Reset rintangan jika sudah melewati layar
-            if (rintangan[lane][i].y > SCREEN_HEIGHT + rintangan[lane][i].height)
-            {
+            if (rintangan[lane][i].y > SCREEN_HEIGHT + rintangan[lane][i].height) {
                 rintangan[lane][i].y = -(rand() % 300 + 100); // Posisi Y acak di atas layar
                 rintangan[lane][i].type = rand() % 4;         // Tipe rintangan acak
                 rintangan[lane][i].hasPassed = false;         // Reset flag
@@ -273,6 +262,7 @@ void updateRintangan(Skor *skor)
         }
     }
 }
+
 void drawRintangan()
 {
     int lane, i, x, y;
