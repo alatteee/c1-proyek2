@@ -45,15 +45,24 @@ int main() {
         
                 for (int i = 0; i < NUM_CARS; i++) {
                     updateCarInvulnerability(&cars[i], deltaTime);
-        
+                
                     for (int lane = 0; lane < MAX_LANES; lane++) {
                         for (int j = 0; j < MAX_OBSTACLES; j++) {
-                            Rectangle obstacle = {rintangan[lane][j].x, rintangan[lane][j].y, rintangan[lane][j].width, rintangan[lane][j].height};
-                            if (checkCarCollision(&cars[i], obstacle)) {
-                                if (ReduceLife(&livesSystem)) {
-                                    gameState = STATE_GAME_OVER;
+                            // Hanya cek tabrakan jika rintangan aktif (y >= 0 dan width > 0)
+                            if (rintangan[lane][j].y >= 0 && rintangan[lane][j].width > 0) {
+                                Rectangle obstacle = {
+                                    rintangan[lane][j].x, 
+                                    rintangan[lane][j].y, 
+                                    rintangan[lane][j].width, 
+                                    rintangan[lane][j].height
+                                };
+                
+                                if (checkCarCollision(&cars[i], obstacle)) {
+                                    if (ReduceLife(&livesSystem)) {
+                                        gameState = STATE_GAME_OVER;
+                                    }
+                                    resetCarPosition(&cars[i]);
                                 }
-                                resetCarPosition(&cars[i]);
                             }
                         }
                     }

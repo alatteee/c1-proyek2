@@ -1,3 +1,4 @@
+
 #include "../include/mobil.h"
 #include "../include/config.h"
 #include "../include/lives.h"
@@ -12,7 +13,7 @@ void initCar(Car *car, float x, float y, float width, float height, int speed)
     car->width = width;
     car->height = height;
     car->speed = speed;
-    car->rect = (Rectangle){x, y, width, height}; // Inisialisasi rectangle
+    car->rect = (Rectangle){car->x, car->y, car->width, car->height}; // Inisialisasi rectangle
     car->isInvulnerable = false;
     car->invulnerabilityTimer = 0.0f;
 }
@@ -81,6 +82,9 @@ void handleCarInput(Car *car)
         car->y -= car->speed;
     if (IsKeyDown(KEY_DOWN) && car->y + car->height < SCREEN_HEIGHT) 
         car->y += car->speed;
+    
+    // Update car->rect dengan posisi baru
+    car->rect = (Rectangle){car->x, car->y, car->width, car->height};
 }
 
 
@@ -103,7 +107,12 @@ void updateCarInvulnerability(Car *car, float deltaTime) {
 
 // Dalam mobil.c
 bool checkCarCollision(Car *car, Rectangle obstacle) {
+  // Debugging: Tampilkan posisi dan ukuran mobil serta rintangan
+  TraceLog(LOG_INFO, "Mobil: x=%.2f, y=%.2f, width=%.2f, height=%.2f", car->rect.x, car->rect.y, car->rect.width, car->rect.height);
+  TraceLog(LOG_INFO, "Rintangan: x=%.2f, y=%.2f, width=%.2f, height=%.2f", obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+
   if (!car->isInvulnerable && CheckCollisionRecs(car->rect, obstacle)) {
+      TraceLog(LOG_INFO, "Tabrakan terdeteksi!");
       car->isInvulnerable = true;
       car->invulnerabilityTimer = 0.0f;
       return true; // Terjadi tabrakan

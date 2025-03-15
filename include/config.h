@@ -7,8 +7,8 @@
 #define MAX_LANES 3
 #define MAX_OBSTACLES 5
 
-#define PLAYER_CAR_WIDTH 80
-#define PLAYER_CAR_HEIGHT 120
+#define PLAYER_CAR_WIDTH  50  // Lebar mobil
+#define PLAYER_CAR_HEIGHT 100 // Tinggi mobil
 #define OBSTACLE_SPEED 5
 
 #define LEFT_LANE_X (SCREEN_WIDTH / 4 - PLAYER_CAR_WIDTH / 2)

@@ -1,3 +1,4 @@
+
 #include "../include/rintangan.h"
 #include "../include/skor.h"
 #include "../include/config.h"
