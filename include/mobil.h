@@ -15,6 +15,8 @@ typedef struct {
     float invulnerabilityTimer; // Timer untuk invulnerability
 } Car;
 
+#define INVULNERABILITY_DURATION 2.0f
+
 void initCar(Car *car, float x, float y, float w, float h, int speed);
 void moveLeft(Car *car);
 void moveRight(Car *car, int screenWidth);
