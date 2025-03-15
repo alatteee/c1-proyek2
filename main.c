@@ -104,13 +104,13 @@ int main()
             // Gerakkan mobil berdasarkan input
             for (int i = 0; i < NUM_CARS; i++)
             {
-                if (IsKeyDown(KEY_LEFT) && cars[i].x > LEFT_LANE_X)
+                if (IsKeyDown(KEY_LEFT) && cars[i].x > 0) // Batasi agar tidak keluar dari layar kiri
                     cars[i].x -= cars[i].speed;
-                if (IsKeyDown(KEY_RIGHT) && cars[i].x < RIGHT_LANE_X)
+                if (IsKeyDown(KEY_RIGHT) && cars[i].x + cars[i].width < SCREEN_WIDTH) // Batasi agar tidak keluar dari layar kanan
                     cars[i].x += cars[i].speed;
-                if (IsKeyDown(KEY_UP) && cars[i].y > 0)
+                if (IsKeyDown(KEY_UP) && cars[i].y > 0) // Batasi agar tidak keluar dari layar atas
                     cars[i].y -= cars[i].speed;
-                if (IsKeyDown(KEY_DOWN) && cars[i].y + cars[i].height < SCREEN_HEIGHT)
+                if (IsKeyDown(KEY_DOWN) && cars[i].y + cars[i].height < SCREEN_HEIGHT) // Batasi agar tidak keluar dari layar bawah
                     cars[i].y += cars[i].speed;
             }
 
