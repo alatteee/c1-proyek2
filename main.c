@@ -155,7 +155,7 @@ int main()
         switch (gameState)
         {
         case STATE_MENU:
-            DrawMenu(selectedOption, brickTexture, brickOffset); // Gambar menu dengan animasi brick
+            DrawMenu(selectedOption, brickTexture); // Gambar menu dengan animasi brick
             break;
 
         case STATE_GAME:
