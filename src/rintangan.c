@@ -39,6 +39,9 @@ void initRintangan()
             type = rand() % 4; // 4 jenis rintangan
             rintangan[lane][i].type = type;
 
+            // Inisialisasi flag
+            rintangan[lane][i].hasPassed = false;
+
             printf("Lane: %d, Obstacle: %d, Type: %d, X: %f, Y: %f\n", lane, i, rintangan[lane][i].type, rintangan[lane][i].x, rintangan[lane][i].y);
         }
     }
@@ -237,29 +240,33 @@ void drawDog(int x, int y, int width, int height)
     DrawTriangle(tailPoints[0], tailPoints[1], tailPoints[2], dogBody);
 }
 
-void updateRintangan()
+void updateRintangan(Skor *skor)
 {
     int lane, i;
     for (lane = 0; lane < MAX_LANES; lane++)
     {
         for (i = 0; i < MAX_OBSTACLES; i++)
         {
-            if (rintangan[lane][i].y > SCREEN_HEIGHT)
+            // Gerakkan rintangan ke bawah
+            rintangan[lane][i].y += OBSTACLE_SPEED;
+
+            // Jika rintangan melewati layar dan belum dihitung
+            if (rintangan[lane][i].y > SCREEN_HEIGHT && !rintangan[lane][i].hasPassed)
             {
-                rintangan[lane][i].y = -(rand() % 300 + 100); // Memberikan jarak antar rintangan
-                rintangan[lane][i].type = rand() % 4;         // Variasi tipe rintangan (sekarang ada 4)
-            }
-            else
-            {
-                rintangan[lane][i].y += OBSTACLE_SPEED; // Menggerakkan rintangan ke bawah
+                // Tandai rintangan sudah melewati layar
+                rintangan[lane][i].hasPassed = true;
+
+                // Tambah skor hanya sekali saat rintangan melewati layar
+                tambahSkor(skor, 10);
+                printf("Skor ditambah: %d\n", skor->nilai); // Debugging
             }
 
-            if (rintangan[lane][i].y > SCREEN_HEIGHT)
+            // Reset rintangan jika sudah melewati layar
+            if (rintangan[lane][i].y > SCREEN_HEIGHT + rintangan[lane][i].height)
             {
-                // Reset posisi jika rintangan keluar dari layar
-                rintangan[lane][i].y = -(rand() % 300 + 300); // Memberikan jarak antar rintangan
-                rintangan[lane][i].type = rand() % 4;         // Variasi tipe rintangan (sekarang ada 4)
-                tambahSkor(&skor, 10);                        // Menambah skor jika rintangan melewati pemain
+                rintangan[lane][i].y = -(rand() % 300 + 100); // Posisi Y acak di atas layar
+                rintangan[lane][i].type = rand() % 4;         // Tipe rintangan acak
+                rintangan[lane][i].hasPassed = false;         // Reset flag
             }
         }
     }

@@ -18,6 +18,7 @@ int main()
 
     Car cars[NUM_CARS];
     Skor skor;
+    initSkor(&skor); // Inisialisasi skor
     int lives = 3;
     
     bool quit = false;
@@ -37,7 +38,7 @@ int main()
 
             case STATE_GAME:
                 handleCarInput(cars);
-                updateRintangan();
+                updateRintangan(&skor); // Teruskan skor ke updateRintangan
                 drawRintangan();
 
                 // Cek tabrakan untuk setiap mobil

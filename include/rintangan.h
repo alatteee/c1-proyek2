@@ -3,6 +3,7 @@
 
 #include <raylib.h>
 #include "config.h"
+#include "skor.h"
 
 // Constants for rintangan
 #define MAX_LANES 3
@@ -15,6 +16,7 @@ typedef struct {
     float width;
     float height;
     int type;  // 0: Cat, 1: Rock, 2: Car, 3: Dog
+    bool hasPassed; // Flag untuk menandai apakah rintangan sudah melewati layar
 } Rintangan;
 
 // Global variables
@@ -22,7 +24,7 @@ extern Rintangan rintangan[MAX_LANES][MAX_OBSTACLES];
 
 // Function declarations
 void initRintangan();
-void updateRintangan();
+void updateRintangan(Skor *skor);
 void drawRintangan();
 int checkCollision(float x, float y, float width, float height);
 

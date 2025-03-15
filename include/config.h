@@ -16,6 +16,7 @@
 #define RIGHT_LANE_X (3 * SCREEN_WIDTH / 4 - PLAYER_CAR_WIDTH / 2)
 
 #define NUM_CARS 1
+#define OBSTACLE_SPEED 5 // Kecepatan rintangan
 
 typedef enum {
     STATE_MENU,
