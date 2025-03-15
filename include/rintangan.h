@@ -14,7 +14,7 @@ typedef struct {
     float y;
     float width;
     float height;
-    int type;  // 0: Rock (Circle), 1: Barrier (Triangle), 2: Car (Rectangle)
+    int type;  // 0: Cat, 1: Rock, 2: Car, 3: Dog
 } Rintangan;
 
 // Global variables
