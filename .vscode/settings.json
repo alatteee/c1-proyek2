@@ -60,6 +60,7 @@
     "jalur.h": "c",
     "menu.h": "c",
     "raylib.h": "c",
-    "cstdlib": "c"
+    "cstdlib": "c",
+    "rintangan.h": "c"
   }
 }

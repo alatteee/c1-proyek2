@@ -1,4 +1,5 @@
 #include <raylib.h>
+#include <stddef.h>
 #include "include/mobil.h"
 #include "include/menu.h"
 #include "include/jalur.h"
@@ -8,12 +9,14 @@
 #include "include/lives.h"
 
 int main() {
+
+
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "C1 Brick Racer");
     SetTargetFPS(60);
 
     Texture2D brickTexture = LoadTexture("resources/coba.jpg");
 
-    LivesSystem livesSystem = InitLivesSystem((Vector2){SCREEN_WIDTH - 150, 10}, 40.0f, 30.0f, "resources/heart.png");
+    LivesSystem livesSystem = InitLivesSystem((Vector2){SCREEN_WIDTH - 150, 10}, 40.0f, 30.0f, NULL);
     GameState gameState = STATE_MENU;
     int selectedOption = 0;
 
@@ -89,7 +92,7 @@ int main() {
                     renderCar(&cars[i]);
                 }
                 tampilkanSkor(&skor);
-                DrawLives(livesSystem);
+                DrawLives(livesSystem); // Pastikan ini dipanggil
                 break;
 
             case STATE_GAME_OVER:

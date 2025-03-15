@@ -1,26 +1,7 @@
 #include "../include/lives.h"
 #include <stddef.h>
 
-LivesSystem InitLivesSystem(Vector2 position, float spacing, float size, const char* texturePath) {
-    LivesSystem livesSystem;
-    livesSystem.currentLives = MAX_LIVES;
-    livesSystem.position = position;
-    livesSystem.spacing = spacing;
-    livesSystem.size = size;
-    livesSystem.useTexture = (texturePath != NULL);
-    if (livesSystem.useTexture) {
-        livesSystem.heartTexture = LoadTexture(texturePath);
-    }
-    return livesSystem;
-}
-
-void UnloadLivesSystem(LivesSystem* livesSystem) {
-    if (livesSystem->useTexture) {
-        UnloadTexture(livesSystem->heartTexture);
-    }
-}
-
-// Fungsi untuk menggambar hati dengan polygon
+// Fungsi untuk menggambar hati
 void DrawHeart(Vector2 position, float size, Color color) {
     // Titik-titik untuk membentuk hati (dengan polygon)
     Vector2 center = {position.x + size/2, position.y + size/2};
@@ -37,6 +18,21 @@ void DrawHeart(Vector2 position, float size, Color color) {
     DrawTriangle(p1, p2, p3, color);
 }
 
+// Inisialisasi LivesSystem
+LivesSystem InitLivesSystem(Vector2 position, float spacing, float size, const char* texturePath) {
+    LivesSystem livesSystem;
+    livesSystem.currentLives = MAX_LIVES;
+    livesSystem.position = position;
+    livesSystem.spacing = spacing;
+    livesSystem.size = size;
+    livesSystem.useTexture = (texturePath != NULL);
+    if (livesSystem.useTexture) {
+        livesSystem.heartTexture = LoadTexture(texturePath);
+    }
+    return livesSystem;
+}
+
+// Menggambar nyawa
 void DrawLives(LivesSystem livesSystem) {
     for (int i = 0; i < MAX_LIVES; i++) {
         if (i < livesSystem.currentLives) {
@@ -46,26 +42,28 @@ void DrawLives(LivesSystem livesSystem) {
             };
 
             if (livesSystem.useTexture) {
-                // Gambar hati menggunakan texture
-                DrawTexture(
-                    livesSystem.heartTexture, 
-                    heartPos.x, 
-                    heartPos.y, 
-                    WHITE
-                );
+                DrawTexture(livesSystem.heartTexture, heartPos.x, heartPos.y, WHITE);
             } else {
-                // Gambar hati menggunakan polygon
-                DrawHeart(heartPos, livesSystem.size, RED);
+                DrawHeart(heartPos, livesSystem.size, RED); // Panggil DrawHeart
             }
         }
     }
 }
 
+// Mengurangi nyawa
 bool ReduceLife(LivesSystem* livesSystem) {
     livesSystem->currentLives--;
     return livesSystem->currentLives <= 0;
 }
 
+// Mereset nyawa
 void ResetLives(LivesSystem* livesSystem) {
     livesSystem->currentLives = MAX_LIVES;
+}
+
+// Unload resources
+void UnloadLivesSystem(LivesSystem* livesSystem) {
+    if (livesSystem->useTexture) {
+        UnloadTexture(livesSystem->heartTexture);
+    }
 }
