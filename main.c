@@ -1,175 +1,137 @@
-#include <SDL3/SDL.h>
+#include <raylib.h>
+#include <stddef.h>
+#include <stdio.h>
 #include "include/mobil.h"
 #include "include/menu.h"
 #include "include/jalur.h"
 #include "include/rintangan.h"
-#include "include/config.h" // Include config.h
+#include "include/skor.h"
+#include "include/config.h"
+#include "include/lives.h"
+#include "src/level.c"
 
-#define NUM_CARS 1  // Jumlah mobil pemain
-#define MOVE_STEP 1 // Langkah perpindahan mobil
+int main() {
 
-// Koordinat jalur untuk mobil
-#define LEFT_LANE_X (SCREEN_WIDTH / 4 - PLAYER_CAR_WIDTH / 2)
-#define MIDDLE_LANE_X (SCREEN_WIDTH / 2 - PLAYER_CAR_WIDTH / 2)
-#define RIGHT_LANE_X (3 * SCREEN_WIDTH / 4 - PLAYER_CAR_WIDTH / 2)
 
-int main()
-{
-  // Inisialisasi SDL
-  SDL_Init(SDL_INIT_VIDEO);
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "C1 Brick Racer");
+    SetTargetFPS(60);
 
-  // Membuat jendela permainan
-  SDL_Window *window = SDL_CreateWindow("Racing Game", SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-  if (window == NULL)
-  {
-    SDL_Log("Failed to create window: %s", SDL_GetError());
-    SDL_Quit();
-    return 1;
-  }
+    Texture2D brickTexture = LoadTexture("resources/coba.jpg");
 
-  // Membuat renderer untuk menggambar objek permainan
-  SDL_Renderer *renderer = SDL_CreateRenderer(window, NULL);
-  if (renderer == NULL)
-  {
-    SDL_Log("Failed to create renderer: %s", SDL_GetError());
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    return 1;
-  }
+    LivesSystem livesSystem = InitLivesSystem((Vector2){SCREEN_WIDTH - 150, 10}, 40.0f, 30.0f, NULL);
+    GameState gameState = STATE_MENU;
+    int selectedOption = 0;
 
-  // Inisialisasi mobil pemain
-  Car cars[NUM_CARS];
-  int i;
-  for (i = 0; i < NUM_CARS; i++)
-  {
-    initCar(&cars[i], MIDDLE_LANE_X, SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10.0f - (i * 100), PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
-  }
-
-  // Inisialisasi rintangan
-  initRintangan();
-
-  bool quit = false;
-  SDL_Event e;
-
-  // Nyawa pemain
-  int lives = 3;
-
-  while (!quit)
-  {
-    // Menangani event (input dari pemain)
-    while (SDL_PollEvent(&e) != 0)
-    {
-      if (e.type == SDL_EVENT_QUIT)
-      {
-        quit = true;
-      }
+    Car cars[NUM_CARS];
+    for (int i = 0; i < NUM_CARS; i++) {
+        initCar(&cars[i], MIDDLE_LANE_X, SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10.0f, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
+        // main.c
+        printf("PLAYER_CAR_WIDTH: %d, PLAYER_CAR_HEIGHT: %d\n", PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT);
     }
 
-    // Membaca input keyboard
-    const Uint8 *currentKeyStates = (const Uint8 *)SDL_GetKeyboardState(NULL);
+    Skor skor;
+    initSkor(&skor);
 
-    // Pergerakan mobil ke kiri
-    if (currentKeyStates[SDL_SCANCODE_LEFT])
-    {
-      for (i = 0; i < NUM_CARS; i++)
-      {
-        if (cars[i].x > LEFT_LANE_X)
-        {
-          cars[i].x = LEFT_LANE_X;
-          cars[i].rect.x = cars[i].x;
+    bool quit = false;
+
+    int selectedLevel = 0; // Level yang dipilih (default: level 0 / Easy)
+    while (!quit) {
+        float deltaTime = GetFrameTime();
+
+        switch (gameState) {
+            case STATE_MENU:
+                handleMenuInput(&selectedOption, &gameState, cars, &livesSystem.currentLives, &skor);
+                break;
+    
+            case STATE_LEVEL_MENU:
+                handleLevelMenuInput(&selectedLevel, &gameState);
+                DrawLevelMenu(selectedLevel, brickTexture); // Pastikan ini sesuai
+                break;
+    
+            case STATE_GAME:
+                // Gunakan level yang dipilih
+                Level currentLevel = levels[selectedLevel];
+                handleCarInput(&cars[0]);
+                updateRintangan(&skor, currentLevel.obstacleSpeed); // Update rintangan dengan kecepatan sesuai level
+                drawRintangan();
+        
+                for (int i = 0; i < NUM_CARS; i++) {
+                    updateCarInvulnerability(&cars[i], deltaTime);
+                
+                    for (int lane = 0; lane < MAX_LANES; lane++) {
+                        for (int j = 0; j < MAX_OBSTACLES; j++) {
+                            // Hanya cek tabrakan jika rintangan aktif (y >= 0 dan width > 0)
+                            if (rintangan[lane][j].y >= 0 && rintangan[lane][j].width > 0) {
+                                Rectangle obstacle = {
+                                    rintangan[lane][j].x, 
+                                    rintangan[lane][j].y, 
+                                    rintangan[lane][j].width, 
+                                    rintangan[lane][j].height
+                                };
+                
+                                if (checkCarCollision(&cars[i], obstacle)) {
+                                    if (ReduceLife(&livesSystem)) {
+                                        gameState = STATE_GAME_OVER;
+                                    }
+                                    resetCarPosition(&cars[i]);
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+        
+            case STATE_GAME_OVER:
+                if (IsKeyPressed(KEY_ENTER)) {
+                    gameState = STATE_MENU;
+                    ResetLives(&livesSystem);
+                    initSkor(&skor);
+                }
+                break;
+        
+            case STATE_EXIT:
+                // Tambahkan penanganan untuk STATE_EXIT
+                quit = true; // Keluar dari loop utama
+                break;
+        
+            default:
+                gameState = STATE_MENU; // Kembali ke menu jika state tidak valid
+                break;
         }
-      }
-    }
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
 
-    // Pergerakan mobil ke kanan
-    if (currentKeyStates[SDL_SCANCODE_RIGHT])
-    {
-      for (i = 0; i < NUM_CARS; i++)
-      {
-        if (cars[i].x < RIGHT_LANE_X)
-        {
-          cars[i].x = RIGHT_LANE_X;
-          cars[i].rect.x = cars[i].x;
+        switch (gameState) {
+            case STATE_MENU:
+                DrawMenu(selectedOption, brickTexture);
+                break;
+
+            case STATE_GAME:
+                ClearBackground(DARKGRAY);
+                draw_lanes();
+                for (int i = 0; i < NUM_CARS; i++) {
+                    renderCar(&cars[i]);
+                }
+                tampilkanSkor(&skor);
+                DrawLives(livesSystem); // Pastikan ini dipanggil
+                break;
+
+            case STATE_GAME_OVER:
+                ClearBackground(BLACK);
+                DrawText("GAME OVER", SCREEN_WIDTH / 2 - MeasureText("GAME OVER", 50) / 2, SCREEN_HEIGHT / 2 - 50, 50, RED);
+                DrawText("Press ENTER to return to Menu", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to return to Menu", 20) / 2, SCREEN_HEIGHT / 2 + 20, 20, WHITE);
+                break;
+
+             default:
+                // Penanganan default jika ada state yang tidak terduga
+                break;
         }
-      }
+
+        EndDrawing();
     }
 
-    // Pergerakan mobil ke atas (maju)
-    if (currentKeyStates[SDL_SCANCODE_UP])
-    {
-      for (i = 0; i < NUM_CARS; i++)
-      {
-        if (cars[i].y > 0) // Jangan keluar layar atas
-        {
-          cars[i].y -= cars[i].speed;
-          cars[i].rect.y = cars[i].y;
-        }
-      }
-    }
-
-    // Pergerakan mobil ke bawah (mundur)
-    if (currentKeyStates[SDL_SCANCODE_DOWN])
-    {
-      for (i = 0; i < NUM_CARS; i++)
-      {
-        if (cars[i].y + cars[i].height < SCREEN_HEIGHT) // Jangan keluar layar bawah
-        {
-          cars[i].y += cars[i].speed;
-          cars[i].rect.y = cars[i].y;
-        }
-      }
-    }
-
-    // Memperbarui posisi rintangan
-    updateRintangan();
-
-    // Mengecek tabrakan antara mobil dan rintangan
-    for (i = 0; i < NUM_CARS; i++)
-    {
-      if (checkCollision(cars[i].x, cars[i].y, cars[i].width, cars[i].height))
-      {
-        lives--; // Mengurangi nyawa jika terjadi tabrakan
-        if (lives <= 0)
-        {
-          SDL_Log("Game Over!");
-          quit = true; // Akhiri permainan jika nyawa habis
-        }
-        else
-        {
-          SDL_Log("You hit an obstacle! You have %d lives left.", lives);
-          // Reset posisi mobil jika terjadi tabrakan
-          cars[i].x = MIDDLE_LANE_X;
-          cars[i].y = SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10;
-        }
-      }
-    }
-
-    // Menggambar ulang layar
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-
-    // Menggambar jalur
-    draw_lanes(renderer);
-
-    // Menggambar rintangan
-    drawRintangan(renderer);
-
-    // Menggambar mobil pemain
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    for (i = 0; i < NUM_CARS; i++)
-    {
-      renderCar(renderer, &cars[i]);
-    }
-
-    // Menampilkan hasil render ke layar
-    SDL_RenderPresent(renderer);
-    SDL_Delay(16); // Memberikan jeda untuk frame rate yang lebih stabil
-  }
-
-  // Membersihkan SDL sebelum keluar
-  SDL_DestroyRenderer(renderer);
-  SDL_DestroyWindow(window);
-  SDL_Quit();
-
-  return 0;
+    UnloadTexture(brickTexture);
+    UnloadLivesSystem(&livesSystem);
+    CloseWindow();
+    return 0;
 }

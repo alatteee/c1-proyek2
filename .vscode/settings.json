@@ -57,7 +57,15 @@
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
-    "mobil.h": "c",
-    "jalur.h": "c"
+    "jalur.h": "c",
+    "menu.h": "c",
+    "raylib.h": "c",
+    "cstdlib": "c",
+    "rintangan.h": "c",
+    "atomic": "c",
+    "*.tcc": "c",
+    "format": "c",
+    "istream": "c",
+    "ostream": "c"
   }
 }

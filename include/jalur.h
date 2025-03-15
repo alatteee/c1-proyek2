@@ -1,11 +1,9 @@
-// jalur.h
 #ifndef JALUR_H
 #define JALUR_H
 
-#include <SDL3/SDL.h>
+#include <raylib.h>
 #include "config.h"
 
-void draw_lanes(SDL_Renderer *renderer);
-
+void draw_lanes();
 
 #endif // JALUR_H
