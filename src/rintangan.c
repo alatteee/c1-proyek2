@@ -240,6 +240,7 @@ void drawDog(int x, int y, int width, int height)
     DrawTriangle(tailPoints[0], tailPoints[1], tailPoints[2], dogBody);
 }
 
+// Dalam rintangan.c
 void updateRintangan(Skor *skor)
 {
     int lane, i;
@@ -271,7 +272,6 @@ void updateRintangan(Skor *skor)
         }
     }
 }
-
 void drawRintangan()
 {
     int lane, i, x, y;

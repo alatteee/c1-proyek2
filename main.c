@@ -5,93 +5,101 @@
 #include "include/rintangan.h"
 #include "include/skor.h"
 #include "include/config.h"
+#include "include/lives.h"
 
-int main()
-{
+int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "C1 Brick Racer");
     SetTargetFPS(60);
 
     Texture2D brickTexture = LoadTexture("resources/coba.jpg");
 
-    GameState gameState = STATE_MENU; // Already defined in config.h
+    LivesSystem livesSystem = InitLivesSystem((Vector2){SCREEN_WIDTH - 150, 10}, 40.0f, 30.0f, "resources/heart.png");
+    GameState gameState = STATE_MENU;
     int selectedOption = 0;
 
     Car cars[NUM_CARS];
+    for (int i = 0; i < NUM_CARS; i++) {
+        initCar(&cars[i], MIDDLE_LANE_X, SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10.0f, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
+    }
+
     Skor skor;
-    initSkor(&skor); // Inisialisasi skor
-    int lives = 3;
-    
+    initSkor(&skor);
+
     bool quit = false;
 
-    while (!quit)
-    {
-        // Ensure gameState is within valid values (menu, game, game over, exit)
-        if (gameState < STATE_MENU || gameState > STATE_EXIT) {
-            gameState = STATE_MENU; // Reset to a valid state if it goes out of range
-        }
+    while (!quit) {
+        float deltaTime = GetFrameTime();
 
-        switch (gameState)
-        {
+        switch (gameState) {
             case STATE_MENU:
-                handleMenuInput(&selectedOption, &gameState, cars, &lives, &skor);
+                handleMenuInput(&selectedOption, &gameState, cars, &livesSystem.currentLives, &skor);
                 break;
-
+        
             case STATE_GAME:
                 handleCarInput(cars);
-                updateRintangan(&skor); // Teruskan skor ke updateRintangan
+                updateRintangan(&skor);
                 drawRintangan();
-
-                // Cek tabrakan untuk setiap mobil
+        
                 for (int i = 0; i < NUM_CARS; i++) {
-                    if (checkCollision(cars[i].x, cars[i].y, cars[i].width, cars[i].height)) {
-                        lives--; // Kurangi nyawa jika terjadi tabrakan
-                        if (lives <= 0) {
-                            gameState = STATE_GAME_OVER; // Pindah ke state GAME_OVER jika nyawa habis
+                    updateCarInvulnerability(&cars[i], deltaTime);
+        
+                    for (int lane = 0; lane < MAX_LANES; lane++) {
+                        for (int j = 0; j < MAX_OBSTACLES; j++) {
+                            Rectangle obstacle = {rintangan[lane][j].x, rintangan[lane][j].y, rintangan[lane][j].width, rintangan[lane][j].height};
+                            if (checkCarCollision(&cars[i], obstacle)) {
+                                if (ReduceLife(&livesSystem)) {
+                                    gameState = STATE_GAME_OVER;
+                                }
+                                resetCarPosition(&cars[i]);
+                            }
                         }
                     }
                 }
                 break;
-
+        
             case STATE_GAME_OVER:
-                if (IsKeyPressed(KEY_ENTER)) gameState = STATE_MENU;
+                if (IsKeyPressed(KEY_ENTER)) {
+                    gameState = STATE_MENU;
+                    ResetLives(&livesSystem);
+                    initSkor(&skor);
+                }
                 break;
-
+        
             case STATE_EXIT:
+                // Tambahkan penanganan untuk STATE_EXIT
                 quit = true; // Keluar dari loop utama
                 break;
-
+        
             default:
-                // Handle unexpected states, this is just for safety
-                gameState = STATE_MENU; // Optionally reset to a known state
+                gameState = STATE_MENU; // Kembali ke menu jika state tidak valid
                 break;
         }
-
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        switch (gameState)
-        {
+        switch (gameState) {
             case STATE_MENU:
-                DrawMenu(selectedOption, brickTexture); // Defined in menu.c
+                DrawMenu(selectedOption, brickTexture);
                 break;
 
             case STATE_GAME:
                 ClearBackground(DARKGRAY);
-                draw_lanes(); // Draw lanes
-                for (int i = 0; i < NUM_CARS; i++)
-                {
+                draw_lanes();
+                for (int i = 0; i < NUM_CARS; i++) {
                     renderCar(&cars[i]);
                 }
-                tampilkanSkor(&skor); // Show score
+                tampilkanSkor(&skor);
+                DrawLives(livesSystem);
                 break;
 
             case STATE_GAME_OVER:
-                ClearBackground(BLACK); // Ubah ke BLACK
+                ClearBackground(BLACK);
                 DrawText("GAME OVER", SCREEN_WIDTH / 2 - MeasureText("GAME OVER", 50) / 2, SCREEN_HEIGHT / 2 - 50, 50, RED);
                 DrawText("Press ENTER to return to Menu", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to return to Menu", 20) / 2, SCREEN_HEIGHT / 2 + 20, 20, WHITE);
                 break;
-            default:
-                // Handle any unexpected cases, resetting or showing a message can be done here
+
+             default:
+                // Penanganan default jika ada state yang tidak terduga
                 break;
         }
 
@@ -99,6 +107,7 @@ int main()
     }
 
     UnloadTexture(brickTexture);
+    UnloadLivesSystem(&livesSystem);
     CloseWindow();
     return 0;
 }

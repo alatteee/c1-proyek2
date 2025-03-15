@@ -59,6 +59,7 @@
   "files.associations": {
     "jalur.h": "c",
     "menu.h": "c",
-    "raylib.h": "c"
+    "raylib.h": "c",
+    "cstdlib": "c"
   }
 }

@@ -1,15 +1,20 @@
 #include "../include/mobil.h"
 #include "../include/config.h"
+#include "../include/lives.h"
 #include <raylib.h>
 
 // Fungsi untuk inisialisasi mobil
+// Dalam mobil.c
 void initCar(Car *car, float x, float y, float width, float height, int speed)
 {
-  car->x = x;
-  car->y = y;
-  car->width = width;
-  car->height = height;
-  car->speed = speed;
+    car->x = x;
+    car->y = y;
+    car->width = width;
+    car->height = height;
+    car->speed = speed;
+    car->rect = (Rectangle){x, y, width, height}; // Inisialisasi rectangle
+    car->isInvulnerable = false;
+    car->invulnerabilityTimer = 0.0f;
 }
 
 // Fungsi untuk menggambar mobil dengan desain top-down seperti gambar sport car kuning
@@ -76,4 +81,32 @@ void handleCarInput(Car *car)
         car->y -= car->speed;
     if (IsKeyDown(KEY_DOWN) && car->y + car->height < SCREEN_HEIGHT) 
         car->y += car->speed;
+}
+
+
+
+void resetCarPosition(Car *car) {
+  car->x = MIDDLE_LANE_X;
+  car->y = SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10.0f;
+  car->rect = (Rectangle){car->x, car->y, car->width, car->height};
+}
+
+void updateCarInvulnerability(Car *car, float deltaTime) {
+  if (car->isInvulnerable) {
+      car->invulnerabilityTimer += deltaTime;
+      if (car->invulnerabilityTimer >= INVULNERABILITY_DURATION) {
+          car->isInvulnerable = false;
+          car->invulnerabilityTimer = 0.0f;
+      }
+  }
+}
+
+// Dalam mobil.c
+bool checkCarCollision(Car *car, Rectangle obstacle) {
+  if (!car->isInvulnerable && CheckCollisionRecs(car->rect, obstacle)) {
+      car->isInvulnerable = true;
+      car->invulnerabilityTimer = 0.0f;
+      return true; // Terjadi tabrakan
+  }
+  return false; // Tidak terjadi tabrakan
 }
