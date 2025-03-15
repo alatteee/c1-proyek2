@@ -1,14 +1,27 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define SCREEN_WIDTH 1280 // Lebar layar
-#define SCREEN_HEIGHT 720 // Tinggi layar
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 720
 
-#define MAX_LANES 3     // Jumlah jalur
-#define MAX_OBSTACLES 5 // Jumlah rintangan per jalur
+#define MAX_LANES 3
+#define MAX_OBSTACLES 5
 
 #define PLAYER_CAR_WIDTH 80
 #define PLAYER_CAR_HEIGHT 120
 #define OBSTACLE_SPEED 5
+
+#define LEFT_LANE_X (SCREEN_WIDTH / 4 - PLAYER_CAR_WIDTH / 2)
+#define MIDDLE_LANE_X (SCREEN_WIDTH / 2 - PLAYER_CAR_WIDTH / 2)
+#define RIGHT_LANE_X (3 * SCREEN_WIDTH / 4 - PLAYER_CAR_WIDTH / 2)
+
+#define NUM_CARS 1
+
+typedef enum {
+    STATE_MENU,
+    STATE_GAME,
+    STATE_GAME_OVER,
+    STATE_EXIT 
+} GameState;
 
 #endif

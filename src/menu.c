@@ -1,6 +1,10 @@
 #include "menu.h"
 #include <raylib.h>
-#include "config.h" // Pastikan ini di-include
+#include "../include/config.h"
+#include "../include/mobil.h" 
+#include "../include/skor.h"
+#include "../include/rintangan.h"
+
 
 void DrawMenu(int selectedOption, Texture2D brickTexture)
 {
@@ -41,3 +45,50 @@ void DrawMenu(int selectedOption, Texture2D brickTexture)
         DrawText(text, textX, textY, 20, BLACK);
     }
 }
+
+// Fungsi untuk menangani input pada menu
+void handleMenuInput(int *selectedOption, GameState *gameState, Car cars[], int *lives, Skor *skor)
+{
+    if (IsKeyPressed(KEY_UP))
+    {
+        (*selectedOption)--; 
+        if (*selectedOption < 0)
+            *selectedOption = NUM_OPTIONS - 1;  // Pastikan ini sesuai dengan jumlah pilihan menu
+    }
+    if (IsKeyPressed(KEY_DOWN))
+    {
+        (*selectedOption)++;
+        if (*selectedOption >= NUM_OPTIONS)
+            *selectedOption = 0;
+    }
+
+    if (IsKeyPressed(KEY_ENTER))
+    {
+        switch (*selectedOption)
+        {
+        case 0: // Start Game
+            for (int i = 0; i < NUM_CARS; i++)
+            {
+                initCar(&cars[i], MIDDLE_LANE_X, SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10.0f, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
+            }
+            initRintangan();
+            initSkor(skor);
+            *lives = 3;
+            *gameState = STATE_GAME;
+            break;
+
+        case 1: // Options
+            // Tambahkan logika untuk menu Options
+            break;
+
+        case 2: // Exit
+            *gameState = STATE_EXIT;
+            break;
+        }
+    }
+    if (IsKeyPressed(KEY_ESCAPE)) {
+        *gameState = STATE_EXIT;
+    }
+}
+
+

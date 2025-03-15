@@ -1,4 +1,5 @@
 #include "../include/skor.h"
+#include "../include/config.h"
 #include <stdio.h>
 #include <raylib.h>
 

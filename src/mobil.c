@@ -1,4 +1,5 @@
 #include "../include/mobil.h"
+#include "../include/config.h"
 #include <raylib.h>
 
 // Fungsi untuk inisialisasi mobil
@@ -62,4 +63,17 @@ void renderCar(Car *car)
   DrawRectangle(carX + carWidth * 0.78f, carY + carHeight * 0.25f, carWidth * 0.07f, carHeight * 0.15f, DARKGRAY); // Roda depan kanan
   DrawRectangle(carX + carWidth * 0.15f, carY + carHeight * 0.6f, carWidth * 0.07f, carHeight * 0.15f, DARKGRAY);  // Roda belakang kiri
   DrawRectangle(carX + carWidth * 0.78f, carY + carHeight * 0.6f, carWidth * 0.07f, carHeight * 0.15f, DARKGRAY);  // Roda belakang kanan
+}
+
+// Fungsi untuk menangani input gerakan mobil
+void handleCarInput(Car *car)
+{
+    if (IsKeyDown(KEY_LEFT) && car->x > 0) 
+        car->x -= car->speed;
+    if (IsKeyDown(KEY_RIGHT) && car->x + car->width < SCREEN_WIDTH) 
+        car->x += car->speed;
+    if (IsKeyDown(KEY_UP) && car->y > 0) 
+        car->y -= car->speed;
+    if (IsKeyDown(KEY_DOWN) && car->y + car->height < SCREEN_HEIGHT) 
+        car->y += car->speed;
 }

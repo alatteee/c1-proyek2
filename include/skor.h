@@ -2,6 +2,7 @@
 #define SKOR_H
 
 #include <raylib.h>
+#include "config.h"
 
 // Struktur untuk menyimpan nilai skor
 typedef struct {

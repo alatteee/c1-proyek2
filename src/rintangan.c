@@ -1,5 +1,6 @@
 #include "../include/rintangan.h"
 #include "../include/skor.h"
+#include "../include/config.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
