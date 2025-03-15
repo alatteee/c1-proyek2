@@ -20,8 +20,9 @@
 
 typedef enum {
     STATE_MENU,
-    STATE_LEVEL_MENU, // Tambahkan state untuk menu level
+    STATE_LEVEL_MENU,
     STATE_GAME,
+    STATE_COLLISION,  // Tambahan
     STATE_GAME_OVER,
     STATE_EXIT
 } GameState;
