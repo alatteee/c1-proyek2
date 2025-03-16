@@ -4,7 +4,6 @@
 /*              dalam game "C1 Brick Racer". Berisi deklarasi fungsi untuk       */
 /*              menggambar garis finish dan memeriksa tabrakan mobil dengan     */
 /*              garis finish.                                                   */
-/* Pembuat     : Azkha Nazzala                                                  */
 /* ----------------------------------------------------------------------------- */
 
 #ifndef FINISH_LINE_H

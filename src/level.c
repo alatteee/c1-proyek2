@@ -3,7 +3,6 @@
 /* Deskripsi   : File implementasi untuk mengelola level dalam game "C1 Brick    */
 /*              Racer". Berisi definisi level-level yang tersedia, termasuk      */
 /*              kecepatan rintangan, jumlah rintangan, dan posisi rintangan.    */
-/* Pembuat     : Azkha Nazzala                                                  */
 /* ----------------------------------------------------------------------------- */
 
 #include "../include/config.h"  // Mengimpor file header konfigurasi game
