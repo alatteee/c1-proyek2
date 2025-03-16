@@ -18,6 +18,9 @@
 #define NUM_CARS 1
 #define OBSTACLE_SPEED 5 // Kecepatan rintangan
 
+#define FINISH_LINE_Y 100 // Posisi Y garis finish
+#define FINISH_LINE_HEIGHT 10 // Ketebalan garis finish
+
 typedef enum {
     STATE_MENU,
     STATE_LEVEL_MENU,

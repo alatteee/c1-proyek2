@@ -1,4 +1,4 @@
-#include "menu.h"
+#include "../include/menu.h"
 #include <raylib.h>
 #include "../include/config.h"
 #include "../include/mobil.h" 
@@ -123,6 +123,7 @@ void handleLevelMenuInput(int *selectedLevel, GameState *gameState) {
     }
 
     if (IsKeyPressed(KEY_ENTER)) {
+        initRintangan(); // Inisialisasi ulang rintangan
         *gameState = STATE_GAME; // Pindah ke state game dengan level yang dipilih
     }
 }

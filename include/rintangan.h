@@ -24,8 +24,8 @@ extern Rintangan rintangan[MAX_LANES][MAX_OBSTACLES];
 
 // Function declarations
 void initRintangan();
-void updateRintangan(Skor *skor, int obstacleSpeed);
-void drawRintangan();
+void updateRintangan(Skor *skor, int obstacleSpeed, bool gameWon); // Tambahkan parameter gameWon
+void drawRintangan(bool gameWon);
 int checkCollision(float x, float y, float width, float height);
 
 #endif

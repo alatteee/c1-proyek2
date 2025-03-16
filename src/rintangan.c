@@ -235,62 +235,62 @@ void drawDog(int x, int y, int width, int height)
     DrawTriangle(tailPoints[0], tailPoints[1], tailPoints[2], dogBody);
 }
 
-/// rintangan.c
-void updateRintangan(Skor *skor, int obstacleSpeed) {
-    int lane, i;
-    for (lane = 0; lane < MAX_LANES; lane++) {
-        for (i = 0; i < MAX_OBSTACLES; i++) {
-            // Gerakkan rintangan ke bawah dengan kecepatan sesuai level
-            rintangan[lane][i].y += obstacleSpeed;
+void updateRintangan(Skor *skor, int obstacleSpeed, bool gameWon) {
+    if (!gameWon) { // Hanya update rintangan jika pemain belum menang
+        int lane, i;
+        for (lane = 0; lane < MAX_LANES; lane++) {
+            for (i = 0; i < MAX_OBSTACLES; i++) {
+                // Gerakkan rintangan ke bawah dengan kecepatan sesuai level
+                rintangan[lane][i].y += obstacleSpeed;
 
-            // Jika rintangan melewati layar dan belum dihitung
-            if (rintangan[lane][i].y > SCREEN_HEIGHT && !rintangan[lane][i].hasPassed) {
-                // Tandai rintangan sudah melewati layar
-                rintangan[lane][i].hasPassed = true;
+                // Jika rintangan melewati layar dan belum dihitung
+                if (rintangan[lane][i].y > SCREEN_HEIGHT && !rintangan[lane][i].hasPassed) {
+                    // Tandai rintangan sudah melewati layar
+                    rintangan[lane][i].hasPassed = true;
 
-                // Tambah skor hanya sekali saat rintangan melewati layar
-                tambahSkor(skor, 10);
-                printf("Skor ditambah: %d\n", skor->nilai); // Debugging
-            }
+                    // Tambah skor hanya sekali saat rintangan melewati layar
+                    tambahSkor(skor, 10);
+                    printf("Skor ditambah: %d\n", skor->nilai); // Debugging
+                }
 
-            // Reset rintangan jika sudah melewati layar
-            if (rintangan[lane][i].y > SCREEN_HEIGHT + rintangan[lane][i].height) {
-                rintangan[lane][i].y = -(rand() % 300 + 100); // Posisi Y acak di atas layar
-                rintangan[lane][i].type = rand() % 4;         // Tipe rintangan acak
-                rintangan[lane][i].hasPassed = false;         // Reset flag
+                // Reset rintangan jika sudah melewati layar
+                if (rintangan[lane][i].y > SCREEN_HEIGHT + rintangan[lane][i].height) {
+                    rintangan[lane][i].y = -(rand() % 300 + 100); // Posisi Y acak di atas layar
+                    rintangan[lane][i].type = rand() % 4;         // Tipe rintangan acak
+                    rintangan[lane][i].hasPassed = false;         // Reset flag
+                }
             }
         }
     }
 }
 
-void drawRintangan()
-{
-    int lane, i, x, y;
-    for (lane = 0; lane < MAX_LANES; lane++)
-    {
-        for (i = 0; i < MAX_OBSTACLES; i++)
-        {
-            x = rintangan[lane][i].x;
-            y = rintangan[lane][i].y;
-            int width = rintangan[lane][i].width;
-            int height = rintangan[lane][i].height;
+void drawRintangan(bool gameWon) {
+    if (!gameWon) { // Hanya gambar rintangan jika pemain belum menang
+        int lane, i, x, y;
+        for (lane = 0; lane < MAX_LANES; lane++) {
+            for (i = 0; i < MAX_OBSTACLES; i++) {
+                x = rintangan[lane][i].x;
+                y = rintangan[lane][i].y;
+                int width = rintangan[lane][i].width;
+                int height = rintangan[lane][i].height;
 
-            if (rintangan[lane][i].y >= 0) // Pastikan rintangan digambar jika posisi Y valid
-            {
-                // Menggambar rintangan sesuai tipe
-                switch(rintangan[lane][i].type) {
-                    case 0:
-                        drawCat(x, y, width, height); // Kucing
-                        break;
-                    case 1:
-                        drawRock(x, y, width, height); // Batu
-                        break;
-                    case 2:
-                        drawCar(x, y, width, height); // Mobil
-                        break;
-                    case 3:
-                        drawDog(x, y, width, height); // Anjing
-                        break;
+                if (rintangan[lane][i].y >= 0) // Pastikan rintangan digambar jika posisi Y valid
+                {
+                    // Menggambar rintangan sesuai tipe
+                    switch(rintangan[lane][i].type) {
+                        case 0:
+                            drawCat(x, y, width, height); // Kucing
+                            break;
+                        case 1:
+                            drawRock(x, y, width, height); // Batu
+                            break;
+                        case 2:
+                            drawCar(x, y, width, height); // Mobil
+                            break;
+                        case 3:
+                            drawDog(x, y, width, height); // Anjing
+                            break;
+                    }
                 }
             }
         }
