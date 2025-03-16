@@ -70,7 +70,7 @@ void handleMenuInput(int *selectedOption, GameState *gameState, Car cars[], int 
             {
                 initCar(&cars[i], MIDDLE_LANE_X, SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10.0f, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
             }
-            initRintangan();
+            initRintangan(0);
             initSkor(skor);
             *lives = 3;
             *gameState = STATE_GAME;
@@ -123,7 +123,7 @@ void handleLevelMenuInput(int *selectedLevel, GameState *gameState) {
     }
 
     if (IsKeyPressed(KEY_ENTER)) {
-        initRintangan(); // Inisialisasi ulang rintangan
+        initRintangan(*selectedLevel); // Inisialisasi ulang rintangan
         *gameState = STATE_GAME; // Pindah ke state game dengan level yang dipilih
     }
 }

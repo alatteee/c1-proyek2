@@ -15,6 +15,7 @@ int main()
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "C1 Brick Racer");
     SetTargetFPS(60);
 
+
     Texture2D brickTexture = LoadTexture("resources/coba.jpg");
 
     LivesSystem livesSystem = InitLivesSystem((Vector2){SCREEN_WIDTH - 150, 10}, 40.0f, 30.0f, NULL);
@@ -70,6 +71,7 @@ int main()
         case STATE_GAME:
         {
             Level currentLevel = levels[selectedLevel];
+            printf("Selected Level: %d, Obstacle Speed: %d, Num Obstacles: %d\n", selectedLevel, currentLevel.obstacleSpeed, currentLevel.numObstacles); // Debugging
             handleCarInput(&cars[0]);
             updateRintangan(&skor, currentLevel.obstacleSpeed, gameWon); // Update rintangan dengan parameter gameWon
 
@@ -88,12 +90,12 @@ int main()
 
             // Jika pemain menang dan menekan ENTER, kembali ke menu
             if (gameWon && IsKeyPressed(KEY_ENTER)) {
-              gameState = STATE_MENU;
-              ResetLives(&livesSystem);
-              initSkor(&skor); // Reset skor
-              gameTimer = 0.0f; // Reset timer
-              finishLineVisible = false; // Sembunyikan garis finish
-              gameWon = false; // Reset status menang
+                gameState = STATE_MENU;
+                ResetLives(&livesSystem);
+                initSkor(&skor); // Reset skor
+                gameTimer = 0.0f; // Reset timer
+                finishLineVisible = false; // Sembunyikan garis finish
+                gameWon = false; // Reset status menang
             }
 
             // Cek tabrakan dengan rintangan (hanya jika pemain belum menang)
@@ -105,7 +107,7 @@ int main()
                         for (int j = 0; j < MAX_OBSTACLES && !collisionOccurred; j++) {
                             if (rintangan[lane][j].y >= 0 && rintangan[lane][j].width > 0) {
                                 Rectangle obstacle = {rintangan[lane][j].x, rintangan[lane][j].y,
-                                                  rintangan[lane][j].width, rintangan[lane][j].height};
+                                              rintangan[lane][j].width, rintangan[lane][j].height};
                                 if (checkCarCollision(&cars[i], obstacle)) {
                                     if (ReduceLife(&livesSystem)) {
                                         gameState = STATE_GAME_OVER;
