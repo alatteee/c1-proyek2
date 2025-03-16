@@ -1,14 +1,20 @@
+
 #include "../include/mobil.h"
+#include "../include/config.h"
+#include "../include/lives.h"
 #include <raylib.h>
 
 // Fungsi untuk inisialisasi mobil
-void initCar(Car *car, float x, float y, float width, float height, int speed)
-{
+// mobil.c
+void initCar(Car *car, float x, float y, float width, float height, int speed) {
   car->x = x;
   car->y = y;
-  car->width = width;
-  car->height = height;
+  car->width = width;  // Pastikan ini menggunakan parameter width
+  car->height = height; // Pastikan ini menggunakan parameter height
   car->speed = speed;
+  car->rect = (Rectangle){car->x, car->y, car->width, car->height};
+  car->isInvulnerable = false;
+  car->invulnerabilityTimer = 0.0f;
 }
 
 // Fungsi untuk menggambar mobil dengan desain top-down seperti gambar sport car kuning
@@ -22,8 +28,8 @@ void renderCar(Car *car)
   Color tailLightColor = RED;    // Merah untuk lampu belakang
   Color detailColor = DARKGRAY;  // Abu-abu untuk detail
 
-  float carWidth = car->width;
-  float carHeight = car->height;
+  float carWidth = car->width;  // Gunakan nilai width dari mobil
+  float carHeight = car->height; // Gunakan nilai height dari mobil
   float carX = car->x;
   float carY = car->y;
 
@@ -62,4 +68,52 @@ void renderCar(Car *car)
   DrawRectangle(carX + carWidth * 0.78f, carY + carHeight * 0.25f, carWidth * 0.07f, carHeight * 0.15f, DARKGRAY); // Roda depan kanan
   DrawRectangle(carX + carWidth * 0.15f, carY + carHeight * 0.6f, carWidth * 0.07f, carHeight * 0.15f, DARKGRAY);  // Roda belakang kiri
   DrawRectangle(carX + carWidth * 0.78f, carY + carHeight * 0.6f, carWidth * 0.07f, carHeight * 0.15f, DARKGRAY);  // Roda belakang kanan
+}
+
+// Fungsi untuk menangani input gerakan mobil
+void handleCarInput(Car *car) {
+  if (IsKeyDown(KEY_LEFT) && car->x > 0) 
+      car->x -= car->speed;
+  if (IsKeyDown(KEY_RIGHT) && car->x + car->width < SCREEN_WIDTH) 
+      car->x += car->speed;
+  if (IsKeyDown(KEY_UP) && car->y > 0) 
+      car->y -= car->speed;
+  if (IsKeyDown(KEY_DOWN) && car->y + car->height < SCREEN_HEIGHT) 
+      car->y += car->speed;
+
+  // Update rectangle mobil
+  car->rect = (Rectangle){car->x, car->y, car->width, car->height};
+}
+
+
+
+void resetCarPosition(Car *car) {
+  car->x = MIDDLE_LANE_X;
+  car->y = SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10.0f;
+  car->rect = (Rectangle){car->x, car->y, car->width, car->height};
+}
+
+void updateCarInvulnerability(Car *car, float deltaTime) {
+  if (car->isInvulnerable) {
+      car->invulnerabilityTimer += deltaTime;
+      if (car->invulnerabilityTimer >= INVULNERABILITY_DURATION) {
+          car->isInvulnerable = false;
+          car->invulnerabilityTimer = 0.0f;
+      }
+  }
+}
+
+// Dalam mobil.c
+bool checkCarCollision(Car *car, Rectangle obstacle) {
+  // Debugging: Tampilkan posisi dan ukuran mobil serta rintangan
+  TraceLog(LOG_INFO, "Mobil: x=%.2f, y=%.2f, width=%.2f, height=%.2f", car->rect.x, car->rect.y, car->rect.width, car->rect.height);
+  TraceLog(LOG_INFO, "Rintangan: x=%.2f, y=%.2f, width=%.2f, height=%.2f", obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+
+  if (!car->isInvulnerable && CheckCollisionRecs(car->rect, obstacle)) {
+      TraceLog(LOG_INFO, "Tabrakan terdeteksi!");
+      car->isInvulnerable = true;
+      car->invulnerabilityTimer = 0.0f;
+      return true; // Terjadi tabrakan
+  }
+  return false; // Tidak terjadi tabrakan
 }

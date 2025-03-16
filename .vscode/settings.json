@@ -59,6 +59,13 @@
   "files.associations": {
     "jalur.h": "c",
     "menu.h": "c",
-    "raylib.h": "c"
+    "raylib.h": "c",
+    "cstdlib": "c",
+    "rintangan.h": "c",
+    "atomic": "c",
+    "*.tcc": "c",
+    "format": "c",
+    "istream": "c",
+    "ostream": "c"
   }
 }
