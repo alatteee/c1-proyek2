@@ -115,10 +115,13 @@ int main()
         {
             if (musicOn)
             {
-                StopMusicStream(menuMusic);
+                StopMusicStream(menuMusic); // Pastikan musik menu berhenti
                 if (!IsMusicStreamPlaying(gameMusic))
-                    PlayMusicStream(gameMusic);
+                {
+                    PlayMusicStream(gameMusic); // Mainkan musik game
+                }
             }
+
             Level currentLevel = levels[selectedLevel];
             printf("Selected Level: %d, Obstacle Speed: %d, Num Obstacles: %d\n", selectedLevel, currentLevel.obstacleSpeed, currentLevel.numObstacles); // Debugging
             handleCarInput(&cars[0]);
@@ -215,7 +218,6 @@ int main()
             {
                 PlayMusicStream(menuMusic);
             }
-
             break;
 
         case STATE_EXIT:
