@@ -1,171 +1,144 @@
 #include "../include/rintangan.h"
+#include "../include/skor.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
+#include <raylib.h>
 
 Rintangan rintangan[MAX_LANES][MAX_OBSTACLES];
 
+Skor skor; // Mendeklarasikan objek skor
+
 void initRintangan()
 {
-  int i, lane, type;
+    int i, lane, type;
+    int empty_lane = rand() % MAX_LANES; // Menentukan jalur kosong secara acak
 
-  // Menginisialisasi rintangan di setiap jalur
-  for (lane = 0; lane < MAX_LANES; lane++)
-  {
-    // Tentukan beberapa jalur yang akan memiliki rintangan
-    int num_obstacles = rand() % (MAX_OBSTACLES / 2); // Setengah dari MAX_OBSTACLES
-
-    // Mengacak interval rintangan agar muncul bergiliran
-    for (i = 0; i < num_obstacles; i++)
+    // Menginisialisasi rintangan di setiap jalur
+    for (lane = 0; lane < MAX_LANES; lane++)
     {
-      // Tentukan apakah rintangan ini muncul di jalur yang sudah ada sebelumnya
-      if (rand() % 2 == 0)
-      {
-        rintangan[lane][i].x = (SCREEN_WIDTH / MAX_LANES) * lane + (SCREEN_WIDTH / MAX_LANES) / 2 - PLAYER_CAR_WIDTH / 2;
-        rintangan[lane][i].y = -(i * 250 + rand() % 100);
-        rintangan[lane][i].width = PLAYER_CAR_WIDTH;
-        rintangan[lane][i].height = PLAYER_CAR_HEIGHT;
+        if (lane == empty_lane)
+        {
+            continue; // Lewati jalur kosong
+        }
 
-        // Tentukan tipe rintangan secara acak
-        type = rand() % 3;
-        rintangan[lane][i].type = type;
-      }
+        int num_obstacles = 1; // Hanya satu rintangan besar per jalur
+
+        // Mengatur rintangan dengan posisi acak
+        for (i = 0; i < num_obstacles; i++)
+        {
+            rintangan[lane][i].x = (SCREEN_WIDTH / MAX_LANES) * lane; // Lebar jalur
+            rintangan[lane][i].y = -(rand() % 300 + 100);             // Posisi Y yang lebih aman di layar
+            rintangan[lane][i].width = SCREEN_WIDTH / MAX_LANES;      // Ukuran lebar rintangan sesuai dengan lebar jalur
+            rintangan[lane][i].height = SCREEN_HEIGHT / 5;            // Menyesuaikan tinggi rintangan
+
+            // Tentukan jenis rintangan, misalnya mobil, batu, atau palang
+            type = rand() % 3; // Variasi rintangan
+            rintangan[lane][i].type = type;
+
+            printf("Lane: %d, Obstacle: %d, Type: %d, X: %f, Y: %f\n", lane, i, rintangan[lane][i].type, rintangan[lane][i].x, rintangan[lane][i].y);
+        }
     }
-  }
 }
 
-void drawCircle(SDL_Renderer *renderer, int x, int y, int r)
+void drawCircle(int x, int y, int r)
 {
-  int w, h;
-  for (w = -r; w < r; w++)
-  {
-    for (h = -r; h < r; h++)
-    {
-      if (w * w + h * h <= r * r)
-      {
-        SDL_RenderPoint(renderer, x + w, y + h);
-        if (rand() % 5 == 0)
-          SDL_RenderPoint(renderer, x + w + 2, y + h + 2); // Tekstur kasar
-      }
-    }
-  }
+    // Menggambar lingkaran rintangan
+    DrawCircle(x, y, r, BROWN); // Batu (coklat)
 }
 
-void drawTriangle(SDL_Renderer *renderer, int x, int y, int size)
+void drawTriangle(int x, int y, int size)
 {
-  int i;
-  SDL_FPoint points[4] = {
-      {x, y - size},
-      {x - size / 2, y + size / 2},
-      {x + size / 2, y + size / 2},
-      {x, y - size}};
-  SDL_RenderLines(renderer, points, 4);
-  for (i = -size / 2; i < size / 2; i += 5)
-  {
-    SDL_RenderPoint(renderer, x + i, y + size / 4); // Garis tekstur
-  }
+    // Menggambar segitiga untuk jenis rintangan palang
+    Vector2 points[3] = {
+        {x, y - size},
+        {x - size / 2, y + size / 2},
+        {x + size / 2, y + size / 2}};
+    DrawTriangle(points[0], points[1], points[2], RED); // Palang (merah)
 }
 
 void updateRintangan()
 {
-  int lane, i;
-  for (lane = 0; lane < MAX_LANES; lane++)
-  {
-    for (i = 0; i < MAX_OBSTACLES; i++)
+    int lane, i;
+    for (lane = 0; lane < MAX_LANES; lane++)
     {
-      if (rintangan[lane][i].y > 0) // Cek apakah rintangan ada di layar
-      {
-        rintangan[lane][i].y += 5; // Gerakkan ke bawah
-      }
-
-      if (rintangan[lane][i].y > SCREEN_HEIGHT)
-      {
-        // Reset posisi jika rintangan keluar dari layar
-        rintangan[lane][i].y = -rand() % 300;
-
-        // Tentukan tipe rintangan baru secara acak
-        rintangan[lane][i].type = rand() % 3;
-
-        // Tentukan apakah rintangan muncul kembali di jalur yang sama atau tidak
-        if (rand() % 2 == 0)
+        for (i = 0; i < MAX_OBSTACLES; i++)
         {
-          rintangan[lane][i].x = (SCREEN_WIDTH / MAX_LANES) * lane + (SCREEN_WIDTH / MAX_LANES) / 2 - PLAYER_CAR_WIDTH / 2;
+            if (rintangan[lane][i].y > SCREEN_HEIGHT)
+            {
+                rintangan[lane][i].y = -(rand() % 300 + 100); // Memberikan jarak antar rintangan
+                rintangan[lane][i].type = rand() % 3;         // Variasi tipe rintangan
+            }
+            else
+            {
+                rintangan[lane][i].y += OBSTACLE_SPEED; // Menggerakkan rintangan ke bawah
+            }
+
+            if (rintangan[lane][i].y > SCREEN_HEIGHT)
+            {
+                // Reset posisi jika rintangan keluar dari layar
+                rintangan[lane][i].y = -(rand() % 300 + 300); // Memberikan jarak antar rintangan
+                rintangan[lane][i].type = rand() % 3;         // Variasi tipe rintangan
+                tambahSkor(&skor, 10);                        // Menambah skor jika rintangan melewati pemain
+            }
         }
-      }
     }
-  }
 }
 
-void drawRintangan(SDL_Renderer *renderer)
+void drawRintangan()
 {
-  int lane, i, x, y, j;
-  for (lane = 0; lane < MAX_LANES; lane++)
-  {
-    for (i = 0; i < MAX_OBSTACLES; i++)
+    int lane, i, x, y;
+    for (lane = 0; lane < MAX_LANES; lane++)
     {
-      x = rintangan[lane][i].x;
-      y = rintangan[lane][i].y;
+        for (i = 0; i < MAX_OBSTACLES; i++)
+        {
+            x = rintangan[lane][i].x;
+            y = rintangan[lane][i].y;
 
-      if (rintangan[lane][i].y > 0) // Hanya menggambar rintangan yang masih di layar
-      {
-        if (rintangan[lane][i].type == 0)
-        {
-          SDL_SetRenderDrawColor(renderer, 139, 69, 19, 255); // Batu (coklat)
-          drawCircle(renderer, x + 20, y + 20, 20);
+            if (rintangan[lane][i].y >= 0) // Pastikan rintangan digambar jika posisi Y valid
+            {
+                // Menggambar rintangan sesuai tipe
+                if (rintangan[lane][i].type == 0)
+                {
+                    drawCircle(x + 20, y + 20, 20); // Batu (coklat)
+                }
+                else if (rintangan[lane][i].type == 1)
+                {
+                    drawTriangle(x + 40, y + 40, 40); // Palang (merah)
+                }
+                else
+                {
+                    DrawRectangle(x, y, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, BLUE); // Mobil (biru)
+                }
+            }
         }
-        else if (rintangan[lane][i].type == 1)
-        {
-          SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Palang (merah)
-          drawTriangle(renderer, x + 40, y + 40, 40);
-        }
-        else
-        {
-          SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255); // Mobil (biru)
-          SDL_FRect obstacle = {x, y, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT};
-          SDL_RenderFillRect(renderer, &obstacle);
-          for (j = 0; j < PLAYER_CAR_HEIGHT; j += 5)
-          {
-            SDL_RenderPoint(renderer, x + PLAYER_CAR_WIDTH / 2, y + j); // Garis tengah
-          }
-        }
-      }
     }
-  }
 }
 
-// Fungsi baru yang perlu ditambahkan
 int checkCollision(float x, float y, float width, float height)
 {
-  int lane, i;
-  
-  // Create player rectangle for collision detection
-  float playerLeft = x;
-  float playerRight = x + width;
-  float playerTop = y;
-  float playerBottom = y + height;
+    int lane, i;
 
-  for (lane = 0; lane < MAX_LANES; lane++)
-  {
-    for (i = 0; i < MAX_OBSTACLES; i++)
+    // Create player rectangle for collision detection
+    Rectangle playerRec = {x, y, width, height};
+
+    for (lane = 0; lane < MAX_LANES; lane++)
     {
-      if (rintangan[lane][i].y > 0) // Hanya cek rintangan yang terlihat di layar
-      {
-        // Create obstacle rectangle for collision detection
-        float obstacleLeft = rintangan[lane][i].x;
-        float obstacleRight = rintangan[lane][i].x + rintangan[lane][i].width;
-        float obstacleTop = rintangan[lane][i].y;
-        float obstacleBottom = rintangan[lane][i].y + rintangan[lane][i].height;
-
-        // Cek tabrakan
-        if (playerLeft < obstacleRight &&
-            playerRight > obstacleLeft &&
-            playerTop < obstacleBottom &&
-            playerBottom > obstacleTop)
+        for (i = 0; i < MAX_OBSTACLES; i++)
         {
-          return 1; // Terjadi tabrakan
-        }
-      }
-    }
-  }
+            if (rintangan[lane][i].y >= 0) // Hanya cek rintangan yang terlihat di layar
+            {
+                // Create obstacle rectangle for collision detection
+                Rectangle obstacleRec = {rintangan[lane][i].x, rintangan[lane][i].y, rintangan[lane][i].width, rintangan[lane][i].height};
 
-  return 0; // Tidak ada tabrakan
+                // Cek tabrakan
+                if (CheckCollisionRecs(playerRec, obstacleRec))
+                {
+                    return 1; // Terjadi tabrakan
+                }
+            }
+        }
+    }
+
+    return 0; // Tidak ada tabrakan
 }

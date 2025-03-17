@@ -1,107 +1,49 @@
 #include "menu.h"
-#include <stdio.h>
-#include <string.h>
-#include <SDL3/SDL.h>
-#include <SDL3_ttf/SDL_ttf.h>
+#include <raylib.h>
+#include "config.h" // Pastikan ini di-include
 
-// Menu items
-static const char *menuItems[MENU_ITEM_COUNT] = {
-    "Start Game",
-    "Options",
-    "Exit"};
-
-// Menu action function prototypes
-static int startGame(void);
-static int showOptions(void);
-static int exitGame(void);
-
-// Menu action function pointers
-static int (*menuActions[MENU_ITEM_COUNT])(void) = {
-    startGame,
-    showOptions,
-    exitGame};
-
-void renderMenu(SDL_Renderer *renderer, TTF_Font *font, int selected)
+void DrawMenu(int selectedOption, Texture2D brickTexture, float brickOffset)
 {
-    // Color definitions
-    const SDL_Color white = {255, 255, 255, 255};
-    const SDL_Color red = {255, 0, 0, 255};
+    const char *options[NUM_OPTIONS] = {"Start Game", "Options", "Exit"};
+    const int optionSpacing = 60; // Jarak antar opsi
+    const int boxPadding = 10;    // Padding di dalam kotak
+    const int boxWidth = 200;     // Lebar kotak
+    const int boxHeight = 40;     // Tinggi kotak
 
-    // Render title
-    SDL_Surface *titleSurface = TTF_RenderText_Solid(font, "Brick Racer", strlen("Brick Racer"), white);
-    SDL_Texture *titleTexture = SDL_CreateTextureFromSurface(renderer, titleSurface);
-
-    SDL_FRect titleRect = {
-        .x = (SCREEN_WIDTH - titleSurface->w) / 2.0f,
-        .y = TITLE_Y_POS,
-        .w = (float)titleSurface->w,
-        .h = (float)titleSurface->h};
-
-    SDL_RenderTexture(renderer, titleTexture, NULL, &titleRect);
-    SDL_DestroySurface(titleSurface);
-    SDL_DestroyTexture(titleTexture);
-
-    // Render menu items
-    for (int i = 0; i < MENU_ITEM_COUNT; i++)
+    // Gambar animasi brick bergerak sebagai latar belakang
+    for (int y = -brickTexture.height; y < SCREEN_HEIGHT; y += brickTexture.height)
     {
-        const SDL_Color color = (i == selected) ? red : white;
-
-        // Perbaikan: Tambahkan strlen(menuItems[i])
-        SDL_Surface *itemSurface = TTF_RenderText_Solid(font, menuItems[i], strlen(menuItems[i]), color);
-        SDL_Texture *itemTexture = SDL_CreateTextureFromSurface(renderer, itemSurface);
-
-        SDL_FRect itemRect = {
-            .x = (SCREEN_WIDTH - itemSurface->w) / 2.0f,
-            .y = SCREEN_HEIGHT / 2.0f + (i * MENU_ITEM_SPACING),
-            .w = (float)itemSurface->w,
-            .h = (float)itemSurface->h};
-
-        SDL_RenderTexture(renderer, itemTexture, NULL, &itemRect);
-        SDL_DestroySurface(itemSurface);
-        SDL_DestroyTexture(itemTexture);
-    }
-}
-
-int handleMenuInput(SDL_Event *event, int *selected)
-{
-    if (event->type == SDL_EVENT_KEY_DOWN)
-    {
-        switch (event->key.scancode)
+        for (int x = -brickOffset; x < SCREEN_WIDTH; x += brickTexture.width)
         {
-        case SDL_SCANCODE_DOWN:
-            *selected = (*selected + 1) % MENU_ITEM_COUNT;
-            return 0;
-
-        case SDL_SCANCODE_UP:
-            *selected = (*selected - 1 + MENU_ITEM_COUNT) % MENU_ITEM_COUNT;
-            return 0;
-
-        case SDL_SCANCODE_RETURN:
-        case SDL_SCANCODE_SPACE:
-            return menuActions[*selected]();
-
-        default:
-            break;
+            DrawTexture(brickTexture, x, y, WHITE);
         }
     }
-    return 0;
-}
 
-// Menu action implementations
-static int startGame(void)
-{
-    printf("Starting game...\n");
-    return 1;
-}
+    // Gambar judul di tengah layar
+    const char *title = "C1 Brick Racer";
+    int titleWidth = MeasureText(title, 40);        // Hitung lebar teks judul
+    int titleX = SCREEN_WIDTH / 2 - titleWidth / 2; // Posisi X untuk teks judul
+    int titleY = 100;                               // Posisi Y untuk teks judul
+    DrawText(title, titleX, titleY, 40, WHITE);
 
-static int showOptions(void)
-{
-    printf("Showing options...\n");
-    return 2;
-}
+    // Gambar opsi menu dengan kotak teks di tengah layar
+    for (int i = 0; i < NUM_OPTIONS; i++)
+    {
+        // Hitung posisi kotak
+        int boxX = SCREEN_WIDTH / 2 - boxWidth / 2; // Posisi X untuk kotak (tengah layar)
+        int boxY = 200 + i * optionSpacing;         // Posisi Y untuk kotak
 
-static int exitGame(void)
-{
-    printf("Exiting game...\n");
-    return -1;
+        // Warna kotak (berubah jika dipilih)
+        Color boxColor = (i == selectedOption) ? RED : LIGHTGRAY;
+
+        // Gambar kotak
+        DrawRectangle(boxX, boxY, boxWidth, boxHeight, boxColor);
+
+        // Gambar teks di dalam kotak
+        const char *text = options[i];
+        int textWidth = MeasureText(text, 20);         // Hitung lebar teks opsi
+        int textX = boxX + (boxWidth - textWidth) / 2; // Posisi X untuk teks (tengah kotak)
+        int textY = boxY + boxPadding;                 // Posisi Y untuk teks (dalam kotak)
+        DrawText(text, textX, textY, 20, BLACK);
+    }
 }

@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Iinclude
-LDFLAGS = -lSDL3 -lSDL3_ttf
+CFLAGS = -Wall -Wextra -Iinclude -I/mingw64/include
+LDFLAGS = -L/mingw64/lib -lraylib -lopengl32 -lm -lpthread -lwinpthread
 SRC = main.c src/jalur.c src/menu.c src/mobil.c src/rintangan.c src/skor.c
 OBJ = $(SRC:.c=.o)
 EXEC = racing_game
