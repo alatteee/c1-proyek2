@@ -1,134 +1,131 @@
-#include "../include/mobil.h"
+/* ----------------------------------------------------------------------------- */
+/* File        : mobil.c                                                         */
+/* Deskripsi   : File implementasi untuk mengelola mobil dalam game. Berisi      */
+/*              fungsi-fungsi untuk menginisialisasi, merender, menggerakkan,    */
+/*              dan menangani logika mobil, termasuk invulnerability dan deteksi*/
+/*              tabrakan.                                                       */
+/* ----------------------------------------------------------------------------- */
 
-// Fungsi untuk inisialisasi mobil
-void initCar(Car *car, float x, float y, float width, float height, int speed)
-{
-  car->x = x;
-  car->y = y;
-  car->width = width;
-  car->height = height;
-  car->speed = speed;
-  car->rect.x = x;
-  car->rect.y = y;
-  car->rect.w = width;
-  car->rect.h = height;
+#include "../include/mobil.h"  // File header untuk mobil
+#include "../include/config.h" // File konfigurasi game
+#include "../include/lives.h"  // File header untuk sistem nyawa
+#include <raylib.h>            // Library Raylib untuk grafik dan utilitas
+
+// Fungsi untuk menginisialisasi mobil
+void initCar(Car *car, float x, float y, float width, float height, int speed) {
+  car->x = x;                     // Set posisi X mobil
+  car->y = y;                     // Set posisi Y mobil
+  car->width = width;             // Set lebar mobil
+  car->height = height;           // Set tinggi mobil
+  car->speed = speed;             // Set kecepatan mobil
+  car->rect = (Rectangle){car->x, car->y, car->width, car->height}; // Set persegi panjang untuk collision detection
+  car->isInvulnerable = false;    // Set status invulnerable ke false
+  car->invulnerabilityTimer = 0.0f; // Set timer invulnerability ke 0
 }
 
-// Fungsi untuk menggerakkan mobil ke kiri
-void moveLeft(Car *car)
-{
-  if (car->x > 0)
-  {
-    car->x -= car->speed;
-    car->rect.x = car->x; // Pastikan rect.x diperbarui
+// Fungsi untuk merender mobil dengan desain top-down seperti mobil sport kuning
+void renderCar(Car *car) {
+  // Warna-warna yang akan digunakan
+  Color bodyColor = ORANGE;      // Orange-kuning untuk badan mobil
+  Color windowColor = BLACK;     // Hitam untuk kaca mobil
+  Color highlightColor = YELLOW; // Kuning emas untuk highlight
+  Color headlightColor = BLUE;   // Biru untuk lampu depan
+  Color tailLightColor = RED;    // Merah untuk lampu belakang
+  Color detailColor = DARKGRAY;  // Abu-abu untuk detail
+
+  float carWidth = car->width;   // Lebar mobil
+  float carHeight = car->height; // Tinggi mobil
+  float carX = car->x;           // Posisi X mobil
+  float carY = car->y;           // Posisi Y mobil
+
+  // Bayangan mobil (opsional)
+  DrawRectangle(carX + 3, carY + 3, carWidth, carHeight, Fade(BLACK, 0.2f));
+
+  // Badan mobil utama (bentuk oval)
+  DrawRectangle(carX + carWidth * 0.2f, carY + carHeight * 0.15f, carWidth * 0.6f, carHeight * 0.7f, bodyColor);  // Badan tengah
+  DrawRectangle(carX + carWidth * 0.3f, carY, carWidth * 0.4f, carHeight * 0.15f, bodyColor);                     // Bagian depan
+  DrawRectangle(carX + carWidth * 0.3f, carY + carHeight * 0.85f, carWidth * 0.4f, carHeight * 0.15f, bodyColor); // Bagian belakang
+
+  // Garis highlight sepanjang mobil
+  DrawRectangle(carX + carWidth * 0.3f, carY + carHeight * 0.1f, carWidth * 0.05f, carHeight * 0.8f, highlightColor);  // Highlight kiri
+  DrawRectangle(carX + carWidth * 0.65f, carY + carHeight * 0.1f, carWidth * 0.05f, carHeight * 0.8f, highlightColor); // Highlight kanan
+
+  // Kaca depan (bentuk trapesium)
+  DrawRectangle(carX + carWidth * 0.35f, carY + carHeight * 0.2f, carWidth * 0.3f, carHeight * 0.15f, windowColor);  // Kaca depan
+  DrawRectangle(carX + carWidth * 0.35f, carY + carHeight * 0.65f, carWidth * 0.3f, carHeight * 0.15f, windowColor); // Kaca belakang
+
+  // Spoiler kecil di belakang
+  DrawRectangle(carX + carWidth * 0.35f, carY + carHeight * 0.9f, carWidth * 0.3f, carHeight * 0.05f, detailColor);
+
+  // Lampu depan (kiri dan kanan)
+  DrawRectangle(carX + carWidth * 0.3f, carY + carHeight * 0.05f, carWidth * 0.1f, carHeight * 0.05f, headlightColor); // Lampu depan kiri
+  DrawRectangle(carX + carWidth * 0.6f, carY + carHeight * 0.05f, carWidth * 0.1f, carHeight * 0.05f, headlightColor); // Lampu depan kanan
+
+  // Lampu belakang (kiri dan kanan)
+  DrawRectangle(carX + carWidth * 0.3f, carY + carHeight * 0.9f, carWidth * 0.1f, carHeight * 0.05f, tailLightColor); // Lampu belakang kiri
+  DrawRectangle(carX + carWidth * 0.6f, carY + carHeight * 0.9f, carWidth * 0.1f, carHeight * 0.05f, tailLightColor); // Lampu belakang kanan
+
+  // Detail tengah mobil (kokpit atau garis tengah)
+  DrawRectangle(carX + carWidth * 0.48f, carY + carHeight * 0.2f, carWidth * 0.04f, carHeight * 0.6f, detailColor);
+
+  // Detail roda (dalam tampilan top-down, roda hanya terlihat sedikit di sisi)
+  DrawRectangle(carX + carWidth * 0.15f, carY + carHeight * 0.25f, carWidth * 0.07f, carHeight * 0.15f, DARKGRAY); // Roda depan kiri
+  DrawRectangle(carX + carWidth * 0.78f, carY + carHeight * 0.25f, carWidth * 0.07f, carHeight * 0.15f, DARKGRAY); // Roda depan kanan
+  DrawRectangle(carX + carWidth * 0.15f, carY + carHeight * 0.6f, carWidth * 0.07f, carHeight * 0.15f, DARKGRAY);  // Roda belakang kiri
+  DrawRectangle(carX + carWidth * 0.78f, carY + carHeight * 0.6f, carWidth * 0.07f, carHeight * 0.15f, DARKGRAY);  // Roda belakang kanan
+}
+
+// Fungsi untuk menangani input gerakan mobil
+void handleCarInput(Car *car) {
+  if (IsKeyDown(KEY_LEFT))
+      car->x -= car->speed; // Gerakkan mobil ke kiri
+  if (IsKeyDown(KEY_RIGHT)) 
+      car->x += car->speed; // Gerakkan mobil ke kanan
+  if (IsKeyDown(KEY_UP)) 
+      car->y -= car->speed; // Gerakkan mobil ke atas
+  if (IsKeyDown(KEY_DOWN)) 
+      car->y += car->speed; // Gerakkan mobil ke bawah
+
+  // Batasi mobil agar tidak keluar dari layar
+  if (car->x < 0) car->x = 0;
+  if (car->x + car->width > SCREEN_WIDTH) car->x = SCREEN_WIDTH - car->width;
+  if (car->y < 0) car->y = 0;
+  if (car->y + car->height > SCREEN_HEIGHT) car->y = SCREEN_HEIGHT - car->height;
+
+  // Update persegi panjang mobil untuk collision detection
+  car->rect = (Rectangle){car->x, car->y, car->width, car->height};
+}
+
+// Fungsi untuk mereset posisi mobil ke posisi awal
+void resetCarPosition(Car *car) {
+  car->x = MIDDLE_LANE_X; // Set posisi X ke tengah layar
+  car->y = SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10.0f; // Set posisi Y ke bagian bawah layar
+  car->rect = (Rectangle){car->x, car->y, car->width, car->height}; // Update persegi panjang mobil
+}
+
+// Fungsi untuk memperbarui status invulnerability mobil
+void updateCarInvulnerability(Car *car, float deltaTime) {
+  if (car->isInvulnerable) {
+      car->invulnerabilityTimer += deltaTime; // Tambahkan waktu ke timer
+      if (car->invulnerabilityTimer >= INVULNERABILITY_DURATION) {
+          car->isInvulnerable = false; // Nonaktifkan invulnerability setelah durasi selesai
+          car->invulnerabilityTimer = 0.0f; // Reset timer
+      }
   }
 }
 
-// Fungsi untuk menggerakkan mobil ke kanan
-void moveRight(Car *car, int screenWidth)
-{
-  if (car->x + car->width < screenWidth)
-  {
-    car->x += car->speed; // Menggunakan kecepatan yang benar
-    car->rect.x = car->x; // Pastikan rect.x diperbarui
-  }
-}
+// Fungsi untuk memeriksa tabrakan antara mobil dan rintangan
+bool checkCarCollision(Car *car, Rectangle obstacle) {
+  // Debugging: Tampilkan posisi dan ukuran mobil serta rintangan
+  TraceLog(LOG_INFO, "Mobil: x=%.2f, y=%.2f, width=%.2f, height=%.2f", car->rect.x, car->rect.y, car->rect.width, car->rect.height);
+  TraceLog(LOG_INFO, "Rintangan: x=%.2f, y=%.2f, width=%.2f, height=%.2f", obstacle.x, obstacle.y, obstacle.width, obstacle.height);
 
-// Fungsi untuk menggambar mobil dengan desain yang lebih baik dan realistis
-void renderCar(SDL_Renderer *renderer, Car *car)
-{
-    // Warna-warna yang akan digunakan
-    SDL_Color bodyColor = {30, 144, 255, 255};       // Biru laut untuk badan
-    SDL_Color windowColor = {135, 206, 250, 255};    // Biru muda untuk kaca
-    SDL_Color wheelColor = {40, 40, 40, 255};        // Hitam gelap untuk ban
-    SDL_Color wheelRimColor = {192, 192, 192, 255};  // Silver untuk velg
-    SDL_Color headlightColor = {255, 255, 224, 255}; // Kuning pucat untuk lampu
-    SDL_Color grillColor = {50, 50, 50, 255};        // Abu-abu gelap untuk grill
-    
-    float carWidth = car->rect.w;
-    float carHeight = car->rect.h;
-    float carX = car->rect.x;
-    float carY = car->rect.y;
-    
-    // Menambahkan bayangan di bawah mobil
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 100);
-    SDL_FRect shadow = {carX + 5.0f, carY + carHeight - 5.0f, carWidth - 10.0f, 10.0f};
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_RenderFillRect(renderer, &shadow);
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
-    
-    // Badan mobil utama (lebih aerodinamis)
-    SDL_SetRenderDrawColor(renderer, bodyColor.r, bodyColor.g, bodyColor.b, bodyColor.a);
-    SDL_FRect body = {carX + 10.0f, carY + 50.0f, carWidth - 20.0f, 45.0f};
-    SDL_RenderFillRect(renderer, &body);
-    
-    // Kap mesin (depan mobil)
-    SDL_SetRenderDrawColor(renderer, bodyColor.r, bodyColor.g, bodyColor.b, bodyColor.a);
-    SDL_FRect hood = {carX + 15.0f, carY + 40.0f, carWidth - 90.0f, 10.0f};
-    SDL_RenderFillRect(renderer, &hood);
-    
-    // Bagian belakang mobil
-    SDL_FRect trunk = {carX + carWidth - 75.0f, carY + 40.0f, 60.0f, 10.0f};
-    SDL_RenderFillRect(renderer, &trunk);
-    
-    // Kabin mobil (atap dengan kaca)
-    SDL_SetRenderDrawColor(renderer, bodyColor.r - 20, bodyColor.g - 20, bodyColor.b - 20, bodyColor.a);
-    SDL_FRect cabin = {carX + carWidth - 85.0f, carY + 25.0f, 70.0f, 15.0f};
-    SDL_RenderFillRect(renderer, &cabin);
-    
-    // Kaca depan
-    SDL_SetRenderDrawColor(renderer, windowColor.r, windowColor.g, windowColor.b, windowColor.a);
-    SDL_FRect windshield = {carX + carWidth - 85.0f, carY + 25.0f, 10.0f, 15.0f};
-    SDL_RenderFillRect(renderer, &windshield);
-    
-    // Kaca samping
-    SDL_FRect sideWindow = {carX + carWidth - 75.0f, carY + 25.0f, 50.0f, 15.0f};
-    SDL_RenderFillRect(renderer, &sideWindow);
-    
-    // Kaca belakang
-    SDL_FRect rearWindow = {carX + carWidth - 25.0f, carY + 25.0f, 10.0f, 15.0f};
-    SDL_RenderFillRect(renderer, &rearWindow);
-    
-    // Lampu depan
-    SDL_SetRenderDrawColor(renderer, headlightColor.r, headlightColor.g, headlightColor.b, headlightColor.a);
-    SDL_FRect headlight = {carX + 10.0f, carY + 50.0f, 5.0f, 10.0f};
-    SDL_RenderFillRect(renderer, &headlight);
-    
-    // Lampu belakang
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Merah untuk lampu belakang
-    SDL_FRect taillight = {carX + carWidth - 15.0f, carY + 50.0f, 5.0f, 10.0f};
-    SDL_RenderFillRect(renderer, &taillight);
-    
-    // Gril depan
-    SDL_SetRenderDrawColor(renderer, grillColor.r, grillColor.g, grillColor.b, grillColor.a);
-    SDL_FRect grill = {carX + 15.0f, carY + 60.0f, 20.0f, 10.0f};
-    SDL_RenderFillRect(renderer, &grill);
-    
-    // Roda-roda mobil dengan velg
-    // Roda depan
-    SDL_SetRenderDrawColor(renderer, wheelColor.r, wheelColor.g, wheelColor.b, wheelColor.a);
-    SDL_FRect frontWheel = {carX + 25.0f, carY + carHeight - 25.0f, 30.0f, 20.0f};
-    SDL_RenderFillRect(renderer, &frontWheel);
-    
-    // Velg roda depan
-    SDL_SetRenderDrawColor(renderer, wheelRimColor.r, wheelRimColor.g, wheelRimColor.b, wheelRimColor.a);
-    SDL_FRect frontWheelRim = {carX + 35.0f, carY + carHeight - 20.0f, 10.0f, 10.0f};
-    SDL_RenderFillRect(renderer, &frontWheelRim);
-    
-    // Roda belakang
-    SDL_SetRenderDrawColor(renderer, wheelColor.r, wheelColor.g, wheelColor.b, wheelColor.a);
-    SDL_FRect rearWheel = {carX + carWidth - 55.0f, carY + carHeight - 25.0f, 30.0f, 20.0f};
-    SDL_RenderFillRect(renderer, &rearWheel);
-    
-    // Velg roda belakang
-    SDL_SetRenderDrawColor(renderer, wheelRimColor.r, wheelRimColor.g, wheelRimColor.b, wheelRimColor.a);
-    SDL_FRect rearWheelRim = {carX + carWidth - 45.0f, carY + carHeight - 20.0f, 10.0f, 10.0f};
-    SDL_RenderFillRect(renderer, &rearWheelRim);
-    
-    // Menambahkan efek pencahayaan (highlight) pada badan mobil untuk kesan lebih realistis
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 50);
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_FRect highlight = {carX + 20.0f, carY + 55.0f, carWidth - 40.0f, 5.0f};
-    SDL_RenderFillRect(renderer, &highlight);
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+  // Periksa tabrakan jika mobil tidak dalam keadaan invulnerable
+  if (!car->isInvulnerable && CheckCollisionRecs(car->rect, obstacle)) {
+      TraceLog(LOG_INFO, "Tabrakan terdeteksi!");
+      car->isInvulnerable = true; // Aktifkan invulnerability
+      car->invulnerabilityTimer = 0.0f; // Reset timer
+      return true; // Tabrakan terjadi
+  }
+  return false; // Tidak ada tabrakan
 }

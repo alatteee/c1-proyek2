@@ -55,5 +55,17 @@
   "C_Cpp_Runner.useLeakSanitizer": false,
   "C_Cpp_Runner.showCompilationTime": false,
   "C_Cpp_Runner.useLinkTimeOptimization": false,
-  "C_Cpp_Runner.msvcSecureNoWarnings": false
+  "C_Cpp_Runner.msvcSecureNoWarnings": false,
+  "files.associations": {
+    "jalur.h": "c",
+    "menu.h": "c",
+    "raylib.h": "c",
+    "cstdlib": "c",
+    "rintangan.h": "c",
+    "atomic": "c",
+    "*.tcc": "c",
+    "format": "c",
+    "istream": "c",
+    "ostream": "c"
+  }
 }
