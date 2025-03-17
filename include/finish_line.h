@@ -1,26 +1,14 @@
-/* ----------------------------------------------------------------------------- */
-/* File        : finish_line.h                                                   */
-/* Deskripsi   : File header untuk menangani logika dan rendering garis finish   */
-/*              dalam game "C1 Brick Racer". Berisi deklarasi fungsi untuk       */
-/*              menggambar garis finish dan memeriksa tabrakan mobil dengan     */
-/*              garis finish.                                                   */
-/* ----------------------------------------------------------------------------- */
-
 #ifndef FINISH_LINE_H
 #define FINISH_LINE_H
 
-#include <raylib.h>  
-#include "config.h"  // File konfigurasi game (ukuran layar, konstanta, dll.)
-#include "mobil.h"   // File header untuk tipe data Car (mobil)
+#include "config.h"
+#include "mobil.h"  // Include mobil.h to declare Car
+#include <stdbool.h>
 
-// Fungsi untuk menggambar garis finish di layar
-void DrawFinishLine();
+#define FINISH_LINE_Y 50        // Adjust value as needed
+#define FINISH_LINE_HEIGHT 10   // Adjust value as needed
 
-// Fungsi untuk memeriksa apakah mobil menabrak garis finish
-// Parameter:
-// - car: Pointer ke objek mobil (Car) yang akan diperiksa
-// Return:
-// - true jika mobil menabrak garis finish, false jika tidak
+void DrawFinishLine(void);
 bool CheckFinishLineCollision(Car *car);
 
-#endif
+#endif // FINISH_LINE_H

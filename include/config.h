@@ -23,10 +23,10 @@ typedef enum {
     STATE_LEVEL_MENU,
     STATE_GAME,
     STATE_COLLISION,  // Tambahan
+    STATE_WIN,        // New state: finish line reached
     STATE_GAME_OVER,
     STATE_EXIT
 } GameState;
-
 
 #define NUM_LEVELS 3 // Jumlah level yang tersedia
 

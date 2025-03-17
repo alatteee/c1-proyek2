@@ -66,6 +66,7 @@
     "*.tcc": "c",
     "format": "c",
     "istream": "c",
-    "ostream": "c"
+    "ostream": "c",
+    "finish_line.h": "c"
   }
 }
