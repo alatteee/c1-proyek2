@@ -35,7 +35,7 @@ void DrawMenu(int selectedOption, Texture2D brickTexture)
     {
         // Hitung posisi kotak
         int boxX = SCREEN_WIDTH / 2 - boxWidth / 2; // Posisi X untuk kotak (tengah layar)
-        int boxY = 350 + i * optionSpacing;         // Posisi Y untuk kotak (dimulai dari 350, lebih ke bawah)
+        int boxY = 300 + i * optionSpacing;         // Posisi Y untuk kotak (dimulai dari 350, lebih ke bawah)
 
         // Warna kotak (berubah jika dipilih)
         Color boxColor = (i == selectedOption) ? RED : LIGHTGRAY;
