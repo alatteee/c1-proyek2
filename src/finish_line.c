@@ -1,30 +1,42 @@
-// finish_line.c
-#include "../include/finish_line.h"
-#include <raylib.h>
-#include "../include/config.h"
+/* ----------------------------------------------------------------------------- */
+/* File        : finish_line.c                                                   */
+/* Deskripsi   : File implementasi untuk mengelola garis finish dalam game.      */
+/*              Berisi fungsi-fungsi untuk menggambar garis finish dan memeriksa */
+/*              apakah mobil telah melewati garis finish.                        */
+/* ----------------------------------------------------------------------------- */
 
+#include "../include/finish_line.h"  // File header untuk garis finish
+#include <raylib.h>                  // Library Raylib untuk grafik dan utilitas
+#include "../include/config.h"       // File konfigurasi game
+
+// Fungsi untuk menggambar garis finish dengan pola papan catur
 void DrawFinishLine() {
     const int squareSize = 20;  // Ukuran setiap kotak pada pola papan catur
-    const int numSquares = SCREEN_WIDTH / squareSize;
-    
+    const int numSquares = SCREEN_WIDTH / squareSize; // Jumlah kotak horizontal
+
+    // Loop untuk menggambar pola papan catur
     for (int i = 0; i < numSquares; i++) {
         for (int j = 0; j < 2; j++) {  // 2 baris kotak untuk garis finish
-            Color squareColor = ((i + j) % 2 == 0) ? BLACK : WHITE;  // Pola papan catur
-            
+            // Tentukan warna kotak (hitam atau putih berdasarkan pola papan catur)
+            Color squareColor = ((i + j) % 2 == 0) ? BLACK : WHITE;
+
+            // Hitung posisi X dan Y untuk setiap kotak
             int x = i * squareSize;
             int y = FINISH_LINE_Y + (j * squareSize);
-            
+
+            // Gambar kotak dengan warna yang telah ditentukan
             DrawRectangle(x, y, squareSize, squareSize, squareColor);
         }
     }
-    
+
     // Tambahkan batas atas dan bawah untuk membuat garis finish lebih menonjol
-    DrawRectangle(0, FINISH_LINE_Y - 2, SCREEN_WIDTH, 2, RED);
-    DrawRectangle(0, FINISH_LINE_Y + (2 * squareSize), SCREEN_WIDTH, 2, RED);
+    DrawRectangle(0, FINISH_LINE_Y - 2, SCREEN_WIDTH, 2, RED); // Batas atas
+    DrawRectangle(0, FINISH_LINE_Y + (2 * squareSize), SCREEN_WIDTH, 2, RED); // Batas bawah
 }
 
+// Fungsi untuk memeriksa apakah mobil telah melewati garis finish
 bool CheckFinishLineCollision(Car *car) {
-    // Cek apakah mobil telah melewati garis finish
+    // Cek apakah posisi Y mobil telah melewati atau mencapai garis finish
     if (car->y <= FINISH_LINE_Y + FINISH_LINE_HEIGHT) {
         return true; // Pemain mencapai garis finish
     }
