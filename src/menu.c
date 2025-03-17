@@ -1,13 +1,16 @@
 #include "../include/menu.h"
 #include <raylib.h>
 #include "../include/config.h"
-#include "../include/mobil.h" 
+#include "../include/mobil.h"
 #include "../include/skor.h"
 #include "../include/rintangan.h"
 
+// Variabel global untuk musik
+bool isMusicEnabled = true;
+
 void DrawMenu(int selectedOption, Texture2D brickTexture)
 {
-    const char *options[NUM_OPTIONS] = {"Start Game", "Select Level", "Exit"};
+    const char *options[NUM_OPTIONS] = {"Start Game", "Select Level", "Music: On", "Exit"};
     const int optionSpacing = 60; // Jarak antar opsi
     const int boxPadding = 10;    // Padding di dalam kotak
     const int boxWidth = 200;     // Lebar kotak
@@ -22,6 +25,10 @@ void DrawMenu(int selectedOption, Texture2D brickTexture)
     int titleX = SCREEN_WIDTH / 2 - titleWidth / 2; // Posisi X untuk teks judul
     int titleY = 250;                               // Posisi Y untuk teks judul
     DrawText(title, titleX, titleY, 40, WHITE);
+
+    // Perbarui teks opsi musik berdasarkan status
+    const char *musicOption = isMusicEnabled ? "Music: On" : "Music: Off";
+    options[2] = musicOption;
 
     // Gambar opsi menu dengan kotak teks di tengah layar
     for (int i = 0; i < NUM_OPTIONS; i++)
@@ -45,14 +52,13 @@ void DrawMenu(int selectedOption, Texture2D brickTexture)
     }
 }
 
-// Fungsi untuk menangani input pada menu
 void handleMenuInput(int *selectedOption, GameState *gameState, Car cars[], int *lives, Skor *skor)
 {
     if (IsKeyPressed(KEY_UP))
     {
-        (*selectedOption)--; 
+        (*selectedOption)--;
         if (*selectedOption < 0)
-            *selectedOption = NUM_OPTIONS - 1;  // Pastikan ini sesuai dengan jumlah pilihan menu
+            *selectedOption = NUM_OPTIONS - 1; // Pastikan ini sesuai dengan jumlah pilihan menu
     }
     if (IsKeyPressed(KEY_DOWN))
     {
@@ -75,22 +81,33 @@ void handleMenuInput(int *selectedOption, GameState *gameState, Car cars[], int 
             *lives = 3;
             *gameState = STATE_GAME;
             break;
-
-        case 1: // Select Level
+        case 1:                            // Select Level
             *gameState = STATE_LEVEL_MENU; // Pindah ke menu level
             break;
-
-        case 2: // Exit
+        case 2:                               // Music: On/Off
+            isMusicEnabled = !isMusicEnabled; // Toggle musik
+            if (isMusicEnabled)
+            {
+                PlayMusicStream(menuMusic); // Aktifkan musik
+            }
+            else
+            {
+                StopMusicStream(menuMusic); // Nonaktifkan musik
+            }
+            break;
+        case 3: // Exit
             *gameState = STATE_EXIT;
             break;
         }
     }
-    if (IsKeyPressed(KEY_ESCAPE)) {
+    if (IsKeyPressed(KEY_ESCAPE))
+    {
         *gameState = STATE_EXIT;
     }
 }
 
-void DrawLevelMenu(int selectedLevel, Texture2D brickTexture) {
+void DrawLevelMenu(int selectedLevel, Texture2D brickTexture)
+{
     // Gambar latar belakang
     DrawTexture(brickTexture, 0, 0, WHITE);
 
@@ -98,13 +115,14 @@ void DrawLevelMenu(int selectedLevel, Texture2D brickTexture) {
     const char *title = "Select Level";
     int titleWidth = MeasureText(title, 40);
     int titleX = SCREEN_WIDTH / 2 - titleWidth / 2; // Posisi X tetap di tengah
-    int titleY = 250; // Posisi Y judul sama seperti menu utama
+    int titleY = 250;                               // Posisi Y judul sama seperti menu utama
     DrawText(title, titleX, titleY, 40, WHITE);
 
     // Gambar opsi level
-    for (int i = 0; i < NUM_LEVELS; i++) {
+    for (int i = 0; i < NUM_LEVELS; i++)
+    {
         int boxX = SCREEN_WIDTH / 2 - 100; // Posisi X tetap di tengah
-        int boxY = 350 + i * 60; // Posisi Y kotak sama seperti menu utama
+        int boxY = 350 + i * 60;           // Posisi Y kotak sama seperti menu utama
         Color boxColor = (i == selectedLevel) ? RED : LIGHTGRAY;
 
         DrawRectangle(boxX, boxY, 200, 50, boxColor);
@@ -112,18 +130,24 @@ void DrawLevelMenu(int selectedLevel, Texture2D brickTexture) {
     }
 }
 
-void handleLevelMenuInput(int *selectedLevel, GameState *gameState) {
-    if (IsKeyPressed(KEY_UP)) {
+void handleLevelMenuInput(int *selectedLevel, GameState *gameState)
+{
+    if (IsKeyPressed(KEY_UP))
+    {
         (*selectedLevel)--;
-        if (*selectedLevel < 0) *selectedLevel = NUM_LEVELS - 1;
+        if (*selectedLevel < 0)
+            *selectedLevel = NUM_LEVELS - 1;
     }
-    if (IsKeyPressed(KEY_DOWN)) {
+    if (IsKeyPressed(KEY_DOWN))
+    {
         (*selectedLevel)++;
-        if (*selectedLevel >= NUM_LEVELS) *selectedLevel = 0;
+        if (*selectedLevel >= NUM_LEVELS)
+            *selectedLevel = 0;
     }
 
-    if (IsKeyPressed(KEY_ENTER)) {
+    if (IsKeyPressed(KEY_ENTER))
+    {
         initRintangan(*selectedLevel); // Inisialisasi ulang rintangan
-        *gameState = STATE_GAME; // Pindah ke state game dengan level yang dipilih
+        *gameState = STATE_GAME;       // Pindah ke state game dengan level yang dipilih
     }
 }

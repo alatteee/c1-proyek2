@@ -6,7 +6,10 @@
 #include "skor.h"
 #include "mobil.h"
 
-#define NUM_OPTIONS 3
+#define NUM_OPTIONS 4
+extern Music menuMusic; // Deklarasi eksternal
+extern Music gameMusic; // Deklarasi eksternal
+extern bool isMusicOn;
 
 // Hapus deklarasi renderMenu
 void DrawMenu(int selectedOption, Texture2D brickTexture);
