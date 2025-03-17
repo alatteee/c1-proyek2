@@ -7,6 +7,7 @@
 #include "include/skor.h"
 #include "include/config.h"
 #include "include/lives.h"
+#include "include/ADT.h"
 #include "src/level.c"
 
 int main()
@@ -112,7 +113,22 @@ int main()
 
     case STATE_GAME_OVER:
       if (IsKeyPressed(KEY_ENTER))
+        ClearBackground(BLACK);
+      DrawText("GAME OVER", SCREEN_WIDTH / 2 - MeasureText("GAME OVER", 50) / 2, SCREEN_HEIGHT / 2 - 50, 50, RED);
+      DrawText("Press ENTER to return to Menu", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to return to Menu", 20) / 2,
+               SCREEN_HEIGHT / 2 + 20, 20, WHITE);
+      if (IsKeyPressed(KEY_ENTER))
       {
+        // Buat record skor dengan tanggal saat ini dan simpan ke file
+        ScoreRecord record = CreateScoreRecord(skor.nilai);
+        if (SaveScoreRecord(&record, "score.txt"))
+        {
+          printf("Score %d pada %s berhasil disimpan.\n", record.score, record.date);
+        }
+        else
+        {
+          printf("Gagal menyimpan skor.\n");
+        }
         gameState = STATE_MENU;
         ResetLives(&livesSystem);
         initSkor(&skor);
