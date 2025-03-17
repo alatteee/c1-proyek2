@@ -31,9 +31,10 @@ typedef enum {
 #define NUM_LEVELS 3 // Jumlah level yang tersedia
 
 typedef struct {
-    int obstacleSpeed;
-    int numObstacles;
-    const char* name;
+    int obstacleSpeed;  // Kecepatan rintangan
+    int numObstacles;   // Jumlah rintangan
+    const char *name;   // Nama level
+    int positions[10][2];  // Posisi rintangan
 } Level;
 
 extern Level levels[NUM_LEVELS];

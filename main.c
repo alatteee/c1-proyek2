@@ -51,16 +51,16 @@ int main()
         switch (gameState)
         {
             case STATE_MENU:
-                handleMenuInput(&selectedOption, &gameState, cars, &livesSystem.currentLives, &skor);
-                if (IsKeyPressed(KEY_ESCAPE))
-                {
-                    gameState = STATE_EXIT;
-                }
-                if (IsKeyPressed(KEY_ENTER) && selectedOption == 0)
-                {
-                    initRintangan();
-                }
-                break;
+            handleMenuInput(&selectedOption, &gameState, cars, &livesSystem.currentLives, &skor);
+            // Tekan ESC di menu untuk keluar
+            if (IsKeyPressed(KEY_ESCAPE)) {
+                gameState = STATE_EXIT;
+            }
+            // Jika pemain memilih "Start Game", inisialisasi rintangan
+            if (IsKeyPressed(KEY_ENTER) && selectedOption == 0) {
+                initRintangan(); // Inisialisasi rintangan
+            }
+            break;
 
             case STATE_LEVEL_MENU:
                 handleLevelMenuInput(&selectedLevel, &gameState);
@@ -134,7 +134,7 @@ int main()
                 }
                 break;
 
-            case STATE_WIN:
+                case STATE_WIN:
                 // Tampilkan pesan menang dan tunggu Enter untuk kembali ke menu
                 if (IsKeyPressed(KEY_ENTER))
                 {
@@ -153,7 +153,30 @@ int main()
                     gameTimer = 0.0f;
                     finishLineVisible = false;
                 }
+                
+                // Tampilan "You Win!"
+                ClearBackground(DARKGRAY);
+                draw_lanes();
+                DrawFinishLine();
+                drawRintangan(false);
+                renderCar(&cars[0]);
+                tampilkanSkor(&skor);
+                DrawLives(livesSystem);
+                
+                // Tampilkan pesan "You Win!"
+                DrawText("You Win!", SCREEN_WIDTH / 2 - MeasureText("You Win!", 40) / 2, SCREEN_HEIGHT / 2 - 50, 40, GREEN);
+                
+                // Menampilkan skor di bawah pesan "You Win!"
+                char scoreText[50];
+                snprintf(scoreText, sizeof(scoreText), "Your Score: %d", skor.nilai);  // Format teks skor
+                DrawText(scoreText, SCREEN_WIDTH / 2 - MeasureText(scoreText, 20) / 2, SCREEN_HEIGHT / 2 + 20, 20, WHITE);  // Menampilkan skor di bawah "You Win!"
+                
+                // Tampilkan instruksi untuk kembali ke menu
+                DrawText("Press ENTER to return to Menu", 
+                         SCREEN_WIDTH / 2 - MeasureText("Press ENTER to return to Menu", 20) / 2,
+                         SCREEN_HEIGHT / 2 + 50, 20, WHITE);
                 break;
+            
 
             case STATE_GAME_OVER:
                 if (IsKeyPressed(KEY_ENTER))
