@@ -15,29 +15,27 @@ void initRintangan()
 {
   int i, lane, type;
 
-  // Menginisialisasi rintangan di setiap jalur
+  // Inisialisasi setiap rintangan per jalur
   for (lane = 0; lane < MAX_LANES; lane++)
   {
     int num_obstacles = 1; // Hanya satu rintangan besar per jalur
-
-    // Mengatur rintangan dengan posisi acak
     for (i = 0; i < num_obstacles; i++)
     {
-      rintangan[lane][i].x = (SCREEN_WIDTH / MAX_LANES) * lane + (SCREEN_WIDTH / MAX_LANES) * 0.15; // Lebar jalur dengan offset
-      rintangan[lane][i].y = -(rand() % 300 + 100);                                                 // Posisi Y yang lebih aman di layar
+      // Set posisi X dan Y dengan variasi agar tidak sejajar
+      rintangan[lane][i].x = (SCREEN_WIDTH / MAX_LANES) * lane + (SCREEN_WIDTH / MAX_LANES) * 0.15;
+      rintangan[lane][i].y = -(rand() % 500 + 200); // Posisi Y antara -200 dan -700
+      rintangan[lane][i].width = (SCREEN_WIDTH / MAX_LANES) * 0.7;
+      rintangan[lane][i].height = (SCREEN_HEIGHT / 6);
 
-      // Ukuran yang lebih kecil untuk rintangan
-      rintangan[lane][i].width = (SCREEN_WIDTH / MAX_LANES) * 0.7; // 70% dari lebar jalur
-      rintangan[lane][i].height = (SCREEN_HEIGHT / 6);             // Lebih kecil dari sebelumnya
-
-      // Tentukan jenis rintangan: kucing, batu, mobil, atau anjing
-      type = rand() % 4; // 4 jenis rintangan
+      // Tentukan jenis rintangan secara acak (0 sampai 3)
+      type = rand() % 4;
       rintangan[lane][i].type = type;
 
-      // Inisialisasi flag
       rintangan[lane][i].hasPassed = false;
+      rintangan[lane][i].hasCollided = false; // Inisialisasi flag collision baru
 
-      printf("Lane: %d, Obstacle: %d, Type: %d, X: %f, Y: %f\n", lane, i, rintangan[lane][i].type, rintangan[lane][i].x, rintangan[lane][i].y);
+      printf("Lane: %d, Obstacle: %d, Type: %d, X: %f, Y: %f\n",
+             lane, i, rintangan[lane][i].type, rintangan[lane][i].x, rintangan[lane][i].y);
     }
   }
 }
@@ -241,26 +239,24 @@ void updateRintangan(Skor *skor, int obstacleSpeed)
   {
     for (i = 0; i < MAX_OBSTACLES; i++)
     {
-      // Gerakkan rintangan ke bawah dengan kecepatan sesuai level
+      // Gerakkan rintangan ke bawah sesuai kecepatan
       rintangan[lane][i].y += obstacleSpeed;
 
-      // Jika rintangan melewati layar dan belum dihitung
+      // Jika rintangan telah melewati layar dan belum dihitung
       if (rintangan[lane][i].y > SCREEN_HEIGHT && !rintangan[lane][i].hasPassed)
       {
-        // Tandai rintangan sudah melewati layar
         rintangan[lane][i].hasPassed = true;
-
-        // Tambah skor hanya sekali saat rintangan melewati layar
         tambahSkor(skor, 10);
-        printf("Skor ditambah: %d\n", skor->nilai); // Debugging
+        printf("Skor ditambah: %d\n", skor->nilai);
       }
 
-      // Reset rintangan jika sudah melewati layar
+      // Reset rintangan jika sudah keluar dari layar
       if (rintangan[lane][i].y > SCREEN_HEIGHT + rintangan[lane][i].height)
       {
-        rintangan[lane][i].y = -(rand() % 300 + 100); // Posisi Y acak di atas layar
-        rintangan[lane][i].type = rand() % 4;         // Tipe rintangan acak
-        rintangan[lane][i].hasPassed = false;         // Reset flag
+        rintangan[lane][i].y = -(rand() % 500 + 200); // Posisi acak baru
+        rintangan[lane][i].type = rand() % 4;
+        rintangan[lane][i].hasPassed = false;
+        rintangan[lane][i].hasCollided = false; // Reset flag tabrakan
       }
     }
   }
@@ -303,28 +299,29 @@ void drawRintangan()
 
 int checkCollision(float x, float y, float width, float height)
 {
-  int lane, i;
-
-  // Create player rectangle for collision detection
+  int collisionCount = 0;
   Rectangle playerRec = {x, y, width, height};
 
-  for (lane = 0; lane < MAX_LANES; lane++)
+  for (int lane = 0; lane < MAX_LANES; lane++)
   {
-    for (i = 0; i < MAX_OBSTACLES; i++)
+    for (int i = 0; i < MAX_OBSTACLES; i++)
     {
-      if (rintangan[lane][i].y >= 0) // Hanya cek rintangan yang terlihat di layar
+      if (rintangan[lane][i].y >= 0) // Cek hanya rintangan yang muncul di layar
       {
-        // Create obstacle rectangle for collision detection
-        Rectangle obstacleRec = {rintangan[lane][i].x, rintangan[lane][i].y, rintangan[lane][i].width, rintangan[lane][i].height};
+        Rectangle obstacleRec = {
+            rintangan[lane][i].x,
+            rintangan[lane][i].y,
+            rintangan[lane][i].width,
+            rintangan[lane][i].height};
 
-        // Cek tabrakan
-        if (CheckCollisionRecs(playerRec, obstacleRec))
+        // Jika terjadi tabrakan dan rintangan belum tercatat collision
+        if (CheckCollisionRecs(playerRec, obstacleRec) && !rintangan[lane][i].hasCollided)
         {
-          return 1; // Terjadi tabrakan
+          rintangan[lane][i].hasCollided = true;
+          collisionCount++;
         }
       }
     }
   }
-
-  return 0; // Tidak ada tabrakan
+  return collisionCount; // Mengembalikan jumlah collision baru di frame ini
 }

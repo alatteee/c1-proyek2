@@ -179,7 +179,7 @@ int main()
       }
       tampilkanSkor(&skor);
       DrawLives(livesSystem);
-      DrawText("Collision Detected!", SCREEN_WIDTH / 2 - MeasureText("Collision Detected!", 30) / 2,
+      DrawText("Terjadinya Tabrakan!", SCREEN_WIDTH / 2 - MeasureText("Terjadinya Tabrakan!", 30) / 2,
                SCREEN_HEIGHT / 2 - 50, 30, RED);
       DrawText("Press C to Continue, Q/ESC to Quit", SCREEN_WIDTH / 2 - MeasureText("Press C to Continue, Q/ESC to Quit", 20) / 2,
                SCREEN_HEIGHT / 2, 20, WHITE);
