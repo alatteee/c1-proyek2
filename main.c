@@ -11,10 +11,29 @@
 #include "include/ADT.h"
 #include "src/level.c"
 
+// Variabel untuk musik
+Music menuMusic;
+Music gameMusic;
+bool musicOn = true;
+
 int main()
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "C1 Brick Racer");
     SetTargetFPS(60);
+
+    // Inisialisasi audio device
+    InitAudioDevice();
+
+    // Muat musik
+    menuMusic = LoadMusicStream("resources/menusound.mp3");
+    gameMusic = LoadMusicStream("resources/racingcarsound.mp3");
+
+    // Atur volume musik (opsional)
+    SetMusicVolume(menuMusic, 1.5f);
+    SetMusicVolume(gameMusic, 1.5f);
+
+    // Mainkan musik menu saat game dimulai
+    PlayMusicStream(menuMusic);
 
     Texture2D brickTexture = LoadTexture("resources/coba.jpg");
 
@@ -41,26 +60,49 @@ int main()
 
     while (!quit)
     {
-        if (WindowShouldClose())
+        float deltaTime = GetFrameTime(); // Hitung waktu antara frame
+
+        // Cek input untuk menghidupkan/mematikan musik
+        if (IsKeyPressed(KEY_ENTER))
         {
-            quit = true;
+            musicOn = !musicOn; // Toggle musik
+
+            if (!musicOn)
+            {
+                StopMusicStream(menuMusic);
+                StopMusicStream(gameMusic);
+            }
+            else
+            {
+                if (gameState == STATE_MENU)
+                    PlayMusicStream(menuMusic);
+                else if (gameState == STATE_GAME)
+                    PlayMusicStream(gameMusic);
+            }
         }
 
-        float deltaTime = GetFrameTime();
+        // Update musik jika aktif
+        if (musicOn)
+        {
+            UpdateMusicStream(menuMusic);
+            UpdateMusicStream(gameMusic);
+        }
 
         switch (gameState)
         {
             case STATE_MENU:
-            handleMenuInput(&selectedOption, &gameState, cars, &livesSystem.currentLives, &skor);
-            // Tekan ESC di menu untuk keluar
-            if (IsKeyPressed(KEY_ESCAPE)) {
-                gameState = STATE_EXIT;
-            }
-            // Jika pemain memilih "Start Game", inisialisasi rintangan
-            if (IsKeyPressed(KEY_ENTER) && selectedOption == 0) {
-                initRintangan(); // Inisialisasi rintangan
-            }
-            break;
+                if (musicOn)
+                {
+                    StopMusicStream(gameMusic); // Pastikan musik game berhenti
+                    if (!IsMusicStreamPlaying(menuMusic))
+                    {
+                        PlayMusicStream(menuMusic); // Mainkan musik menu
+                    }
+                }
+                handleMenuInput(&selectedOption, &gameState, cars, &livesSystem.currentLives, &skor);
+                if (IsKeyPressed(KEY_ESCAPE)) gameState = STATE_EXIT;
+                if (IsKeyPressed(KEY_ENTER) && selectedOption == 0) initRintangan();
+                break;
 
             case STATE_LEVEL_MENU:
                 handleLevelMenuInput(&selectedLevel, &gameState);
@@ -68,26 +110,33 @@ int main()
 
             case STATE_GAME:
             {
+                if (musicOn)
+                {
+                    StopMusicStream(menuMusic); // Pastikan musik menu berhenti
+                    if (!IsMusicStreamPlaying(gameMusic))
+                    {
+                        PlayMusicStream(gameMusic); // Mainkan musik game
+                    }
+                }
+
                 Level currentLevel = levels[selectedLevel];
                 printf("Selected Level: %d, Obstacle Speed: %d, Num Obstacles: %d\n", 
                        selectedLevel, currentLevel.obstacleSpeed, currentLevel.numObstacles);
-                
+
                 gameTimer += deltaTime;
                 if (gameTimer >= 10.0f && !finishLineVisible)
                 {
                     finishLineVisible = true;
                 }
 
-                // Update game hanya jika belum menyelesaikan balapan
                 handleCarInput(&cars[0]);
                 updateRintangan(&skor, currentLevel.obstacleSpeed, false);
 
-                // Cek finish line. Jika sudah dilewati, pindah ke STATE_WIN
                 if (finishLineVisible && CheckFinishLineCollision(&cars[0]))
                 {
                     gameState = STATE_WIN;
                 }
-                
+
                 collisionOccurred = false;
                 for (int i = 0; i < NUM_CARS && !collisionOccurred; i++)
                 {
@@ -124,18 +173,11 @@ int main()
             }
 
             case STATE_COLLISION:
-                if (IsKeyPressed(KEY_C))
-                {
-                    gameState = STATE_GAME;
-                }
-                if (IsKeyPressed(KEY_Q) || IsKeyPressed(KEY_ESCAPE))
-                {
-                    gameState = STATE_MENU;
-                }
+                if (IsKeyPressed(KEY_C)) gameState = STATE_GAME;
+                if (IsKeyPressed(KEY_Q) || IsKeyPressed(KEY_ESCAPE)) gameState = STATE_MENU;
                 break;
 
-                case STATE_WIN:
-                // Tampilkan pesan menang dan tunggu Enter untuk kembali ke menu
+            case STATE_WIN:
                 if (IsKeyPressed(KEY_ENTER))
                 {
                     ScoreRecord record = CreateScoreRecord(skor.nilai);
@@ -153,8 +195,7 @@ int main()
                     gameTimer = 0.0f;
                     finishLineVisible = false;
                 }
-                
-                // Tampilan "You Win!"
+
                 ClearBackground(DARKGRAY);
                 draw_lanes();
                 DrawFinishLine();
@@ -162,21 +203,12 @@ int main()
                 renderCar(&cars[0]);
                 tampilkanSkor(&skor);
                 DrawLives(livesSystem);
-                
-                // Tampilkan pesan "You Win!"
                 DrawText("You Win!", SCREEN_WIDTH / 2 - MeasureText("You Win!", 40) / 2, SCREEN_HEIGHT / 2 - 50, 40, GREEN);
-                
-                // Menampilkan skor di bawah pesan "You Win!"
                 char scoreText[50];
-                snprintf(scoreText, sizeof(scoreText), "Your Score: %d", skor.nilai);  // Format teks skor
-                DrawText(scoreText, SCREEN_WIDTH / 2 - MeasureText(scoreText, 20) / 2, SCREEN_HEIGHT / 2 + 20, 20, WHITE);  // Menampilkan skor di bawah "You Win!"
-                
-                // Tampilkan instruksi untuk kembali ke menu
-                DrawText("Press ENTER to return to Menu", 
-                         SCREEN_WIDTH / 2 - MeasureText("Press ENTER to return to Menu", 20) / 2,
-                         SCREEN_HEIGHT / 2 + 50, 20, WHITE);
+                snprintf(scoreText, sizeof(scoreText), "Your Score: %d", skor.nilai);  
+                DrawText(scoreText, SCREEN_WIDTH / 2 - MeasureText(scoreText, 20) / 2, SCREEN_HEIGHT / 2 + 20, 20, WHITE);
+                DrawText("Press ENTER to return to Menu", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to return to Menu", 20) / 2, SCREEN_HEIGHT / 2 + 50, 20, WHITE);
                 break;
-            
 
             case STATE_GAME_OVER:
                 if (IsKeyPressed(KEY_ENTER))
@@ -240,11 +272,8 @@ int main()
                 renderCar(&cars[0]);
                 tampilkanSkor(&skor);
                 DrawLives(livesSystem);
-                DrawText("Collision Detected!", SCREEN_WIDTH / 2 - MeasureText("Collision Detected!", 30) / 2,
-                         SCREEN_HEIGHT / 2 - 50, 30, RED);
-                DrawText("Press C to Continue, Q/ESC to Quit", 
-                         SCREEN_WIDTH / 2 - MeasureText("Press C to Continue, Q/ESC to Quit", 20) / 2,
-                         SCREEN_HEIGHT / 2, 20, WHITE);
+                DrawText("Collision Detected!", SCREEN_WIDTH / 2 - MeasureText("Collision Detected!", 30) / 2, SCREEN_HEIGHT / 2 - 50, 30, RED);
+                DrawText("Press C to Continue, Q/ESC to Quit", SCREEN_WIDTH / 2 - MeasureText("Press C to Continue, Q/ESC to Quit", 20) / 2, SCREEN_HEIGHT / 2, 20, WHITE);
                 break;
 
             case STATE_WIN:
@@ -256,17 +285,13 @@ int main()
                 tampilkanSkor(&skor);
                 DrawLives(livesSystem);
                 DrawText("You Win!", SCREEN_WIDTH / 2 - MeasureText("You Win!", 40) / 2, SCREEN_HEIGHT / 2 - 50, 40, GREEN);
-                DrawText("Press ENTER to return to Menu", 
-                         SCREEN_WIDTH / 2 - MeasureText("Press ENTER to return to Menu", 20) / 2,
-                         SCREEN_HEIGHT / 2 + 50, 20, WHITE);
+                DrawText("Press ENTER to return to Menu", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to return to Menu", 20) / 2, SCREEN_HEIGHT / 2 + 50, 20, WHITE);
                 break;
 
             case STATE_GAME_OVER:
                 ClearBackground(BLACK);
                 DrawText("GAME OVER", SCREEN_WIDTH / 2 - MeasureText("GAME OVER", 50) / 2, SCREEN_HEIGHT / 2 - 50, 50, RED);
-                DrawText("Press ENTER to return to Menu", 
-                         SCREEN_WIDTH / 2 - MeasureText("Press ENTER to return to Menu", 20) / 2,
-                         SCREEN_HEIGHT / 2 + 20, 20, WHITE);
+                DrawText("Press ENTER to return to Menu", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to return to Menu", 20) / 2, SCREEN_HEIGHT / 2 + 20, 20, WHITE);
                 break;
 
             default:
@@ -274,6 +299,10 @@ int main()
         }
         EndDrawing();
     }
+
+    // Unload musik
+    UnloadMusicStream(menuMusic);
+    UnloadMusicStream(gameMusic);
 
     UnloadTexture(brickTexture);
     UnloadLivesSystem(&livesSystem);
