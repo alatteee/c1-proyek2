@@ -56,7 +56,7 @@ void handleMenuInput(int *selectedOption, GameState *gameState, Car cars[], int 
 {
     if (IsKeyPressed(KEY_UP))
     {
-        (*selectedOption)--;
+        (*selectedOption)--; 
         if (*selectedOption < 0)
             *selectedOption = NUM_OPTIONS - 1; // Pastikan ini sesuai dengan jumlah pilihan menu
     }
@@ -119,8 +119,7 @@ void DrawLevelMenu(int selectedLevel, Texture2D brickTexture)
     DrawText(title, titleX, titleY, 40, WHITE);
 
     // Gambar opsi level
-    for (int i = 0; i < NUM_LEVELS; i++)
-    {
+    for (int i = 0; i < NUM_LEVELS; i++) {
         int boxX = SCREEN_WIDTH / 2 - 100; // Posisi X tetap di tengah
         int boxY = 350 + i * 60;           // Posisi Y kotak sama seperti menu utama
         Color boxColor = (i == selectedLevel) ? RED : LIGHTGRAY;
@@ -134,7 +133,7 @@ void handleLevelMenuInput(int *selectedLevel, GameState *gameState)
 {
     if (IsKeyPressed(KEY_UP))
     {
-        (*selectedLevel)--;
+        (*selectedLevel)--; 
         if (*selectedLevel < 0)
             *selectedLevel = NUM_LEVELS - 1;
     }

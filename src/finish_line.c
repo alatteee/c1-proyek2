@@ -1,16 +1,9 @@
-/* ----------------------------------------------------------------------------- */
-/* File        : finish_line.c                                                   */
-/* Deskripsi   : File implementasi untuk mengelola garis finish dalam game.      */
-/*              Berisi fungsi-fungsi untuk menggambar garis finish dan memeriksa */
-/*              apakah mobil telah melewati garis finish.                        */
-/* ----------------------------------------------------------------------------- */
-
-#include "../include/finish_line.h"  // File header untuk garis finish
-#include <raylib.h>                  // Library Raylib untuk grafik dan utilitas
-#include "../include/config.h"       // File konfigurasi game
+#include "../include/finish_line.h"  // Contains FINISH_LINE_Y and FINISH_LINE_HEIGHT
+#include <raylib.h>
+#include "../include/config.h"
 
 // Fungsi untuk menggambar garis finish dengan pola papan catur
-void DrawFinishLine() {
+void DrawFinishLine(void) {
     const int squareSize = 20;  // Ukuran setiap kotak pada pola papan catur
     const int numSquares = SCREEN_WIDTH / squareSize; // Jumlah kotak horizontal
 
@@ -30,7 +23,7 @@ void DrawFinishLine() {
     }
 
     // Tambahkan batas atas dan bawah untuk membuat garis finish lebih menonjol
-    DrawRectangle(0, FINISH_LINE_Y - 2, SCREEN_WIDTH, 2, RED); // Batas atas
+    DrawRectangle(0, FINISH_LINE_Y - 2, SCREEN_WIDTH, 2, RED);           // Batas atas
     DrawRectangle(0, FINISH_LINE_Y + (2 * squareSize), SCREEN_WIDTH, 2, RED); // Batas bawah
 }
 
