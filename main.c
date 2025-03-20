@@ -22,6 +22,7 @@ int main()
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "C1 Brick Racer");
     SetTargetFPS(60);
     InitAudioDevice();
+    bool isRintanganInitialized = false;
 
     // Muat musik
     menuMusic = LoadMusicStream("resources/menusound.mp3");
@@ -102,22 +103,28 @@ int main()
             }
             break;
 
-        case STATE_GAME:
-            // Logika game
+            case STATE_GAME:
+            // Inisialisasi rintangan hanya sekali saat permainan dimulai
+            if (!isRintanganInitialized) {
+                initRintangan();
+                isRintanganInitialized = true; // Set flag menjadi true setelah inisialisasi
+            }
+        
+            // Lanjutkan dengan logika game
             gameTimer += deltaTime;
             if (gameTimer >= 10.0f && !finishLineVisible)
             {
                 finishLineVisible = true;
             }
-
+        
             handleCarInput(&cars[0]);
-            updateRintangan(&skor, levels[selectedLevel].obstacleSpeed);
-
+            updateRintangan(&skor, levels[selectedLevel].obstacleSpeed); // Update posisi rintangan
+        
             if (finishLineVisible && CheckFinishLineCollision(&cars[0]))
             {
                 gameState = STATE_WIN;
             }
-
+        
             collisionOccurred = false;
             for (int i = 0; i < NUM_CARS && !collisionOccurred; i++)
             {

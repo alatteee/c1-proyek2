@@ -16,7 +16,7 @@ typedef struct Rintangan {
 extern Rintangan rintangan[MAX_LANES][MAX_OBSTACLES];
 
 void initRintangan();
-void updateRintangan(/* Skor pointer and obstacleSpeed parameter as needed */);
+void updateRintangan();
 int checkCollision(float x, float y, float width, float height);
 
 // Add the declaration for drawRintangan()
