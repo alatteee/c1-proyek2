@@ -71,7 +71,7 @@ void DrawHighScores(Texture2D brickTexture)
     const char *title = "High Scores";
     int titleWidth = MeasureText(title, 40);
     int titleX = SCREEN_WIDTH / 2 - titleWidth / 2;
-    int titleY = 100;
+    int titleY = 100; // Posisi Y judul
     DrawText(title, titleX, titleY, 40, WHITE);
 
     // Gambar daftar high score
@@ -81,7 +81,7 @@ void DrawHighScores(Texture2D brickTexture)
         snprintf(scoreText, sizeof(scoreText), "%d. %s - %d", i + 1, highScores[i].name, highScores[i].score);
         int scoreWidth = MeasureText(scoreText, 20);
         int scoreX = SCREEN_WIDTH / 2 - scoreWidth / 2;
-        int scoreY = 200 + i * 30;
+        int scoreY = 250 + i * 40; // Lebih turun lagi
         DrawText(scoreText, scoreX, scoreY, 20, WHITE);
     }
 }

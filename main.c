@@ -166,11 +166,23 @@ int main()
             break;
 
         case STATE_WIN:
-        case STATE_GAME_OVER:
-            SaveHighScore(playerName, skor.nilai);
-            gameState = STATE_HIGH_SCORES;
+            // Tunggu pemain menekan ENTER sebelum pindah ke high score
+            if (IsKeyPressed(KEY_ENTER))
+            {
+                SaveHighScore(playerName, skor.nilai); // Simpan skor
+                gameState = STATE_HIGH_SCORES; // Pindah ke high score
+            }
             break;
-
+        
+        case STATE_GAME_OVER:
+            // Tunggu pemain menekan ENTER sebelum pindah ke high score
+            if (IsKeyPressed(KEY_ENTER))
+            {
+                SaveHighScore(playerName, skor.nilai); // Simpan skor
+                gameState = STATE_HIGH_SCORES; // Pindah ke high score
+            }
+            break;
+        
         case STATE_HIGH_SCORES:
             if (IsKeyPressed(KEY_ENTER))
             {
@@ -238,11 +250,23 @@ int main()
             DrawFinishLine();
             drawRintangan();
             renderCar(&cars[0]);
+        
             tampilkanSkor(&skor);
             DrawLives(livesSystem);
+        
+            // Tampilkan pesan kemenangan
             DrawText("You Win!", SCREEN_WIDTH / 2 - MeasureText("You Win!", 40) / 2, SCREEN_HEIGHT / 2 - 50, 40, GREEN);
-            DrawText("Press ENTER to return to Menu", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to return to Menu", 20) / 2, SCREEN_HEIGHT / 2 + 50, 20, WHITE);
+            
+            // Tampilkan skor di bawahnya
+            char skorText[20];  
+            sprintf(skorText, "Your Score: %d", skor);
+            DrawText(skorText, SCREEN_WIDTH / 2 - MeasureText(skorText, 30) / 2, SCREEN_HEIGHT / 2, 30, YELLOW);
+        
+            // Tampilkan instruksi untuk melanjutkan
+            DrawText("Press ENTER to continue", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to continue", 20) / 2, SCREEN_HEIGHT / 2 + 50, 20, WHITE);
+            
             break;
+        
 
         case STATE_GAME_OVER:
             ClearBackground(BLACK);
