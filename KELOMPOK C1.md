@@ -18,7 +18,7 @@ Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
 ## Pembagian Tugas:
 
 ### Header Files:
-- **Ersya** - `menu.h`
+- **Ersya** - `menu.h` , `high_score.h`
 - **Ala**   - `mobil.h`, `lives.h`
             - Membuat level pada game
 - **Nike**  - `jalur.h`
