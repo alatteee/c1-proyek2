@@ -4,24 +4,24 @@
 #include <raylib.h>
 #include "config.h"
 
-// Struktur untuk menyimpan nilai skor
+// Struktur untuk menyimpan nilai skor pemain
 typedef struct {
     int nilai; // Nilai skor pemain
 } Skor;
 
-// Inisialisasi skor
+// Fungsi untuk menginisialisasi nilai skor
 void initSkor(Skor *skor);
 
-// Menambah poin ke skor
+// Fungsi untuk menambah poin ke nilai skor
 void tambahSkor(Skor *skor, int poin);
 
-// Mengurangi poin dari skor (tidak boleh negatif)
+// Fungsi untuk mengurangi poin dari nilai skor (tidak boleh menjadi nilai negatif)
 void kurangiSkor(Skor *skor, int poin);
 
-// Mengambil nilai skor saat ini
+// Fungsi untuk mengambil nilai skor saat ini
 int getSkor(const Skor *skor);
 
-// Menampilkan skor ke dalam log Raylib
+// Fungsi untuk menampilkan nilai skor ke dalam log Raylib
 void tampilkanSkor(const Skor *skor);
 
 #endif // SKOR_H
