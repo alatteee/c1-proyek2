@@ -1,13 +1,13 @@
-#include "../include/finish_line.h"  // Contains FINISH_LINE_Y and FINISH_LINE_HEIGHT
+#include "../include/finish_line.h"  
 #include <raylib.h>
 #include "../include/config.h"
 
 // Fungsi untuk menggambar garis finish dengan pola papan catur
 void DrawFinishLine(void) {
     const int squareSize = 20;  // Ukuran setiap kotak pada pola papan catur
-    const int numSquares = SCREEN_WIDTH / squareSize; // Jumlah kotak horizontal
+    const int numSquares = SCREEN_WIDTH / squareSize; // Jumlah kotak horizontal berdasarkan lebar layar
 
-    // Loop untuk menggambar pola papan catur
+    // Loop untuk menggambar pola papan catur pada garis finish
     for (int i = 0; i < numSquares; i++) {
         for (int j = 0; j < 2; j++) {  // 2 baris kotak untuk garis finish
             // Tentukan warna kotak (hitam atau putih berdasarkan pola papan catur)
@@ -23,8 +23,8 @@ void DrawFinishLine(void) {
     }
 
     // Tambahkan batas atas dan bawah untuk membuat garis finish lebih menonjol
-    DrawRectangle(0, FINISH_LINE_Y - 2, SCREEN_WIDTH, 2, RED);           // Batas atas
-    DrawRectangle(0, FINISH_LINE_Y + (2 * squareSize), SCREEN_WIDTH, 2, RED); // Batas bawah
+    DrawRectangle(0, FINISH_LINE_Y - 2, SCREEN_WIDTH, 2, RED);           // Batas atas garis finish (warna merah)
+    DrawRectangle(0, FINISH_LINE_Y + (2 * squareSize), SCREEN_WIDTH, 2, RED); // Batas bawah garis finish (warna merah)
 }
 
 // Fungsi untuk memeriksa apakah mobil telah melewati garis finish

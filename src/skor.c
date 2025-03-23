@@ -3,47 +3,47 @@
 #include <stdio.h>
 #include <raylib.h>
 
-// Inisialisasi skor menjadi 0
+// Fungsi untuk menginisialisasi skor menjadi 0
 void initSkor(Skor *skor)
 {
-    skor->nilai = 0;
+    skor->nilai = 0; // Menetapkan nilai skor awal menjadi 0
 }
 
-// Menambah poin ke skor
+// Fungsi untuk menambah poin ke skor
 void tambahSkor(Skor *skor, int poin)
 {
-    if (poin > 0)
-    { // Pastikan poin yang ditambahkan positif
-        skor->nilai += poin;
+    if (poin > 0) // Pastikan poin yang ditambahkan adalah angka positif
+    {
+        skor->nilai += poin; // Menambahkan poin ke skor
     }
 }
 
-// Mengurangi poin dari skor, tetapi tidak boleh kurang dari 0
+// Fungsi untuk mengurangi poin dari skor, tetapi tidak boleh kurang dari 0
 void kurangiSkor(Skor *skor, int poin)
 {
-    if (poin > 0)
-    { // Pastikan poin yang dikurangi positif
-        if (skor->nilai < poin)
+    if (poin > 0) // Pastikan poin yang dikurangi adalah angka positif
+    {
+        if (skor->nilai < poin) // Jika poin yang dikurangi lebih besar dari skor yang ada
         {
-            skor->nilai = 0; // Jika skor lebih kecil dari poin yang dikurangi, set ke 0
+            skor->nilai = 0; // Set skor menjadi 0 jika kurang dari poin yang dikurangi
         }
         else
         {
-            skor->nilai -= poin;
+            skor->nilai -= poin; // Mengurangi skor dengan poin
         }
     }
 }
 
-// Mengembalikan nilai skor saat ini
+// Fungsi untuk mengambil nilai skor saat ini
 int getSkor(const Skor *skor)
 {
-    return skor->nilai;
+    return skor->nilai; // Mengembalikan nilai skor saat ini
 }
 
-// Menampilkan skor di layar menggunakan Raylib
+// Fungsi untuk menampilkan skor di layar menggunakan Raylib
 void tampilkanSkor(const Skor *skor)
 {
-    char skorText[50];
-    snprintf(skorText, sizeof(skorText), "Skor: %d", skor->nilai);
-    DrawText(skorText, 10, 10, 20, WHITE); // Menampilkan teks di kiri atas layar
+    char skorText[50];  // Mendeklarasikan array untuk menyimpan teks skor
+    snprintf(skorText, sizeof(skorText), "Skor: %d", skor->nilai);  // Menyusun teks untuk skor
+    DrawText(skorText, 10, 10, 20, WHITE); // Menampilkan teks skor di posisi kiri atas layar
 }
