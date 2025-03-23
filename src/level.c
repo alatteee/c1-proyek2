@@ -5,10 +5,8 @@
 /*              kecepatan rintangan, jumlah rintangan, dan posisi rintangan.    */
 /* ----------------------------------------------------------------------------- */
 
-#include "../include/config.h" // Mengimpor file header konfigurasi game
-#include "../include/config.h"
+#include "../include/config.h" 
 
-// Definisikan levels di sini
 Level levels[NUM_LEVELS] = {
     // Level 1: Easy (Mudah)
     {

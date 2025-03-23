@@ -67,6 +67,7 @@
     "format": "c",
     "istream": "c",
     "ostream": "c",
-    "finish_line.h": "c"
+    "finish_line.h": "c",
+    "config.h": "c"
   }
 }

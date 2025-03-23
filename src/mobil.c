@@ -38,7 +38,7 @@ void renderCar(Car *car) {
   float carX = car->x;           // Posisi X mobil
   float carY = car->y;           // Posisi Y mobil
 
-  // Bayangan mobil (opsional)
+  // Bayangan mobil 
   DrawRectangle(carX + 3, carY + 3, carWidth, carHeight, Fade(BLACK, 0.2f));
 
   // Badan mobil utama (bentuk oval)
