@@ -7,10 +7,10 @@
 
 ## Anggota:
 - **ERSYA HASBY SATRIA** - 241511072 - ErsyaHasby
-- **YAZID ALRASYID** - 241511093
-- **NIKE KUSTIANE** - 241511086
-- **AZKHA NAZZALA PRASADHA DIES** - 241511069
-- **ANDHINI WIDYA PUTRI WASTIKA** - 241511068
+- **YAZID ALRASYID** - 241511093 - yajidms
+- **NIKE KUSTIANE** - 241511086 - nxmgh27
+- **AZKHA NAZZALA PRASADHA DIES** - 241511069 - alatteee
+- **ANDHINI WIDYA PUTRI WASTIKA** - 241511068 - andhinwdyp
 
 ## Target Proyek:
 Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
@@ -26,6 +26,9 @@ Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
 - **Yazid** - `rintangan.h`
 
 ---
+
+### Tutorial Instalasi Game:
+
 
 ## Gameplay C1 Brick Racer
 
