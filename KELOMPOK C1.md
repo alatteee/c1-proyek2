@@ -28,6 +28,18 @@ Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
 ---
 
 ### Tutorial Instalasi Game:
+1. Clone Repository ini
+2. Pastikan sudah menginstall:
+   - Compiler C (GCC/MinGW/Clang)
+   - Library Raylib.
+     Jika belum memiliki Raylib dapat menginstal nya terlebih dahulu
+     - windows : bisa menggunakan vcpkg atau manual build.
+     - Linux : (Ubuntu/Debian) sudo apt install libraylib-dev
+     - MacOS : brew install raylib
+3. Compile source code
+gcc main.c finish_line.c high_score.c jalur.c level.c lives.c menu.c mobil.c rintangan.c skor.c c1_brick_racer.exe -lraylib -lopengl32 -lgdi32 -lwinmm
+4. Jalankan game
+   ./c1_brick_racer.exe
 
 
 ## Gameplay C1 Brick Racer
