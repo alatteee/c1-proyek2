@@ -38,7 +38,7 @@ Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
      - MacOS : brew install raylib
 3. Compile source code
 gcc main.c finish_line.c high_score.c jalur.c level.c lives.c menu.c mobil.c rintangan.c skor.c c1_brick_racer.exe -lraylib -lopengl32 -lgdi32 -lwinmm
-4. Jalankan game
+5. Jalankan game
    ./c1_brick_racer.exe
 
 
