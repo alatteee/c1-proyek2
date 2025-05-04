@@ -12,8 +12,8 @@
 #define MAX_OBSTACLES 5
 
 // Definisi ukuran mobil pemain (lebar dan tinggi)
-#define PLAYER_CAR_WIDTH 80   // Lebar mobil
-#define PLAYER_CAR_HEIGHT 120 // Tinggi mobil 
+#define PLAYER_CAR_WIDTH 100   // Lebar mobil
+#define PLAYER_CAR_HEIGHT 140 // Tinggi mobil 
 
 // Posisi X untuk jalur kiri, diatur agar mobil berada di tengah jalur
 #define LEFT_LANE_X (SCREEN_WIDTH / 4 - PLAYER_CAR_WIDTH / 2)
@@ -41,7 +41,8 @@ typedef enum
     STATE_WIN,             // Status ketika pemain menang
     STATE_GAME_OVER,       // Status ketika permainan berakhir
     STATE_HIGH_SCORES,     // Menu untuk menampilkan skor tertinggi
-    STATE_EXIT             // Status keluar dari permainan
+    STATE_EXIT,          // Status keluar dari permainan
+    STATE_SELECT_CAR
 } GameState;
 
 #define NUM_LEVELS 3        // Jumlah level yang tersedia dalam permainan

@@ -68,6 +68,7 @@
     "istream": "c",
     "ostream": "c",
     "finish_line.h": "c",
-    "config.h": "c"
+    "config.h": "c",
+    "high_score.h": "c"
   }
 }
