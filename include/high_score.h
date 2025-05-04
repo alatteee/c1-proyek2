@@ -3,25 +3,23 @@
 
 #include <raylib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-// Mendefinisikan panjang maksimal untuk nama pemain (20 karakter)
 #define MAX_NAME_LENGTH 20
-// Mendefinisikan jumlah skor tertinggi yang dapat disimpan (10 skor)
 #define MAX_HIGH_SCORES 10
 
-// Struktur untuk menyimpan data skor tertinggi
-typedef struct
+typedef struct HighScoreNode
 {
-    char name[MAX_NAME_LENGTH]; // Nama pemain yang mencetak skor
-    int score;                  // Nilai skor yang dicapai pemain
-} HighScore;
+    char name[MAX_NAME_LENGTH];
+    int score;
+    struct HighScoreNode *next;
+} HighScoreNode;
 
-// Fungsi untuk menyimpan skor tinggi ke dalam file atau sistem penyimpanan
+// Fungsi utama
 void SaveHighScore(const char *name, int score);
-// Fungsi untuk memuat daftar skor tinggi dari file atau sistem penyimpanan
-void LoadHighScores(HighScore highScores[]);
-// Fungsi untuk menggambar tampilan skor tinggi pada layar dengan menggunakan tekstur
+void LoadHighScores(HighScoreNode **head);
 void DrawHighScores(Texture2D brickTexture);
+void FreeHighScores(HighScoreNode *head);
 
 #endif
