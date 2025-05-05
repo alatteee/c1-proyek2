@@ -10,7 +10,7 @@ Proyek ini dikembangkan sebagai bentuk tugas Proyek 2 oleh mahasiswa D3 Teknik I
 
 * **Manajer Proyek**: Yudi Widhiyasana, S.ST., M.T.
 
-* **Anggota Kelompok**
+* **Anggota Kelompok**:
 
 | No  | Anggota                                                                        | NIM       |
 | --- | -------------------------------------------------------------------------------| --------- |
@@ -20,7 +20,7 @@ Proyek ini dikembangkan sebagai bentuk tugas Proyek 2 oleh mahasiswa D3 Teknik I
 | 4.  | **NIKE KUSTIANE** ([@nxmgh27](https://github.com/nxmgh27))                     | 241511086 |
 | 5.  | **YAZID ALRASYID** ([@yajidms](https://github.com/yajidms))                    | 241511081 |
 
-## Target Proyek:
+### Target Proyek:
 Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
 
 ---
