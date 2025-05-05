@@ -75,7 +75,7 @@ Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
 3.  **Kompilasi**:
     * **Via Makefile (Direkomendasikan)**:
         ```bash
-        make
+        make run
         ```
     * **Manual**:
         ```bash
@@ -91,5 +91,3 @@ Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
     ```
 
 ---
-
-Selamat bermain C1 Brick Racer! Semoga Anda menikmati permainannya! 🏆
