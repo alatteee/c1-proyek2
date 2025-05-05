@@ -77,7 +77,6 @@ Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
         ```bash
         gcc main.c src/*.c -o c1_brick_racer -Iinclude -L/path/to/raylib/lib -lraylib -lopengl32 -lgdi32 -lwinmm -lm -lpthread -lwinpthread
         ```
-        *(Sesuaikan `-L/path/to/raylib/lib` jika diperlukan, terutama jika Raylib tidak diinstal di path standar).*
 4.  **Jalankan**:
     ```bash
     ./c1_brick_racer
