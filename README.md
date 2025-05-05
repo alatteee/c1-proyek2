@@ -1,5 +1,7 @@
 # 🏎️ C1 Brick Racer 🧱
 
+![image](https://github.com/alatteee/c1-proyek2/blob/docs-c1/docs/images/015533.png)
+
 ---
 
 ## 🧑‍💻 Tim Pengembang
@@ -8,9 +10,7 @@ Proyek ini dikembangkan sebagai bentuk tugas Proyek 2 oleh mahasiswa D3 Teknik I
 
 * **Manajer Proyek**: Yudi Widhiyasana, S.ST., M.T.
 
----
-
-## Anggota Kelompok
+* **Anggota Kelompok**:
 
 | No  | Anggota                                                                        | NIM       |
 | --- | -------------------------------------------------------------------------------| --------- |
@@ -18,9 +18,9 @@ Proyek ini dikembangkan sebagai bentuk tugas Proyek 2 oleh mahasiswa D3 Teknik I
 | 2.  | **AZKHA NAZZALA PRASADHA DIES** ([@alateee](https://github.com/alatteee))      | 241511069 |
 | 3.  | **ERSYA HASBY SATRIA** ([@ErsyaHasby](https://github.com/ErsyaHasby))          | 241511072 |
 | 4.  | **NIKE KUSTIANE** ([@nxmgh27](https://github.com/nxmgh27))                     | 241511086 |
-| 5.  | **YAZID ALRASYID** ([@yajidms](https://github.com/yajidms))                    | 241511081 |
+| 5.  | **YAZID ALRASYID** ([@yajidms](https://github.com/yajidms))                    | 241511093 |
 
-## Target Proyek:
+### Target Proyek:
 Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
 
 ---
@@ -75,7 +75,7 @@ Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
 3.  **Kompilasi**:
     * **Via Makefile (Direkomendasikan)**:
         ```bash
-        make
+        make run
         ```
     * **Manual**:
         ```bash
@@ -91,5 +91,3 @@ Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
     ```
 
 ---
-
-Selamat bermain C1 Brick Racer! Semoga Anda menikmati permainannya! 🏆
