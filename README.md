@@ -8,6 +8,7 @@ Proyek ini dikembangkan sebagai bentuk tugas Proyek 2 oleh mahasiswa D3 Teknik I
 
 * **Manajer Proyek**: Yudi Widhiyasana, S.ST., M.T.
 * **Anggota**:
+
 | No  | Anggota                                                                        | NIM       |
 | --- | -------------------------------------------------------------------------------| --------- |
 | 1   | **ANDHINI WIDYA PUTRI WASTIKA** ([@andhinwdyp](https://github.com/andhinwdyp)) | 241511068 |
