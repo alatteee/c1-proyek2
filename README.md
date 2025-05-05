@@ -6,11 +6,11 @@
 **Proyek Manager**: Pa Yudi Widhiyasana
 
 ## Anggota:
-- **ERSYA HASBY SATRIA** - 241511072
-- **YAZID ALRASYID** - 241511093
-- **NIKE KUSTIANE** - 241511086
-- **AZKHA NAZZALA PRASADHA DIES** - 241511069
-- **ANDHINI WIDYA PUTRI WASTIKA** - 241511068
+- **ERSYA HASBY SATRIA** - 241511072 - ErsyaHasby
+- **YAZID ALRASYID** - 241511093 - yajidms
+- **NIKE KUSTIANE** - 241511086 - nxmgh27
+- **AZKHA NAZZALA PRASADHA DIES** - 241511069 - alatteee
+- **ANDHINI WIDYA PUTRI WASTIKA** - 241511068 - andhinwdyp
 
 ## Target Proyek:
 Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
@@ -26,6 +26,21 @@ Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
 - **Yazid** - `rintangan.h`
 
 ---
+
+### Tutorial Instalasi Game:
+1. Clone Repository ini
+2. Pastikan sudah menginstall:
+   - Compiler C (GCC/MinGW/Clang)
+   - Library Raylib.
+     Jika belum memiliki Raylib dapat menginstal nya terlebih dahulu
+     - windows : bisa menggunakan vcpkg atau manual build.
+     - Linux : (Ubuntu/Debian) sudo apt install libraylib-dev
+     - MacOS : brew install raylib
+3. Compile source code seperti berikut >>> gcc main.c src/finish_line.c src/high_score.c src/jalur.c src/level.c src/lives.c src/menu.c src/mobil.c src/rintangan.c src/skor.c -o c1_brick_racer.exe -Iinclude -lraylib -lopengl32 -lgdi32 -lwinmm
+
+5. Jalankan game
+   ./c1_brick_racer.exe
+
 
 ## Gameplay C1 Brick Racer
 
