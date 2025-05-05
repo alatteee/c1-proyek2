@@ -83,11 +83,11 @@ Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
         ```
 4.  **Jalankan**:
     ```bash
-    ./c1_brick_racer
+    ./racing_game
     ```
     atau di Windows:
     ```bash
-    .\c1_brick_racer.exe
+    .\racing_game.exe
     ```
 
 ---
