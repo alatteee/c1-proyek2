@@ -1,9 +1,11 @@
 #include "../include/menu.h"
 #include <raylib.h>
+#include <stdlib.h>
 #include "../include/config.h"
 #include "../include/mobil.h"
 #include "../include/skor.h"
 #include "../include/rintangan.h"
+#include "../include/level.h" 
 
 
 // Fungsi untuk menggambar menu utama
@@ -86,30 +88,35 @@ void handleMenuInput(int *selectedOption, GameState *gameState, Car cars[], int 
     }
 }
 
-// Fungsi untuk menggambar menu level
-void DrawLevelMenu(int selectedLevel, Texture2D brickTexture)
+void DrawLevelMenu(int selectedLevel, Texture2D brickTexture, LevelNode* levelList)
 {
-    // Gambar latar belakang menggunakan tekstur brickTexture
+    // Gambar latar belakang
     DrawTexture(brickTexture, 0, 0, WHITE);
 
     // Gambar judul
     const char *title = "Select Level";
-    int titleWidth = MeasureText(title, 40); // Mengukur lebar judul
-    int titleX = SCREEN_WIDTH / 2 - titleWidth / 2; // Posisi X agar judul di tengah layar
-    int titleY = 250; // Posisi Y untuk judul
-    DrawText(title, titleX, titleY, 40, WHITE); // Gambar teks judul di layar
+    int titleWidth = MeasureText(title, 40);
+    int titleX = SCREEN_WIDTH / 2 - titleWidth / 2;
+    int titleY = 250;
+    DrawText(title, titleX, titleY, 40, WHITE);
 
     // Gambar pilihan level
-    for (int i = 0; i < NUM_LEVELS; i++)
-    {
-        int boxX = SCREEN_WIDTH / 2 - 100; // Posisi X untuk kotak level
-        int boxY = 300 + i * 60; // Posisi Y untuk kotak level
-        Color boxColor = (i == selectedLevel) ? RED : LIGHTGRAY; // Warna kotak berdasarkan level yang dipilih
+    LevelNode* current = levelList;
+    int i = 0;
 
-        DrawRectangle(boxX, boxY, 200, 50, boxColor); // Gambar kotak pilihan level
-        DrawText(levels[i].name, boxX + 10, boxY + 10, 20, BLACK); // Gambar nama level
+    while (current != NULL) {
+        int boxX = SCREEN_WIDTH / 2 - 100;
+        int boxY = 300 + i * 60;
+        Color boxColor = (i == selectedLevel) ? RED : LIGHTGRAY;
+
+        DrawRectangle(boxX, boxY, 200, 50, boxColor);
+        DrawText(current->name, boxX + 10, boxY + 10, 20, BLACK);
+
+        current = current->next;
+        i++;
     }
 }
+
 
 // Fungsi untuk menangani input dari menu level
 void handleLevelMenuInput(int *selectedLevel, GameState *gameState)

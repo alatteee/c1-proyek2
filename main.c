@@ -10,7 +10,9 @@
 #include "include/config.h"
 #include "include/lives.h"
 #include "include/high_score.h"
-#include "include/mobil_selection.h" // <- Tambahan buat select mobil
+#include "include/mobil_selection.h" 
+#include "include/level.h" 
+
 
 // Variabel musik
 Music menuMusic;
@@ -19,6 +21,12 @@ bool isMusicEnabled = true;
 
 int main()
 {
+
+    LevelNode* levelList = NULL;
+    AppendLevel(&levelList, "Easy", 5);
+    AppendLevel(&levelList, "Medium", 8);
+    AppendLevel(&levelList, "Hard", 12);
+
     // Inisialisasi window dan audio
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "C1 Brick Racer");
     SetTargetFPS(60);
@@ -140,7 +148,11 @@ int main()
             }
 
             handleCarInput(&cars[0]);
-            updateRintangan(&skor, levels[selectedLevel].obstacleSpeed);
+            LevelNode* currentLevel = getLevelByIndex(levelList, selectedLevel);
+            if (currentLevel != NULL) {
+                updateRintangan(&skor, currentLevel->obstacleSpeed);
+            }
+
 
             if (finishLineVisible && CheckFinishLineCollision(&cars[0]))
             {
@@ -229,7 +241,7 @@ int main()
             break;
 
         case STATE_LEVEL_MENU:
-            DrawLevelMenu(selectedLevel, brickTexture);
+            DrawLevelMenu(selectedLevel, brickTexture, levelList);
             break;
 
         case STATE_INPUT_NAME:
@@ -297,6 +309,7 @@ int main()
     UnloadTexture(brickTexture);
     UnloadLivesSystem(&livesSystem);
     freeCarList(carList);
+    FreeLevels(levelList);
 
     CloseAudioDevice();
     CloseWindow();

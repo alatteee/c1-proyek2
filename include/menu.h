@@ -4,6 +4,7 @@
 #include <raylib.h>
 #include "config.h"
 #include "mobil.h"
+#include "level.h"
 #include "skor.h"
 
 // Mendeklarasikan variabel global menuMusic untuk musik latar menu
@@ -17,7 +18,8 @@ void DrawMenu(int selectedOption, Texture2D brickTexture);
 void handleMenuInput(int *selectedOption, GameState *gameState, Car cars[], int *lives, Skor *skor); // Hapus parameter yang tidak digunakan
 
 // Deklarasi fungsi untuk menggambar menu pemilihan level
-void DrawLevelMenu(int selectedLevel, Texture2D brickTexture);
+void DrawLevelMenu(int selectedLevel, Texture2D brickTexture, LevelNode* levelList);
+
 // Deklarasi fungsi untuk menangani input dari menu pemilihan level
 void handleLevelMenuInput(int *selectedLevel, GameState *gameState);
 

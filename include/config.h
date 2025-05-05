@@ -56,7 +56,5 @@ typedef struct
     int positions[10][2]; // Posisi rintangan (koordinat X dan Y) di level ini
 } Level;
 
-// Mendeklarasikan array yang berisi level-level permainan
-extern Level levels[NUM_LEVELS];
 
 #endif
