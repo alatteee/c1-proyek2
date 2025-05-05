@@ -1,5 +1,7 @@
 # 🏎️ C1 Brick Racer 🧱
 
+![image](https://github.com/alatteee/c1-proyek2/blob/docs-c1/docs/images/015533.png)
+
 ---
 
 ## 🧑‍💻 Tim Pengembang
