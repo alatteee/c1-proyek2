@@ -37,10 +37,12 @@ Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
      - Linux : (Ubuntu/Debian) sudo apt install libraylib-dev
      - MacOS : brew install raylib
 3. Compile source code seperti berikut : 
-   ```gcc main.c src/finish_line.c src/high_score.c src/jalur.c src/level.c src/lives.c src/menu.c src/mobil.c src/rintangan.c src/skor.c -o c1_brick_racer.exe -Iinclude -lraylib -lopengl32 -lgdi32 -lwinmm```
+   ```bash
+   gcc main.c src/finish_line.c src/high_score.c src/jalur.c src/level.c src/lives.c src/menu.c src/mobil.c src/rintangan.c src/skor.c -o c1_brick_racer.exe -Iinclude -lraylib -lopengl32 -lgdi32 -lwinmm```
 
 5. Jalankan game
-   ```./c1_brick_racer.exe```
+   ```bash
+   ./c1_brick_racer.exe```
 
 
 ## Gameplay C1 Brick Racer
