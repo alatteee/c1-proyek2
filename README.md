@@ -1,84 +1,92 @@
-# C1 Proyek 2 - Markdown Kelompok
+# 🏎️ C1 Brick Racer 🧱
 
-**Jurusan**: Teknik Komputer dan Informatika  
-**Program Studi**: D3 - Teknik Informatika
+---
 
-**Proyek Manager**: Pa Yudi Widhiyasana
+## 🧑‍💻 Tim Pengembang
 
-## Anggota:
-- **ERSYA HASBY SATRIA** - 241511072 - ErsyaHasby
-- **YAZID ALRASYID** - 241511093 - yajidms
-- **NIKE KUSTIANE** - 241511086 - nxmgh27
-- **AZKHA NAZZALA PRASADHA DIES** - 241511069 - alatteee
-- **ANDHINI WIDYA PUTRI WASTIKA** - 241511068 - andhinwdyp
+Proyek ini dikembangkan sebagai bentuk tugas Proyek 2 oleh mahasiswa D3 Teknik Informatika, Jurusan Teknik Komputer dan Informatika.
+
+* **Manajer Proyek**: Yudi Widhiyasana, S.ST., M.T.
+* **Anggota**:
+| No  | Anggota                                                                        | NIM       |
+| --- | -------------------------------------------------------------------------------| --------- |
+| 1   | **ANDHINI WIDYA PUTRI WASTIKA** ([@andhinwdyp](https://github.com/andhinwdyp)) | 241511068 |
+| 2.  | **AZKHA NAZZALA PRASADHA DIES** ([@alateee](https://github.com/alatteee))      | 241511069 |
+| 3.  | **ERSYA HASBY SATRIA** ([@ErsyaHasby](https://github.com/ErsyaHasby))          | 241511072 |
+| 4.  | **NIKE KUSTIANE** ([@nxmgh27](https://github.com/nxmgh27))                     | 241511086 |
+| 5.  | **YAZID ALRASYID** ([@yajidms](https://github.com/yajidms))                    | 241511081 |
 
 ## Target Proyek:
 Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
 
-## Pembagian Tugas:
+---
 
-### Header Files:
-- **Ersya** - `menu.h` `high_score.h`
-- **Ala**   - `mobil.h`, `lives.h`
-            - Membuat level pada game
-- **Nike**  - `jalur.h`
-- **Andin** - `skor.h`
-- **Yazid** - `rintangan.h`
+## ✨ Fitur Utama
+
+* **Gameplay Balap**: Fokus pada menghindari rintangan dan mencapai garis finis.
+* **Rintangan**: Menghadapi rintangan yang muncul didepan.
+* **Pilihan Mobil Variatif**: Pilih mobil dari beberapa opsi (biasa/sport) sebelum memulai balapan.
+* **Level Kesulitan**: Tersedia level Easy, Medium, dan Hard, yang mempengaruhi kecepatan rintangan.
+* **Sistem Skor**: Peroleh skor untuk setiap rintangan yang berhasil dilewati.
+* **Sistem Nyawa**: Mulai dengan 3 nyawa; tabrakan akan mengurangi nyawa.
+* **Papan Skor Tertinggi (High Score)**: Catat nama dan skormu jika masuk dalam 10 besar.
+* **Musik Latar**: Opsi untuk mengaktifkan atau menonaktifkan musik latar permainan.
+* **Berbasis Raylib**: Dikembangkan menggunakan library C Raylib.
 
 ---
 
-### Tutorial Instalasi Game:
-1. Clone Repository ini
-2. Pastikan sudah menginstall:
-   - Compiler C (GCC/MinGW/Clang)
-   - Library Raylib.
-     Jika belum memiliki Raylib dapat menginstal nya terlebih dahulu
-     - windows : bisa menggunakan vcpkg atau manual build.
-     - Linux : (Ubuntu/Debian) sudo apt install libraylib-dev
-     - MacOS : brew install raylib
-3. Compile source code seperti berikut >>> gcc main.c src/finish_line.c src/high_score.c src/jalur.c src/level.c src/lives.c src/menu.c src/mobil.c src/rintangan.c src/skor.c -o c1_brick_racer.exe -Iinclude -lraylib -lopengl32 -lgdi32 -lwinmm
+## 🎮 Panduan Bermain
 
-5. Jalankan game
-   ./c1_brick_racer.exe
+1.  **Persiapan**: Jalankan game, masukkan nama pemain, pilih level kesulitan, dan pilih mobil yang diinginkan.
+2.  **Kontrol**:
+    * ⬅️ **Tombol Panah Kiri**: Gerakkan mobil ke kiri.
+    * ➡️ **Tombol Panah Kanan**: Gerakkan mobil ke kanan.
+    * ⬆️ **Tombol Panah Atas**: Gerakkan mobil ke atas.
+    * ⬇️ **Tombol Panah Bawah**: Gerakkan mobil ke bawah.
+    * **Enter**: Konfirmasi pilihan menu atau lanjut setelah permainan usai.
+    * **Esc**: Keluar dari permainan atau kembali ke menu utama.
+3.  **Navigasi & Rintangan**: Rintangan akan muncul dari arah atas layar. Arahkan mobil untuk menghindarinya.
+4.  **Garis Finis**: Setelah periode waktu tertentu (sekitar 10 detik), garis finis akan terlihat. Capai garis ini untuk menyelesaikan level.
+5.  **Skor & Nyawa**: Skor bertambah saat melewati rintangan. Nyawa berkurang saat terjadi tabrakan. Permainan berakhir jika nyawa habis.
+6.  **Status Akhir**:
+    * **Menang**: Berhasil mencapai garis finis dengan sisa nyawa.
+    * **Kalah (Game Over)**: Kehabisan nyawa sebelum mencapai garis finis.
+7.  **Pencatatan Skor**: Skor akhir akan dicatat di papan skor tertinggi jika memenuhi kriteria.
 
+---
 
-## Gameplay C1 Brick Racer
+## 🔧 Instalasi & Menjalankan
 
-**C1 Brick Racer** adalah game balapan mobil di mana pemain harus menghindari rintangan yang muncul di sepanjang jalur balapan hingga mencapai garis finish untuk menang. Pemain harus bertahan selama mungkin dan mencapai garis finish tanpa menabrak rintangan.
+1.  **Clone Repository**:
+    ```bash
+    git clone <URL_REPOSITORY_ANDA>
+    cd <NAMA_FOLDER_REPOSITORY>
+    ```
+2.  **Prasyarat**:
+    * Compiler C (misalnya GCC, MinGW, Clang).
+    * Library Raylib terinstal.
+        * **Windows**: Ikuti [panduan Raylib untuk Windows](https://github.com/raysan5/raylib/wiki/Working-on-Windows).
+        * **Linux (Ubuntu/Debian)**: `sudo apt install libraylib-dev`
+        * **MacOS**: `brew install raylib`
+3.  **Kompilasi**:
+    * **Via Makefile (Direkomendasikan)**:
+        ```bash
+        make
+        ```
+    * **Manual**:
+        ```bash
+        gcc main.c src/*.c -o c1_brick_racer -Iinclude -L/path/to/raylib/lib -lraylib -lopengl32 -lgdi32 -lwinmm -lm -lpthread -lwinpthread
+        ```
+        *(Sesuaikan `-L/path/to/raylib/lib` jika diperlukan, terutama jika Raylib tidak diinstal di path standar).*
+4.  **Jalankan**:
+    ```bash
+    ./c1_brick_racer
+    ```
+    atau di Windows:
+    ```bash
+    .\c1_brick_racer.exe
+    ```
 
-### Tujuan Pemain:
-- **Menghindari rintangan** yang muncul di sepanjang jalan.
-- **Mencapai garis finish** tanpa menabrak rintangan untuk menang.
-- Menyelesaikan setiap level dengan bertahan lebih lama dan tanpa kehilangan nyawa.
+---
 
-### Kontrol:
-- **Arrow Keys**: Menggerakkan mobil ke kiri atau kanan untuk menghindari rintangan.
-- **Enter**: Memulai permainan atau melanjutkan permainan setelah menang.
-- **Escape**: Keluar dari permainan.
-
-### Level dan Kesulitan:
-Terdapat tiga level dengan tingkat kesulitan yang berbeda, dan perbedaannya terletak pada **kecepatan rintangan** yang semakin cepat seiring bertambahnya level:
-
-1. **Level 1 (Easy)**:
-   - Rintangan lebih sedikit.
-   - Kecepatan rintangan lebih lambat, sehingga lebih mudah untuk menghindari rintangan.
-   
-2. **Level 2 (Medium)**:
-   - Rintangan lebih banyak.
-   - Kecepatan rintangan meningkat, membuat game lebih menantang.
-
-3. **Level 3 (Hard)**:
-   - Rintangan lebih banyak dan lebih cepat.
-   - Kecepatan rintangan sangat tinggi, membuat game menjadi lebih sulit dan membutuhkan reaksi yang cepat.
-
-### Mekanik Game:
-- **Rintangan**: Rintangan akan muncul secara acak di sepanjang jalan. Pemain harus menghindari tabrakan dengan rintangan. Setiap kali mobil menabrak rintangan, pemain akan kehilangan satu nyawa.
-- **Nyawa**: Pemain memiliki **tiga nyawa**. Jika nyawa habis, permainan berakhir.
-- **Skor**: Setiap rintangan yang berhasil dihindari akan menambah skor pemain. Skor ini akan terus bertambah seiring berjalannya permainan.
-
-### Menang:
-- Pemain menang ketika berhasil mencapai **garis finish** tanpa menabrak rintangan dan dengan nyawa yang tersisa.
-
-### Musik dan Suara:
-- Musik latar dapat diaktifkan atau dinonaktifkan melalui menu utama.
-- Efek suara muncul ketika mobil menabrak rintangan atau saat mencapai garis finish.
+Selamat bermain C1 Brick Racer! Semoga Anda menikmati permainannya! 🏆
