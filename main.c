@@ -10,7 +10,9 @@
 #include "include/config.h"
 #include "include/lives.h"
 #include "include/high_score.h"
-#include "include/mobil_selection.h" // <- Tambahan buat select mobil
+#include "include/mobil_selection.h" 
+#include "include/level.h" 
+
 
 // Variabel untuk musik
 Music menuMusic;            // Musik untuk menu utama
@@ -19,6 +21,12 @@ bool isMusicEnabled = true; // Status musik (aktif atau tidak)
 
 int main()
 {
+
+    LevelNode* levelList = NULL;
+    AppendLevel(&levelList, "Easy", 5);
+    AppendLevel(&levelList, "Medium", 8);
+    AppendLevel(&levelList, "Hard", 12);
+
     // Inisialisasi window dan audio
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "C1 Brick Racer");
     SetTargetFPS(60);
@@ -140,7 +148,11 @@ int main()
             }
 
             handleCarInput(&cars[0]);
-            updateRintangan(&skor, levels[selectedLevel].obstacleSpeed);
+            LevelNode* currentLevel = getLevelByIndex(levelList, selectedLevel);
+            if (currentLevel != NULL) {
+                updateRintangan(&skor, currentLevel->obstacleSpeed);
+            }
+
 
             if (finishLineVisible && CheckFinishLineCollision(&cars[0]))
             {
@@ -229,7 +241,7 @@ int main()
             break;
 
         case STATE_LEVEL_MENU:
-            DrawLevelMenu(selectedLevel, brickTexture);
+            DrawLevelMenu(selectedLevel, brickTexture, levelList);
             break;
 
         case STATE_INPUT_NAME:
@@ -291,11 +303,15 @@ int main()
         EndDrawing();
     }
 
-  // Unload resources
-  UnloadMusicStream(menuMusic);    // Unload musik menu
-  UnloadMusicStream(gameMusic);    // Unload musik game
-  UnloadTexture(brickTexture);     // Unload tekstur latar belakang
-  UnloadLivesSystem(&livesSystem); // Unload sistem nyawa
-  CloseWindow();                   // Tutup window
-  return 0;                        // Selesai
+    // Unload semua resource
+    UnloadMusicStream(menuMusic);
+    UnloadMusicStream(gameMusic);
+    UnloadTexture(brickTexture);
+    UnloadLivesSystem(&livesSystem);
+    freeCarList(carList);
+
+    CloseAudioDevice();
+    CloseWindow();
+
+    return 0;
 }

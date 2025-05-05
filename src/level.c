@@ -1,46 +1,52 @@
-/* ----------------------------------------------------------------------------- */
-/* File        : level.c                                                         */
-/* Deskripsi   : File implementasi untuk mengelola level dalam game "C1 Brick    */
-/*              Racer". Berisi definisi level-level yang tersedia, termasuk      */
-/*              kecepatan rintangan, jumlah rintangan, dan posisi rintangan.    */
-/* ----------------------------------------------------------------------------- */
+// level.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "../include/level.h"
 
-#include "../include/config.h" 
+LevelNode* CreateLevelNode(const char* name, int speed) {
+    LevelNode* newNode = (LevelNode*)malloc(sizeof(LevelNode));
+    if (!newNode) return NULL;
 
-Level levels[NUM_LEVELS] = {
-    // Level 1: Easy (Mudah)
-    {
-        5,      // Kecepatan rintangan (obstacleSpeed)
-        3,      // Jumlah rintangan (numObstacles)
-        "Easy", // Nama level
-        {
-            {100, 200}, // Posisi rintangan 1 (x, y)
-            {150, 250}, // Posisi rintangan 2 (x, y)
-            {200, 300}  // Posisi rintangan 3 (x, y)
-        }},
-    // Level 2: Medium (Sedang)
-    {
-        8,        // Kecepatan rintangan (obstacleSpeed)
-        5,        // Jumlah rintangan (numObstacles)
-        "Medium", // Nama level
-        {
-            {300, 400}, // Posisi rintangan 1 (x, y)
-            {350, 450}, // Posisi rintangan 2 (x, y)
-            {400, 500}, // Posisi rintangan 3 (x, y)
-            {450, 550}, // Posisi rintangan 4 (x, y)
-            {500, 600}  // Posisi rintangan 5 (x, y)
-        }},
-    // Level 3: Hard (Sulit)
-    {
-        12,     // Kecepatan rintangan (obstacleSpeed)
-        7,      // Jumlah rintangan (numObstacles)
-        "Hard", // Nama level
-        {
-            {500, 600}, // Posisi rintangan 1 (x, y)
-            {550, 650}, // Posisi rintangan 2 (x, y)
-            {600, 700}, // Posisi rintangan 3 (x, y)
-            {650, 750}, // Posisi rintangan 4 (x, y)
-            {700, 800}, // Posisi rintangan 5 (x, y)
-            {750, 850}, // Posisi rintangan 6 (x, y)
-            {800, 900}  // Posisi rintangan 7 (x, y)
-        }}};
+    strncpy(newNode->name, name, sizeof(newNode->name) - 1);
+    newNode->name[sizeof(newNode->name) - 1] = '\0';
+    newNode->obstacleSpeed = speed;
+    newNode->next = NULL;
+
+    return newNode;
+}
+
+void AppendLevel(LevelNode** head, const char* name, int speed) {
+    LevelNode* newNode = CreateLevelNode(name, speed);
+    if (!*head) {
+        *head = newNode;
+    } else {
+        LevelNode* temp = *head;
+        while (temp->next) temp = temp->next;
+        temp->next = newNode;
+    }
+}
+
+void FreeLevels(LevelNode* head) {
+    while (head) {
+        LevelNode* temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+void PrintLevels(LevelNode* head) {
+    while (head) {
+        printf("Level: %s, Speed: %d\n", head->name, head->obstacleSpeed);
+        head = head->next;
+    }
+}
+
+LevelNode* getLevelByIndex(LevelNode* head, int index) {
+    int i = 0;
+    while (head && i < index) {
+        head = head->next;
+        i++;
+    }
+    return head;
+}
