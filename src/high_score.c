@@ -1,92 +1,121 @@
 #include "../include/high_score.h"
 #include "../include/config.h"
-#include <raylib.h>
 
-// Fungsi untuk menyimpan skor tinggi ke dalam file
+// Tambahkan node ke linked list dengan urutan menurun (descending)
+void InsertSorted(HighScoreNode **head, const char *name, int score)
+{
+    HighScoreNode *newNode = (HighScoreNode *)malloc(sizeof(HighScoreNode));
+    strcpy(newNode->name, name);
+    newNode->score = score;
+    newNode->next = NULL;
+
+    if (*head == NULL || score > (*head)->score)
+    {
+        newNode->next = *head;
+        *head = newNode;
+        return;
+    }
+
+    HighScoreNode *current = *head;
+    while (current->next != NULL && current->next->score >= score)
+    {
+        current = current->next;
+    }
+
+    newNode->next = current->next;
+    current->next = newNode;
+}
+
+// Simpan linked list ke file
 void SaveHighScore(const char *name, int score)
 {
-    HighScore highScores[MAX_HIGH_SCORES];  // Array untuk menyimpan daftar skor tinggi
-    LoadHighScores(highScores);            // Memuat skor tinggi yang ada dari file
+    HighScoreNode *head = NULL;
+    LoadHighScores(&head);
 
-    // Cek apakah skor baru termasuk dalam daftar high score
-    for (int i = 0; i < MAX_HIGH_SCORES; i++)
+    InsertSorted(&head, name, score);
+
+    // Pangkas jika lebih dari MAX_HIGH_SCORES
+    HighScoreNode *current = head;
+    int count = 1;
+    while (current && current->next)
     {
-        if (score > highScores[i].score)  // Jika skor baru lebih tinggi dari skor yang ada
+        if (count == MAX_HIGH_SCORES)
         {
-            // Geser skor yang ada untuk memberi ruang untuk skor baru
-            for (int j = MAX_HIGH_SCORES - 1; j > i; j--)
-            {
-                strcpy(highScores[j].name, highScores[j - 1].name);  // Geser nama
-                highScores[j].score = highScores[j - 1].score;        // Geser skor
-            }
-            // Simpan skor baru
-            strcpy(highScores[i].name, name);  // Simpan nama pemain
-            highScores[i].score = score;       // Simpan skor pemain
-            break;  // Keluar dari loop setelah menyimpan skor
+            FreeHighScores(current->next);
+            current->next = NULL;
+            break;
         }
+        current = current->next;
+        count++;
     }
 
-    // Simpan kembali daftar skor ke dalam file
-    FILE *file = fopen("highscores.txt", "w");  // Buka file untuk menulis
+    FILE *file = fopen("highscores.txt", "w");
     if (file)
     {
-        // Tulis semua skor tinggi ke dalam file
-        for (int i = 0; i < MAX_HIGH_SCORES; i++)
+        current = head;
+        while (current)
         {
-            fprintf(file, "%s %d\n", highScores[i].name, highScores[i].score);
+            fprintf(file, "%s %d\n", current->name, current->score);
+            current = current->next;
         }
-        fclose(file);  // Tutup file setelah menulis
+        fclose(file);
     }
+
+    FreeHighScores(head);
 }
 
-// Fungsi untuk memuat skor tinggi dari file
-void LoadHighScores(HighScore highScores[])
+// Memuat skor dari file ke linked list
+void LoadHighScores(HighScoreNode **head)
 {
-    FILE *file = fopen("highscores.txt", "r");  // Buka file untuk membaca
+    FILE *file = fopen("highscores.txt", "r");
     if (file)
     {
-        // Baca nama dan skor dari file
-        for (int i = 0; i < MAX_HIGH_SCORES; i++)
+        char name[MAX_NAME_LENGTH];
+        int score;
+
+        while (fscanf(file, "%s %d", name, &score) == 2)
         {
-            fscanf(file, "%s %d", highScores[i].name, &highScores[i].score);
+            InsertSorted(head, name, score);
         }
-        fclose(file);  // Tutup file setelah membaca
-    }
-    else
-    {
-        // Inisialisasi skor tinggi dengan nilai default jika file tidak ada
-        for (int i = 0; i < MAX_HIGH_SCORES; i++)
-        {
-            strcpy(highScores[i].name, "---");  // Nama default untuk pemain yang belum terdaftar
-            highScores[i].score = 0;             // Skor default 0
-        }
+
+        fclose(file);
     }
 }
 
-// Fungsi untuk menggambar daftar skor tinggi di layar
+// Menggambar high scores ke layar
 void DrawHighScores(Texture2D brickTexture)
 {
-    HighScore highScores[MAX_HIGH_SCORES];  // Array untuk menyimpan daftar skor tinggi
-    LoadHighScores(highScores);            // Memuat skor tinggi yang ada dari file
+    HighScoreNode *head = NULL;
+    LoadHighScores(&head);
 
-    // Gambar latar belakang menggunakan tekstur brickTexture
     DrawTexture(brickTexture, 0, 0, WHITE);
-
-    // Gambar judul "High Scores"
     const char *title = "High Scores";
-    int titleWidth = MeasureText(title, 40);  // Mengukur lebar teks judul
-    int titleX = SCREEN_WIDTH / 2 - titleWidth / 2;  // Posisi X agar judul berada di tengah
-    int titleY = 200;  // Posisi Y untuk judul
-    DrawText(title, titleX, titleY, 40, WHITE);  // Gambar teks judul di layar
+    int titleWidth = MeasureText(title, 40);
+    DrawText(title, SCREEN_WIDTH / 2 - titleWidth / 2, 200, 40, WHITE);
 
-    // Gambar daftar high score
-    for (int i = 0; i < MAX_HIGH_SCORES; i++)
+    HighScoreNode *current = head;
+    int i = 0;
+    while (current && i < MAX_HIGH_SCORES)
     {
-        char scoreText[50];  // Array untuk menyimpan teks skor
-        snprintf(scoreText, sizeof(scoreText), "%d. %s - %d", i + 1, highScores[i].name, highScores[i].score);  // Format teks skor
-        int scoreWidth = MeasureText(scoreText, 20);  // Mengukur lebar teks skor
-        int scoreX = SCREEN_WIDTH / 2 - scoreWidth / 2;  // Posisi X agar teks skor berada di tengah
-        int scoreY = 250 + i * 28;  // Posisi Y untuk menampilkan skor, semakin turun untuk setiap skor berikutnya
-        DrawText(scoreText, scoreX, scoreY, 20, WHITE);  // Gambar teks skor di layar
+        char scoreText[50];
+        snprintf(scoreText, sizeof(scoreText), "%d. %s - %d", i + 1, current->name, current->score);
+        int scoreWidth = MeasureText(scoreText, 20);
+        DrawText(scoreText, SCREEN_WIDTH / 2 - scoreWidth / 2, 250 + i * 28, 20, WHITE);
+        current = current->next;
+        i++;
+    }
+
+    FreeHighScores(head);
+}
+
+// Bebaskan memori
+void FreeHighScores(HighScoreNode *head)
+{
+    HighScoreNode *temp;
+    while (head)
+    {
+        temp = head;
+        head = head->next;
+        free(temp);
     }
 }
