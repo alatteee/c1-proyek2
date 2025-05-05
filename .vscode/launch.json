@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/Yazid Alrasyid/OneDrive/Documents/Kurang Tahu/Tugas Kuliah/Proyek 2/c1-proyek2",
-      "program": "c:/Users/Yazid Alrasyid/OneDrive/Documents/Kurang Tahu/Tugas Kuliah/Proyek 2/c1-proyek2/build/Debug/outDebug",
+      "cwd": "d:/c1-proyek2",
+      "program": "d:/c1-proyek2/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
