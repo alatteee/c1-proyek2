@@ -59,8 +59,8 @@ Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
 
 1.  **Clone Repository**:
     ```bash
-    git clone <URL_REPOSITORY_ANDA>
-    cd <NAMA_FOLDER_REPOSITORY>
+    git clone <https://github.com/alatteee/c1-proyek2>
+    cd <c1-proyek2>
     ```
 2.  **Prasyarat**:
     * Compiler C (misalnya GCC, MinGW, Clang).
