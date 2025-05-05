@@ -18,7 +18,7 @@ Proyek ini dikembangkan sebagai bentuk tugas Proyek 2 oleh mahasiswa D3 Teknik I
 | 2.  | **AZKHA NAZZALA PRASADHA DIES** ([@alateee](https://github.com/alatteee))      | 241511069 |
 | 3.  | **ERSYA HASBY SATRIA** ([@ErsyaHasby](https://github.com/ErsyaHasby))          | 241511072 |
 | 4.  | **NIKE KUSTIANE** ([@nxmgh27](https://github.com/nxmgh27))                     | 241511086 |
-| 5.  | **YAZID ALRASYID** ([@yajidms](https://github.com/yajidms))                    | 241511081 |
+| 5.  | **YAZID ALRASYID** ([@yajidms](https://github.com/yajidms))                    | 241511093 |
 
 ### Target Proyek:
 Menyelesaikan proyek 2 pembuatan game dengan judul **C1 Brick Racer**.
