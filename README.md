@@ -7,7 +7,10 @@
 Proyek ini dikembangkan sebagai bentuk tugas Proyek 2 oleh mahasiswa D3 Teknik Informatika, Jurusan Teknik Komputer dan Informatika.
 
 * **Manajer Proyek**: Yudi Widhiyasana, S.ST., M.T.
-* **Anggota**:
+
+---
+
+## Anggota Kelompok
 
 | No  | Anggota                                                                        | NIM       |
 | --- | -------------------------------------------------------------------------------| --------- |
