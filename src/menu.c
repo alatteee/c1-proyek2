@@ -467,6 +467,9 @@ MenuNode *InitializeMenuSystem(Texture2D brickTexture, LevelNode *levelList, Car
 MenuNode *currentMenu = NULL;
 MenuNode *menuSystem = NULL;
 
+// Variabel global untuk status musik
+bool isMusicEnabled = true;
+
 // Fungsi untuk mengubah menu saat ini
 void SetCurrentMenu(GameState state, MenuNode *menuSystem)
 {

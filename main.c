@@ -10,19 +10,21 @@
 #include "include/config.h"
 #include "include/lives.h"
 #include "include/high_score.h"
-#include "include/mobil_selection.h" 
-#include "include/level.h" 
-
+#include "include/mobil_selection.h"
+#include "include/level.h"
 
 // Variabel musik
 Music menuMusic;
 Music gameMusic;
 bool isMusicEnabled = true;
 
+// Global variables for menu system
+MenuNode *menuSystem = NULL;
+MenuNode *currentMenu = NULL;
+
 int main()
 {
-
-    LevelNode* levelList = NULL;
+    LevelNode *levelList = NULL;
     AppendLevel(&levelList, "Easy", 5);
     AppendLevel(&levelList, "Medium", 8);
     AppendLevel(&levelList, "Hard", 12);
@@ -49,8 +51,6 @@ int main()
 
     // Variabel game state
     GameState gameState = STATE_MENU;
-    int selectedOption = 0;
-    int selectedLevel = 0;
 
     // Inisialisasi mobil pemain
     Car cars[NUM_CARS];
@@ -59,15 +59,14 @@ int main()
 
     // Inisialisasi linked list pilihan mobil
     CarNode *carList = createCarList();
-    int selectedCarIndex = 0;
-    int totalCars = countCars(carList);
 
     // Inisialisasi skor
     Skor skor;
     initSkor(&skor);
 
-    // Variabel input nama
-    char playerName[MAX_NAME_LENGTH] = "";
+    // Initialize menu system
+    menuSystem = InitializeMenuSystem(brickTexture, levelList, carList);
+    currentMenu = menuSystem;
 
     // Game loop
     bool quit = false;
@@ -85,219 +84,226 @@ int main()
             UpdateMusicStream(gameMusic);
         }
 
-        // Handle input
-        switch (gameState)
+        // Set current menu based on game state
+        SetCurrentMenu(gameState, menuSystem);
+
+        // Handle input for menu states
+        if (gameState == STATE_MENU ||
+            gameState == STATE_LEVEL_MENU ||
+            gameState == STATE_INPUT_NAME ||
+            gameState == STATE_SELECT_CAR ||
+            gameState == STATE_SETTINGS)
         {
-        case STATE_MENU:
-            handleMenuInput(&selectedOption, &gameState, cars, &livesSystem.currentLives, &skor);
-            break;
-
-        case STATE_LEVEL_MENU:
-            handleLevelMenuInput(&selectedLevel, &gameState);
-            break;
-
-        case STATE_INPUT_NAME:
+            if (currentMenu != NULL && currentMenu->handleInputFunction != NULL)
             {
-                int key = GetCharPressed();
-                if (key > 0 && strlen(playerName) < MAX_NAME_LENGTH - 1)
+                currentMenu->handleInputFunction(&gameState);
+            }
+
+            // Handle ESC key to go back
+            if (IsKeyPressed(KEY_ESCAPE))
+            {
+                if (gameState == STATE_LEVEL_MENU ||
+                    gameState == STATE_INPUT_NAME ||
+                    gameState == STATE_SELECT_CAR ||
+                    gameState == STATE_SETTINGS)
                 {
-                    playerName[strlen(playerName)] = (char)key;
-                }
-                if (IsKeyPressed(KEY_BACKSPACE) && strlen(playerName) > 0)
-                {
-                    playerName[strlen(playerName) - 1] = '\0';
-                }
-                if (IsKeyPressed(KEY_ENTER) && strlen(playerName) > 0)
-                {
-                    gameState = STATE_SELECT_CAR; // setelah isi nama, lanjut pilih mobil
+                    gameState = STATE_MENU;
                 }
             }
-            break;
-
-        case STATE_SELECT_CAR:
-            if (IsKeyPressed(KEY_UP)) {
-                selectedCarIndex--;
-                if (selectedCarIndex < 0)
-                    selectedCarIndex = totalCars - 1;
-            }
-            if (IsKeyPressed(KEY_DOWN)) {
-                selectedCarIndex++;
-                if (selectedCarIndex >= totalCars)
-                    selectedCarIndex = 0;
-            }
-            if (IsKeyPressed(KEY_ENTER)) {
-                CarNode *selectedCarNode = getCarByIndex(carList, selectedCarIndex);
-                cars[0] = selectedCarNode->car; // Copy mobil terpilih
-                cars[0].x = MIDDLE_LANE_X;
-                cars[0].y = SCREEN_HEIGHT - PLAYER_CAR_HEIGHT - 10;
-                gameState = STATE_GAME; // setelah pilih mobil, langsung ke game
-            }
-            break;
-
-        case STATE_GAME:
-            if (!isRintanganInitialized)
+        }
+        else
+        {
+            // Handle input for non-menu states
+            switch (gameState)
             {
-                initRintangan();
-                isRintanganInitialized = true;
-            }
-
-            gameTimer += deltaTime;
-            if (gameTimer >= 10.0f && !finishLineVisible)
+            case STATE_GAME:
             {
-                finishLineVisible = true;
-            }
-
-            handleCarInput(&cars[0]);
-            LevelNode* currentLevel = getLevelByIndex(levelList, selectedLevel);
-            if (currentLevel != NULL) {
-                updateRintangan(&skor, currentLevel->obstacleSpeed);
-            }
-
-
-            if (finishLineVisible && CheckFinishLineCollision(&cars[0]))
-            {
-                gameState = STATE_WIN;
-            }
-
-            collisionOccurred = false;
-            for (int i = 0; i < NUM_CARS && !collisionOccurred; i++)
-            {
-                updateCarInvulnerability(&cars[i], deltaTime);
-                for (int lane = 0; lane < MAX_LANES && !collisionOccurred; lane++)
+                if (!isRintanganInitialized)
                 {
-                    for (int j = 0; j < MAX_OBSTACLES && !collisionOccurred; j++)
+                    initRintangan();
+                    isRintanganInitialized = true;
+                }
+
+                gameTimer += deltaTime;
+                if (gameTimer >= 10.0f && !finishLineVisible)
+                {
+                    finishLineVisible = true;
+                }
+
+                handleCarInput(&cars[0]);
+
+                // Get selected level from menu data
+                int selectedLevel = 0;
+                if (currentMenu != NULL && currentMenu->data != NULL)
+                {
+                    LevelMenuData *levelData = (LevelMenuData *)currentMenu->data;
+                    selectedLevel = levelData->selectedLevel;
+                }
+                LevelNode *currentLevel = getLevelByIndex(levelList, selectedLevel);
+                if (currentLevel != NULL)
+                {
+                    updateRintangan(&skor, currentLevel->obstacleSpeed);
+                }
+
+                if (finishLineVisible && CheckFinishLineCollision(&cars[0]))
+                {
+                    gameState = STATE_WIN;
+                }
+
+                collisionOccurred = false;
+                for (int i = 0; i < NUM_CARS && !collisionOccurred; i++)
+                {
+                    updateCarInvulnerability(&cars[i], deltaTime);
+                    for (int lane = 0; lane < MAX_LANES && !collisionOccurred; lane++)
                     {
-                        if (rintangan[lane][j].y >= 0 && rintangan[lane][j].width > 0)
+                        for (int j = 0; j < MAX_OBSTACLES && !collisionOccurred; j++)
                         {
-                            Rectangle obstacle = {
-                                rintangan[lane][j].x,
-                                rintangan[lane][j].y,
-                                rintangan[lane][j].width,
-                                rintangan[lane][j].height};
-
-                            if (checkCarCollision(&cars[i], obstacle))
+                            if (rintangan[lane][j].y >= 0 && rintangan[lane][j].width > 0)
                             {
-                                if (ReduceLife(&livesSystem))
+                                Rectangle obstacle = {
+                                    rintangan[lane][j].x,
+                                    rintangan[lane][j].y,
+                                    rintangan[lane][j].width,
+                                    rintangan[lane][j].height};
+
+                                if (checkCarCollision(&cars[i], obstacle))
                                 {
-                                    gameState = STATE_GAME_OVER;
+                                    if (ReduceLife(&livesSystem))
+                                    {
+                                        gameState = STATE_GAME_OVER;
+                                    }
+                                    else
+                                    {
+                                        gameState = STATE_COLLISION;
+                                    }
+                                    collisionOccurred = true;
                                 }
-                                else
-                                {
-                                    gameState = STATE_COLLISION;
-                                }
-                                collisionOccurred = true;
                             }
                         }
                     }
                 }
+                break;
             }
-            break;
 
-        case STATE_COLLISION:
-            if (IsKeyPressed(KEY_C))
-                gameState = STATE_GAME;
-            if (IsKeyPressed(KEY_Q) || IsKeyPressed(KEY_ESCAPE))
+            case STATE_COLLISION:
+                if (IsKeyPressed(KEY_C))
+                    gameState = STATE_GAME;
+                if (IsKeyPressed(KEY_Q) || IsKeyPressed(KEY_ESCAPE))
+                    gameState = STATE_MENU;
+                break;
+
+            case STATE_WIN:
+            case STATE_GAME_OVER:
+                if (IsKeyPressed(KEY_ENTER))
+                {
+                    // Find input name menu to get player name
+                    char playerName[MAX_NAME_LENGTH] = "";
+                    MenuNode *inputMenu = menuSystem;
+                    while (inputMenu != NULL)
+                    {
+                        if (inputMenu->state == STATE_INPUT_NAME && inputMenu->data != NULL)
+                        {
+                            InputNameData *inputData = (InputNameData *)inputMenu->data;
+                            strncpy(playerName, inputData->playerName, MAX_NAME_LENGTH);
+                            break;
+                        }
+                        inputMenu = inputMenu->next;
+                    }
+
+                    SaveHighScore(playerName, skor.nilai);
+                    gameState = STATE_HIGH_SCORES;
+                }
+                break;
+
+            case STATE_HIGH_SCORES:
+                if (IsKeyPressed(KEY_ENTER))
+                {
+                    gameState = STATE_MENU;
+                    ResetLives(&livesSystem);
+                    initSkor(&skor);
+                    gameTimer = 0.0f;
+                    finishLineVisible = false;
+                }
+                break;
+
+            case STATE_EXIT:
+                quit = true;
+                break;
+
+            default:
                 gameState = STATE_MENU;
-            break;
-
-        case STATE_WIN:
-        case STATE_GAME_OVER:
-            if (IsKeyPressed(KEY_ENTER))
-            {
-                SaveHighScore(playerName, skor.nilai);
-                gameState = STATE_HIGH_SCORES;
+                break;
             }
-            break;
-
-        case STATE_HIGH_SCORES:
-            if (IsKeyPressed(KEY_ENTER))
-            {
-                gameState = STATE_MENU;
-                ResetLives(&livesSystem);
-                initSkor(&skor);
-                gameTimer = 0.0f;
-                finishLineVisible = false;
-                strcpy(playerName, "");
-            }
-            break;
-
-        case STATE_EXIT:
-            quit = true;
-            break;
-
-        default:
-            gameState = STATE_MENU;
-            break;
         }
 
         // Render
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        switch (gameState)
+        // Draw menu states
+        if (gameState == STATE_MENU ||
+            gameState == STATE_LEVEL_MENU ||
+            gameState == STATE_INPUT_NAME ||
+            gameState == STATE_SELECT_CAR ||
+            gameState == STATE_SETTINGS)
         {
-        case STATE_MENU:
-            DrawMenu(selectedOption, brickTexture);
-            break;
+            if (currentMenu != NULL && currentMenu->drawFunction != NULL)
+            {
+                currentMenu->drawFunction(currentMenu->data);
+            }
+        }
+        else
+        {
+            // Draw non-menu states
+            switch (gameState)
+            {
+            case STATE_GAME:
+                ClearBackground(DARKGRAY);
+                draw_lanes();
+                if (finishLineVisible)
+                    DrawFinishLine();
+                drawRintangan();
+                renderCar(&cars[0]);
+                tampilkanSkor(&skor);
+                DrawLives(livesSystem);
+                break;
 
-        case STATE_LEVEL_MENU:
-            DrawLevelMenu(selectedLevel);
-            break;
+            case STATE_COLLISION:
+                ClearBackground(DARKGRAY);
+                draw_lanes();
+                drawRintangan();
+                renderCar(&cars[0]);
+                tampilkanSkor(&skor);
+                DrawLives(livesSystem);
+                DrawText("Collision Detected!", SCREEN_WIDTH / 2 - MeasureText("Collision Detected!", 30) / 2, SCREEN_HEIGHT / 2 - 50, 30, RED);
+                DrawText("Press C to Continue, Q/ESC to Quit", SCREEN_WIDTH / 2 - MeasureText("Press C to Continue, Q/ESC to Quit", 20) / 2, SCREEN_HEIGHT / 2, 20, WHITE);
+                break;
 
-        case STATE_INPUT_NAME:
-            DrawInputName(playerName, brickTexture);
-            break;
-
-        case STATE_SELECT_CAR:
-            drawCarSelection(carList, selectedCarIndex, brickTexture);
-            break;
-        
-        case STATE_GAME:
-            ClearBackground(DARKGRAY);
-            draw_lanes();
-            if (finishLineVisible)
+            case STATE_WIN:
+                ClearBackground(DARKGRAY);
+                draw_lanes();
                 DrawFinishLine();
-            drawRintangan();
-            renderCar(&cars[0]);
-            tampilkanSkor(&skor);
-            DrawLives(livesSystem);
-            break;
+                drawRintangan();
+                renderCar(&cars[0]);
+                tampilkanSkor(&skor);
+                DrawLives(livesSystem);
+                DrawText("You Win!", SCREEN_WIDTH / 2 - MeasureText("You Win!", 40) / 2, SCREEN_HEIGHT / 2 - 50, 40, GREEN);
+                DrawText("Press ENTER to continue", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to continue", 20) / 2, SCREEN_HEIGHT / 2 + 50, 20, WHITE);
+                break;
 
-        case STATE_COLLISION:
-            ClearBackground(DARKGRAY);
-            draw_lanes();
-            drawRintangan();
-            renderCar(&cars[0]);
-            tampilkanSkor(&skor);
-            DrawLives(livesSystem);
-            DrawText("Collision Detected!", SCREEN_WIDTH / 2 - MeasureText("Collision Detected!", 30) / 2, SCREEN_HEIGHT / 2 - 50, 30, RED);
-            DrawText("Press C to Continue, Q/ESC to Quit", SCREEN_WIDTH / 2 - MeasureText("Press C to Continue, Q/ESC to Quit", 20) / 2, SCREEN_HEIGHT / 2, 20, WHITE);
-            break;
+            case STATE_GAME_OVER:
+                ClearBackground(BLACK);
+                DrawText("GAME OVER", SCREEN_WIDTH / 2 - MeasureText("GAME OVER", 50) / 2, SCREEN_HEIGHT / 2 - 50, 50, RED);
+                DrawText("Press ENTER to return to Menu", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to return to Menu", 20) / 2, SCREEN_HEIGHT / 2 + 20, 20, WHITE);
+                break;
 
-        case STATE_WIN:
-            ClearBackground(DARKGRAY);
-            draw_lanes();
-            DrawFinishLine();
-            drawRintangan();
-            renderCar(&cars[0]);
-            tampilkanSkor(&skor);
-            DrawLives(livesSystem);
-            DrawText("You Win!", SCREEN_WIDTH / 2 - MeasureText("You Win!", 40) / 2, SCREEN_HEIGHT / 2 - 50, 40, GREEN);
-            DrawText("Press ENTER to continue", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to continue", 20) / 2, SCREEN_HEIGHT / 2 + 50, 20, WHITE);
-            break;
+            case STATE_HIGH_SCORES:
+                DrawHighScores(brickTexture);
+                break;
 
-        case STATE_GAME_OVER:
-            ClearBackground(BLACK);
-            DrawText("GAME OVER", SCREEN_WIDTH / 2 - MeasureText("GAME OVER", 50) / 2, SCREEN_HEIGHT / 2 - 50, 50, RED);
-            DrawText("Press ENTER to return to Menu", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to return to Menu", 20) / 2, SCREEN_HEIGHT / 2 + 20, 20, WHITE);
-            break;
-
-        case STATE_HIGH_SCORES:
-            DrawHighScores(brickTexture);
-            break;
-
-        default:
-            break;
+            default:
+                break;
+            }
         }
 
         EndDrawing();
@@ -310,6 +316,7 @@ int main()
     UnloadLivesSystem(&livesSystem);
     freeCarList(carList);
     FreeLevels(levelList);
+    FreeMenu(menuSystem);
 
     CloseAudioDevice();
     CloseWindow();
