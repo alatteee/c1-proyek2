@@ -241,7 +241,7 @@ int main()
             break;
 
         case STATE_LEVEL_MENU:
-            DrawLevelMenu(selectedLevel, brickTexture, levelList);
+            DrawLevelMenu(selectedLevel);
             break;
 
         case STATE_INPUT_NAME:
