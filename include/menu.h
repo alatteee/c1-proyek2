@@ -12,18 +12,51 @@ extern Music menuMusic;
 // Mendeklarasikan variabel global isMusicEnabled untuk menandakan apakah musik diaktifkan
 extern bool isMusicEnabled;
 
+// Struktur node untuk menu double linked list
+typedef struct MenuNode
+{
+    char title[50];
+    GameState state;
+    struct MenuNode *prev;
+    struct MenuNode *next;
+    void (*drawFunction)(void *);
+    void (*handleInputFunction)(GameState *);
+    void *data;
+} MenuNode;
+
+// Fungsi untuk membuat node menu baru
+MenuNode *CreateMenuNode(const char *title, GameState state,
+                         void (*drawFunction)(void *),
+                         void (*handleInputFunction)(GameState *),
+                         void *data);
+
+// Fungsi untuk membebaskan memori menu
+void FreeMenu(MenuNode *head);
+
+// Fungsi untuk menambahkan node menu
+void AppendMenuNode(MenuNode **head, MenuNode *newNode);
+
 // Deklarasi fungsi untuk menggambar menu utama permainan
-void DrawMenu(int selectedOption, Texture2D brickTexture);
-// Deklarasi fungsi untuk menangani input dari menu utama (mengubah status game berdasarkan input)
-void handleMenuInput(int *selectedOption, GameState *gameState, Car cars[], int *lives, Skor *skor); // Hapus parameter yang tidak digunakan
+void DrawMainMenu(void *data);
+void HandleMainMenuInput(GameState *gameState);
 
-// Deklarasi fungsi untuk menggambar menu pemilihan level
-void DrawLevelMenu(int selectedLevel, Texture2D brickTexture, LevelNode* levelList);
+// Deklarasi fungsi untuk menu level
+void DrawLevelMenu(void *data);
+void HandleLevelMenuInput(GameState *gameState);
 
-// Deklarasi fungsi untuk menangani input dari menu pemilihan level
-void handleLevelMenuInput(int *selectedLevel, GameState *gameState);
+// Deklarasi fungsi untuk menu input nama
+void DrawInputNameMenu(void *data);
+void HandleInputNameMenuInput(GameState *gameState);
 
-// Deklarasi fungsi untuk menggambar menu input nama pemain
-void DrawInputName(char *playerName, Texture2D brickTexture);
+// Deklarasi fungsi untuk menu pemilihan mobil
+void DrawCarSelectionMenu(void *data);
+void HandleCarSelectionMenuInput(GameState *gameState);
+
+// Deklarasi fungsi untuk menu settings
+void DrawSettingsMenu(void *data);
+void HandleSettingsMenuInput(GameState *gameState);
+
+// Inisialisasi menu
+MenuNode *InitializeMenuSystem(Texture2D brickTexture, LevelNode *levelList, CarNode *carList);
 
 #endif
