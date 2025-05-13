@@ -1,27 +1,26 @@
 #ifndef SKOR_H
 #define SKOR_H
 
-#include <raylib.h>
-#include "config.h"
-
-// Struktur untuk menyimpan nilai skor pemain
+// Struktur skor seperti sebelumnya
 typedef struct {
-    int nilai; // Nilai skor pemain
+    int nilai;
 } Skor;
 
-// Fungsi untuk menginisialisasi nilai skor
-void initSkor(Skor *skor);
+// Node dalam linked list
+typedef struct NodeSkor {
+    Skor skor;               // Menyimpan data skor
+    struct NodeSkor *next;   // Penunjuk ke node berikutnya
+} NodeSkor;
 
-// Fungsi untuk menambah poin ke nilai skor
-void tambahSkor(Skor *skor, int poin);
+// Fungsi dasar untuk linked list skor
+NodeSkor* buatNodeSkor(int nilaiAwal);
+void tambahNodeSkor(NodeSkor **head, int nilaiAwal);
+void tampilkanSemuaSkor(NodeSkor *head);
+void hapusSemuaSkor(NodeSkor **head);
 
-// Fungsi untuk mengurangi poin dari nilai skor (tidak boleh menjadi nilai negatif)
-void kurangiSkor(Skor *skor, int poin);
+// Fungsi manipulasi skor dalam node tertentu
+void tambahSkor(NodeSkor *node, int poin);
+void kurangiSkor(NodeSkor *node, int poin);
+int getSkor(const NodeSkor *node);
 
-// Fungsi untuk mengambil nilai skor saat ini
-int getSkor(const Skor *skor);
-
-// Fungsi untuk menampilkan nilai skor ke dalam log Raylib
-void tampilkanSkor(const Skor *skor);
-
-#endif // SKOR_H
+#endif
