@@ -3,28 +3,59 @@
 
 #include <stdbool.h>
 #include <raylib.h>
-#include "config.h"  // Make sure this contains definitions for SCREEN_WIDTH, SCREEN_HEIGHT, etc.
+#include "config.h"
+#include "skor.h"
 
-// Mendeklarasikan struktur Rintangan yang berisi data tentang rintangan dalam permainan
-typedef struct Rintangan {
-    float x, y;          // Posisi X dan Y rintangan
-    float width, height; // Ukuran (lebar dan tinggi) rintangan
-    int type;            // Jenis rintangan (misalnya, jenis objek yang digunakan untuk membedakan tipe rintangan)
-    bool hasPassed;      // Status apakah rintangan sudah dilewati oleh pemain
-    bool hasCollided;    // Flag untuk menandai apakah rintangan sudah bertabrakan dengan mobil
-} Rintangan;
+// Struktur untuk menyimpan data obstacle
+typedef struct {
+    float x, y;
+    float width, height;
+    int type;
+    bool hasPassed;
+    bool hasCollided;
+    Rectangle collisionBox;
+    Texture2D texture;
+} ObstacleData;
 
-// Mendeklarasikan array rintangan yang menyimpan data rintangan untuk setiap jalur (MAX_LANES) dan untuk setiap posisi rintangan (MAX_OBSTACLES)
-extern Rintangan rintangan[MAX_LANES][MAX_OBSTACLES];
+// Struktur node untuk double linked list
+typedef struct ObstacleNode {
+    ObstacleData data;
+    struct ObstacleNode* prev;
+    struct ObstacleNode* next;
+} ObstacleNode;
 
-// Fungsi untuk menginisialisasi rintangan di layar
+// Struktur untuk lane yang menggunakan linked list
+typedef struct {
+    ObstacleNode* head;
+    ObstacleNode* tail;
+    int obstacleCount;
+    float nextSpawnTime;
+} Lane;
+
+// Variabel global untuk lanes
+extern Lane lanes[MAX_LANES];
+extern bool showCollisionBoxes;
+
+// Function prototypes
 void initRintangan();
-// Fungsi untuk memperbarui posisi dan status rintangan
-void updateRintangan();
-// Fungsi untuk memeriksa apakah terjadi tabrakan antara objek tertentu dan rintangan
-int checkCollision(float x, float y, float width, float height);
-
-// Mendeklarasikan fungsi untuk menggambar rintangan di layar
+void updateRintangan(Skor *skor, int obstacleSpeed);
 void drawRintangan();
+int checkCollision(float x, float y, float width, float height);
+void freeRintangan();
+
+// Toggle debug visualization
+void toggleCollisionBoxVisibility();
+
+// Resource management
+void loadRintanganTextures();
+void unloadRintanganTextures();
+
+// Fungsi untuk node management
+ObstacleNode* createObstacleNode(int laneIndex);
+void addObstacleToLane(int laneIndex);
+void removeObstacleFromLane(int laneIndex, ObstacleNode* node);
+
+// Fungsi untuk debug
+void drawCollisionBoxes(bool drawPlayerBox, float x, float y, float width, float height);
 
 #endif // RINTANGAN_H
