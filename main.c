@@ -57,7 +57,7 @@ int main()
           PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10, "resources/mobil/biasa_kuning.png");
 
   // Inisialisasi linked list pilihan mobil
-  CarNode *carList = createCarList();
+  List *carList    = createCarList();
   int selectedCarIndex = 0;
   int totalCars = countCars(carList);
 
@@ -72,7 +72,8 @@ int main()
   bool quit = false;
   bool collisionOccurred = false;
   float gameTimer = 0.0f;
-  bool finishLineVisible = false;
+  List *finishList = InitFinishLine();
+  bool  finishLineVisible = false;
 
   while (!quit && !WindowShouldClose())
   {
@@ -133,10 +134,10 @@ int main()
   }
   if (IsKeyPressed(KEY_ENTER))
   {
-    CarNode *selectedCarNode = getCarByIndex(carList, selectedCarIndex);
+    CarData *selectedCarData = getCarByIndex(carList, selectedCarIndex);
     
     // Dapatkan tekstur mobil yang dipilih
-    Texture2D selectedTexture = selectedCarNode->car.texture;
+    Texture2D selectedTexture = selectedCarData->car.texture;
     
     // Hitung rasio aspek dari texture asli
     float aspectRatio = (float)selectedTexture.width / (float)selectedTexture.height;
@@ -146,7 +147,7 @@ int main()
     float newHeight = newWidth / aspectRatio;
     
     // Salin mobil terpilih
-    cars[0] = selectedCarNode->car;
+    cars[0] = selectedCarData->car;
     
     // Update ukuran dan posisi dengan mempertahankan rasio aspek
     cars[0].width = newWidth;
@@ -276,7 +277,7 @@ int main()
       ClearBackground(DARKGRAY);
       draw_lanes();
       if (finishLineVisible)
-        DrawFinishLine();
+        DrawFinishLine(finishList);
       drawRintangan();
       
       // Gambar collision boxes jika debug mode aktif
@@ -308,7 +309,7 @@ int main()
     case STATE_WIN:
       ClearBackground(DARKGRAY);
       draw_lanes();
-      DrawFinishLine();
+      DrawFinishLine(finishList);
       drawRintangan();
       renderCar(&cars[0]);
       tampilkanSkor(&skor);
@@ -340,6 +341,7 @@ int main()
   UnloadTexture(brickTexture);
   UnloadLivesSystem(&livesSystem);
   freeCarList(carList);
+  FreeFinishLine(finishList);
   
   // Pembersihan resource rintangan
   unloadRintanganTextures();

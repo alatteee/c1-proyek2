@@ -3,18 +3,26 @@
 
 #include <raylib.h>
 #include <stdbool.h>
+#include "single_linked_list.h"
 #include "mobil.h"
 #include "config.h"
 
-typedef struct FinishTile {
-    int x, y;
+// Data satu kotak finish line
+typedef struct {
+    int   x, y;
     Color color;
-    struct FinishTile *next;
 } FinishTile;
 
-void InitFinishLine(void);
-void DrawFinishLine(void);
-bool CheckFinishLineCollision(Car *car);
-void FreeFinishLine(void);
+// Buat list finish line (return List* yang udah diisi tile-tile)
+List* InitFinishLine(void);
 
-#endif
+// Gambar semua tile di list, plus garis & teks FINISH
+void DrawFinishLine(List* finishList);
+
+// Cek tabrakan mobil sama garis finish
+bool CheckFinishLineCollision(Car* car);
+
+// Bebasin memori list + data tile-nya
+void FreeFinishLine(List* finishList);
+
+#endif // FINISH_LINE_H
