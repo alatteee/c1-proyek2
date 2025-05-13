@@ -261,7 +261,7 @@ int main()
             
             // Tampilkan skor di bawahnya
             char skorText[20];  
-            sprintf(skorText, "Your Score: %d", skor);
+            sprintf(skorText, "Your Score: %d", skor.nilai); 
             DrawText(skorText, SCREEN_WIDTH / 2 - MeasureText(skorText, 30) / 2, SCREEN_HEIGHT / 2, 30, YELLOW);
         
             // Tampilkan instruksi untuk melanjutkan
