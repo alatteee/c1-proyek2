@@ -37,7 +37,6 @@ typedef enum
     STATE_LEVEL_MENU,      // Menu untuk memilih level permainan
     STATE_INPUT_NAME,      // Menu untuk memasukkan nama pemain
     STATE_GAME,            // Status permainan saat sedang berjalan
-    STATE_SETTINGS,        // Menu pengaturan permainan
     STATE_COLLISION,       // Status ketika terjadi tabrakan
     STATE_WIN,             // Status ketika pemain menang
     STATE_GAME_OVER,       // Status ketika permainan berakhir
