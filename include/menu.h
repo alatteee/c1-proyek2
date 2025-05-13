@@ -7,73 +7,23 @@
 #include "level.h"
 #include "skor.h"
 
-// Forward declarations
-typedef struct CarNode CarNode;
-
-// Menu data structures
-typedef struct {
-    int selectedOption;
-    Texture2D brickTexture;
-} MainMenuData;
-
-typedef struct {
-    int selectedLevel;
-    Texture2D brickTexture;
-    LevelNode* levelList;
-} LevelMenuData;
-
-typedef struct {
-    char playerName[MAX_NAME_LENGTH];
-    Texture2D brickTexture;
-} InputNameData;
-
-typedef struct {
-    int selectedCarIndex;
-    Texture2D brickTexture;
-    CarNode* carList;
-} CarSelectionData;
-
-typedef struct {
-    Texture2D brickTexture;
-} SettingsData;
-
-// Menu node structure
-typedef struct MenuNode {
-    char title[50];
-    GameState state;
-    struct MenuNode* prev;
-    struct MenuNode* next;
-    void (*drawFunction)(void*);
-    void (*handleInputFunction)(GameState*);
-    void* data;
-} MenuNode;
-
-// Global variables
-extern MenuNode* menuSystem;
-extern MenuNode* currentMenu;
+// Mendeklarasikan variabel global menuMusic untuk musik latar menu
 extern Music menuMusic;
+// Mendeklarasikan variabel global isMusicEnabled untuk menandakan apakah musik diaktifkan
 extern bool isMusicEnabled;
 
-// Function declarations
-MenuNode* CreateMenuNode(const char* title, GameState state, 
-                        void (*drawFunction)(void*), 
-                        void (*handleInputFunction)(GameState*),
-                        void* data);
-void FreeMenu(MenuNode* head);
-void AppendMenuNode(MenuNode** head, MenuNode* newNode);
-void SetCurrentMenu(GameState state, MenuNode* menuSystem);
-MenuNode* InitializeMenuSystem(Texture2D brickTexture, LevelNode* levelList, CarNode* carList);
+// Deklarasi fungsi untuk menggambar menu utama permainan
+void DrawMenu(int selectedOption, Texture2D brickTexture);
+// Deklarasi fungsi untuk menangani input dari menu utama (mengubah status game berdasarkan input)
+void handleMenuInput(int *selectedOption, GameState *gameState, Car cars[], int *lives, Skor *skor); // Hapus parameter yang tidak digunakan
 
-// Menu drawing and input functions
-void DrawMainMenu(void* data);
-void HandleMainMenuInput(GameState* gameState);
-void DrawLevelMenu(void* data);
-void HandleLevelMenuInput(GameState* gameState);
-void DrawInputNameMenu(void* data);
-void HandleInputNameMenuInput(GameState* gameState);
-void DrawCarSelectionMenu(void* data);
-void HandleCarSelectionMenuInput(GameState* gameState);
-void DrawSettingsMenu(void* data);
-void HandleSettingsMenuInput(GameState* gameState);
+// Deklarasi fungsi untuk menggambar menu pemilihan level
+void DrawLevelMenu(int selectedLevel, Texture2D brickTexture, LevelNode* levelList);
+
+// Deklarasi fungsi untuk menangani input dari menu pemilihan level
+void handleLevelMenuInput(int *selectedLevel, GameState *gameState);
+
+// Deklarasi fungsi untuk menggambar menu input nama pemain
+void DrawInputName(char *playerName, Texture2D brickTexture);
 
 #endif

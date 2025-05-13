@@ -1,327 +1,384 @@
-
 #include "../include/rintangan.h"
 #include "../include/skor.h"
 #include "../include/config.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 #include <raylib.h>
 
-Rintangan rintangan[MAX_LANES][MAX_OBSTACLES];
+// Lanes untuk obstacle
+Lane lanes[MAX_LANES];
 
-Skor skor; // Mendeklarasikan objek skor
+// Debug mode untuk collision boxes
+bool showCollisionBoxes = false;
 
-void initRintangan()
-{
-  int i, lane, type;
+// Definisi untuk obstacle spawning
+#define MIN_OBSTACLE_DISTANCE 600   // Jarak minimum antar obstacle secara vertikal
+#define MIN_SPAWN_DELAY 1.0f        // Waktu minimal untuk spawn obstacle baru (dalam detik)
+#define MAX_SPAWN_DELAY 3.0f        // Waktu maksimal untuk spawn obstacle baru (dalam detik)
+#define MAX_OBSTACLES_PER_LANE 5    // Jumlah maksimum obstacle per lane
 
-  // Inisialisasi setiap rintangan per jalur
-  for (lane = 0; lane < MAX_LANES; lane++)
-  {
-    int num_obstacles = 1; // Hanya satu rintangan besar per jalur
-    for (i = 0; i < num_obstacles; i++)
-    {
-      // Set posisi X dan Y dengan variasi agar tidak sejajar
-      rintangan[lane][i].x = (SCREEN_WIDTH / MAX_LANES) * lane + (SCREEN_WIDTH / MAX_LANES) * 0.15;
-      rintangan[lane][i].y = -(rand() % 500 + 200); // Posisi Y antara -200 dan -700
-      rintangan[lane][i].width = (SCREEN_WIDTH / MAX_LANES) * 0.7;
-      rintangan[lane][i].height = (SCREEN_HEIGHT / 6);
+// Array untuk menyimpan textures untuk obstacle
+#define NUM_OBSTACLE_TYPES 6 // Disesuaikan dengan jumlah file gambar di folder resource/obstacle
+Texture2D obstacleTextures[NUM_OBSTACLE_TYPES];
+char *obstacleFilenames[NUM_OBSTACLE_TYPES] = {
+    "resources/obstacle/bebatuan.png",   // 0 - bebatuan
+    "resources/obstacle/bus.png",        // 1 - bus
+    "resources/obstacle/luxury.png",     // 2 - mobil mewah
+    "resources/obstacle/mobil1.png",     // 3 - mobil biasa
+    "resources/obstacle/mobil2.png",     // 4 - mobil lainnya
+    "resources/obstacle/truk-sampah.png" // 5 - truk sampah
+};
 
-      // Tentukan jenis rintangan secara acak (0 sampai 3)
-      type = rand() % 4;
-      rintangan[lane][i].type = type;
+// Struktur untuk menyimpan informasi obstacle
+typedef struct {
+    float offsetXPercent; // Offset X untuk collision box (persentase dari lebar)
+    float offsetYPercent; // Offset Y untuk collision box (persentase dari tinggi)
+    float widthPercent;   // Lebar collision box sebagai persentase dari lebar gambar
+    float heightPercent;  // Tinggi collision box sebagai persentase dari tinggi gambar
+    float sizeScale;      // Faktor skala ukuran relatif terhadap ukuran standar
+} ObstacleSpec;
 
-      rintangan[lane][i].hasPassed = false;
-      rintangan[lane][i].hasCollided = false; // Inisialisasi flag collision baru
+// Definisi spec untuk setiap jenis obstacle dengan nilai yang lebih sesuai dengan bentuk visual
+ObstacleSpec obstacleSpecs[NUM_OBSTACLE_TYPES] = {
+    // Format: {offsetX, offsetY, widthPercent, heightPercent, sizeScale}
+    {0.25, 0.20, 0.50, 0.60, 0.30}, // bebatuan - sesuaikan sedikit
+    {0.30, 0.08, 0.40, 0.85, 0.80}, // bus kuning - kurangi lebar dan tinggi
+    {0.30, 0.15, 0.40, 0.70, 0.55}, // luxury - kurangi lebar lebih banyak
+    {0.30, 0.15, 0.40, 0.70, 0.55}, // mobil1 - kurangi lebar lebih banyak
+    {0.30, 0.15, 0.40, 0.70, 0.55}, // mobil2 - kurangi lebar lebih banyak
+    {0.30, 0.15, 0.40, 0.70, 0.80}  // truk-sampah hijau - kurangi lebar lebih banyak
+};
 
-      printf("Lane: %d, Obstacle: %d, Type: %d, X: %f, Y: %f\n",
-             lane, i, rintangan[lane][i].type, rintangan[lane][i].x, rintangan[lane][i].y);
-    }
-  }
+// Fungsi untuk toggle collision box visibility
+void toggleCollisionBoxVisibility() {
+    showCollisionBoxes = !showCollisionBoxes;
+    printf("Debug visualization: %s\n", showCollisionBoxes ? "ON" : "OFF");
 }
 
-void drawCat(int x, int y, int width, int height)
-{
-  // Ukuran proporsional untuk kucing
-  int size = fmin(width, height);
-  int centerX = x + width / 2;
-  int centerY = y + height / 2;
-
-  Color catBody = ORANGE;
-  Color catFace = GOLD;
-  Color catEar = MAROON;
-
-  // Badan kucing (lebih kecil)
-  DrawEllipse(centerX, centerY + size / 8, size / 3, size / 4, catBody);
-
-  // Kepala kucing
-  DrawCircle(centerX, centerY - size / 8, size / 4, catFace);
-
-  // Telinga kucing
-  DrawTriangle(
-      (Vector2){centerX - size / 6, centerY - size / 4},
-      (Vector2){centerX - size / 12, centerY - size / 2},
-      (Vector2){centerX, centerY - size / 4},
-      catEar);
-  DrawTriangle(
-      (Vector2){centerX, centerY - size / 4},
-      (Vector2){centerX + size / 12, centerY - size / 2},
-      (Vector2){centerX + size / 6, centerY - size / 4},
-      catEar);
-
-  // Mata kucing (lebih ekspresif)
-  DrawCircle(centerX - size / 10, centerY - size / 8, size / 20, BLACK);
-  DrawCircle(centerX + size / 10, centerY - size / 8, size / 20, BLACK);
-
-  // Refleksi mata
-  DrawCircle(centerX - size / 10 + size / 60, centerY - size / 8 - size / 60, size / 50, WHITE);
-  DrawCircle(centerX + size / 10 + size / 60, centerY - size / 8 - size / 60, size / 50, WHITE);
-
-  // Hidung
-  DrawCircle(centerX, centerY, size / 20, PINK);
-
-  // Mulut
-  DrawLine(centerX, centerY + size / 40, centerX, centerY + size / 12, BLACK);
-  DrawLine(centerX, centerY + size / 12, centerX - size / 15, centerY + size / 10, BLACK);
-  DrawLine(centerX, centerY + size / 12, centerX + size / 15, centerY + size / 10, BLACK);
-
-  // Kumis
-  DrawLine(centerX - size / 20, centerY, centerX - size / 4, centerY - size / 30, BLACK);
-  DrawLine(centerX - size / 20, centerY, centerX - size / 4, centerY, BLACK);
-  DrawLine(centerX - size / 20, centerY, centerX - size / 4, centerY + size / 30, BLACK);
-
-  DrawLine(centerX + size / 20, centerY, centerX + size / 4, centerY - size / 30, BLACK);
-  DrawLine(centerX + size / 20, centerY, centerX + size / 4, centerY, BLACK);
-  DrawLine(centerX + size / 20, centerY, centerX + size / 4, centerY + size / 30, BLACK);
-
-  // Kaki
-  DrawRectangle(centerX - size / 4, centerY + size / 4, size / 12, size / 6, catFace);
-  DrawRectangle(centerX + size / 6, centerY + size / 4, size / 12, size / 6, catFace);
-
-  // Ekor
-  Vector2 tailPoints[3] = {
-      {centerX - size / 3, centerY + size / 8},
-      {centerX - size / 2, centerY},
-      {centerX - size / 2.5, centerY + size / 6}};
-  DrawTriangle(tailPoints[0], tailPoints[1], tailPoints[2], catBody);
-}
-
-void drawRock(int x, int y, int width, int height)
-{
-  // Ukuran proporsional untuk batu
-  int size = fmin(width, height);
-  int centerX = x + width / 2;
-  int centerY = y + height / 2;
-
-  Color rockColor = DARKGRAY;
-  Color rockHighlight = GRAY;
-  Color rockShadow = BLACK;
-
-  // Batu utama
-  DrawCircle(centerX, centerY, size / 3, rockColor);
-
-  // Detil dan tekstur batu
-  DrawCircle(centerX - size / 6, centerY - size / 6, size / 10, rockHighlight);
-  DrawCircle(centerX + size / 8, centerY + size / 8, size / 12, rockShadow);
-  DrawCircle(centerX + size / 5, centerY - size / 10, size / 15, rockHighlight);
-
-  // Garis-garis untuk menambah tekstur
-  DrawLine(centerX - size / 5, centerY, centerX - size / 10, centerY + size / 6, rockShadow);
-  DrawLine(centerX, centerY - size / 4, centerX + size / 8, centerY - size / 10, rockShadow);
-  DrawLine(centerX + size / 10, centerY, centerX - size / 10, centerY + size / 8, rockShadow);
-}
-
-void drawCar(int x, int y, int width, int height)
-{
-  // Ukuran proporsional untuk mobil
-  int centerX = x + width / 2;
-  int centerY = y + height / 2;
-  int carWidth = width * 0.8;   // 80% dari width agar tidak terlalu besar
-  int carHeight = height * 0.6; // 60% dari height
-
-  Color carBody = RED;
-  Color carWindow = SKYBLUE;
-  Color carLight = YELLOW;
-  Color carWheel = BLACK;
-  Color carWheelCap = LIGHTGRAY;
-
-  // Badan utama mobil
-  DrawRectangleRounded((Rectangle){centerX - carWidth / 2, centerY - carHeight / 4, carWidth, carHeight / 2}, 0.2, 10, carBody);
-
-  // Atap mobil
-  DrawRectangleRounded((Rectangle){centerX - carWidth / 3, centerY - carHeight / 2, carWidth * 2 / 3, carHeight / 4}, 0.5, 10, carBody);
-
-  // Kaca depan
-  DrawRectangleRounded((Rectangle){centerX - carWidth / 4, centerY - carHeight / 2 + carHeight / 16, carWidth / 2, carHeight / 6}, 0.3, 6, carWindow);
-
-  // Roda-roda
-  float wheelRadius = carHeight / 6;
-  DrawCircle(centerX - carWidth / 3, centerY + carHeight / 4, wheelRadius, carWheel);
-  DrawCircle(centerX + carWidth / 3, centerY + carHeight / 4, wheelRadius, carWheel);
-
-  // Velg roda
-  DrawCircle(centerX - carWidth / 3, centerY + carHeight / 4, wheelRadius / 2, carWheelCap);
-  DrawCircle(centerX + carWidth / 3, centerY + carHeight / 4, wheelRadius / 2, carWheelCap);
-
-  // Lampu depan
-  DrawRectangleRounded((Rectangle){centerX + carWidth / 2 - carWidth / 12, centerY - carHeight / 6, carWidth / 12, carHeight / 10}, 0.5, 4, carLight);
-
-  // Grill
-  for (int i = 0; i < 3; i++)
-  {
-    DrawLine(
-        centerX + carWidth / 2 - carWidth / 20,
-        centerY - carHeight / 12 + i * (carHeight / 30),
-        centerX + carWidth / 2,
-        centerY - carHeight / 12 + i * (carHeight / 30),
-        BLACK);
-  }
-}
-
-void drawDog(int x, int y, int width, int height)
-{
-  // Ukuran proporsional untuk anjing
-  int size = fmin(width, height);
-  int centerX = x + width / 2;
-  int centerY = y + height / 2;
-
-  Color dogBody = BEIGE;
-  Color dogFace = LIGHTGRAY;
-  Color dogNose = BLACK;
-  Color dogEar = BROWN;
-
-  // Badan anjing
-  DrawEllipse(centerX, centerY + size / 10, size / 3, size / 4, dogBody);
-
-  // Kepala anjing
-  DrawCircle(centerX, centerY - size / 6, size / 4, dogFace);
-
-  // Telinga anjing
-  DrawEllipse(centerX - size / 5, centerY - size / 3, size / 10, size / 6, dogEar);
-  DrawEllipse(centerX + size / 5, centerY - size / 3, size / 10, size / 6, dogEar);
-
-  // Mata anjing
-  DrawCircle(centerX - size / 10, centerY - size / 6, size / 20, BLACK);
-  DrawCircle(centerX + size / 10, centerY - size / 6, size / 20, BLACK);
-
-  // Refleksi mata
-  DrawCircle(centerX - size / 10 + size / 60, centerY - size / 6 - size / 60, size / 50, WHITE);
-  DrawCircle(centerX + size / 10 + size / 60, centerY - size / 6 - size / 60, size / 50, WHITE);
-
-  // Hidung
-  DrawCircle(centerX, centerY - size / 10, size / 15, dogNose);
-
-  // Mulut
-  DrawLine(centerX, centerY - size / 10, centerX, centerY, BLACK);
-  DrawLine(centerX - size / 15, centerY, centerX, centerY - size / 20, BLACK);
-  DrawLine(centerX + size / 15, centerY, centerX, centerY - size / 20, BLACK);
-
-  // Lidah
-  DrawEllipse(centerX, centerY + size / 30, size / 25, size / 40, PINK);
-
-  // Kaki
-  DrawRectangle(centerX - size / 3, centerY + size / 4, size / 10, size / 8, dogFace);
-  DrawRectangle(centerX + size / 5, centerY + size / 4, size / 10, size / 8, dogFace);
-
-  // Ekor
-  Vector2 tailPoints[3] = {
-      {centerX - size / 3, centerY},
-      {centerX - size / 2, centerY - size / 8},
-      {centerX - size / 2.5, centerY + size / 12}};
-  DrawTriangle(tailPoints[0], tailPoints[1], tailPoints[2], dogBody);
-}
-
-/// rintangan.c
-void updateRintangan(Skor *skor, int obstacleSpeed)
-{
-  int lane, i;
-  for (lane = 0; lane < MAX_LANES; lane++)
-  {
-    for (i = 0; i < MAX_OBSTACLES; i++)
-    {
-      // Gerakkan rintangan ke bawah sesuai kecepatan
-      rintangan[lane][i].y += obstacleSpeed;
-
-      // Jika rintangan telah melewati layar dan belum dihitung
-      if (rintangan[lane][i].y > SCREEN_HEIGHT && !rintangan[lane][i].hasPassed)
-      {
-        rintangan[lane][i].hasPassed = true;
-        tambahSkor(skor, 10);
-        printf("Skor ditambah: %d\n", skor->nilai);
-      }
-
-      // Reset rintangan jika sudah keluar dari layar
-      if (rintangan[lane][i].y > SCREEN_HEIGHT + rintangan[lane][i].height)
-      {
-        rintangan[lane][i].y = -(rand() % 500 + 200); // Posisi acak baru
-        rintangan[lane][i].type = rand() % 4;
-        rintangan[lane][i].hasPassed = false;
-        rintangan[lane][i].hasCollided = false; // Reset flag tabrakan
-      }
-    }
-  }
-}
-
-void drawRintangan()
-{
-  int lane, i, x, y;
-  for (lane = 0; lane < MAX_LANES; lane++)
-  {
-    for (i = 0; i < MAX_OBSTACLES; i++)
-    {
-      x = rintangan[lane][i].x;
-      y = rintangan[lane][i].y;
-      int width = rintangan[lane][i].width;
-      int height = rintangan[lane][i].height;
-
-      if (rintangan[lane][i].y >= 0) // Pastikan rintangan digambar jika posisi Y valid
-      {
-        // Menggambar rintangan sesuai tipe
-        switch (rintangan[lane][i].type)
-        {
-        case 0:
-          drawCat(x, y, width, height); // Kucing
-          break;
-        case 1:
-          drawRock(x, y, width, height); // Batu
-          break;
-        case 2:
-          drawCar(x, y, width, height); // Mobil
-          break;
-        case 3:
-          drawDog(x, y, width, height); // Anjing
-          break;
+// Fungsi untuk memuat texture rintangan
+void loadRintanganTextures() {
+    for (int i = 0; i < NUM_OBSTACLE_TYPES; i++) {
+        obstacleTextures[i] = LoadTexture(obstacleFilenames[i]);
+        
+        // Log jika texture berhasil dimuat
+        if (obstacleTextures[i].id > 0) {
+            printf("Texture %d loaded successfully: %dx%d\n",
+                i, obstacleTextures[i].width, obstacleTextures[i].height);
+        } else {
+            printf("Failed to load texture %d: %s\n", i, obstacleFilenames[i]);
         }
-      }
     }
-  }
 }
 
-int checkCollision(float x, float y, float width, float height)
-{
-  int collisionCount = 0;
-  Rectangle playerRec = {x, y, width, height};
-
-  for (int lane = 0; lane < MAX_LANES; lane++)
-  {
-    for (int i = 0; i < MAX_OBSTACLES; i++)
-    {
-      if (rintangan[lane][i].y >= 0) // Cek hanya rintangan yang muncul di layar
-      {
-        Rectangle obstacleRec = {
-            rintangan[lane][i].x,
-            rintangan[lane][i].y,
-            rintangan[lane][i].width,
-            rintangan[lane][i].height};
-
-        // Jika terjadi tabrakan dan rintangan belum tercatat collision
-        if (CheckCollisionRecs(playerRec, obstacleRec) && !rintangan[lane][i].hasCollided)
-        {
-          rintangan[lane][i].hasCollided = true;
-          collisionCount++;
-        }
-      }
+// Fungsi untuk melepaskan texture rintangan
+void unloadRintanganTextures() {
+    for (int i = 0; i < NUM_OBSTACLE_TYPES; i++) {
+        UnloadTexture(obstacleTextures[i]);
     }
-  }
-  return collisionCount; // Mengembalikan jumlah collision baru di frame ini
+    printf("All obstacle textures unloaded\n");
+}
+
+// Fungsi untuk membuat node obstacle baru
+ObstacleNode* createObstacleNode(int laneIndex) {
+    ObstacleNode* newNode = (ObstacleNode*)malloc(sizeof(ObstacleNode));
+    if (newNode == NULL) {
+        printf("Error: Failed to allocate memory for obstacle node\n");
+        return NULL;
+    }
+    
+    // Pilih tipe obstacle secara acak
+    int type = rand() % NUM_OBSTACLE_TYPES;
+    
+    // Tentukan ukuran maksimal yang bisa muat di jalur
+    float laneWidth = SCREEN_WIDTH / MAX_LANES;
+    float maxObstacleWidth = laneWidth * 0.7f; // 70% dari lebar jalur
+    
+    // Hitung skala berdasarkan ukuran asli gambar dan faktor skala relatif
+    float baseScale = maxObstacleWidth / obstacleTextures[type].width;
+    float finalScale = baseScale * obstacleSpecs[type].sizeScale;
+    
+    // Gunakan ukuran asli gambar dikali dengan skala
+    float obstacleWidth = obstacleTextures[type].width * finalScale;
+    float obstacleHeight = obstacleTextures[type].height * finalScale;
+    
+    // Posisikan di tengah jalur
+    float laneCenter = laneIndex * laneWidth + laneWidth / 2;
+    float obstacleX = laneCenter - obstacleWidth / 2;
+    
+    // Posisikan obstacle di atas layar dengan posisi acak
+    float obstacleY = -obstacleHeight - (rand() % 300);
+    
+    // Pastikan obstacle tidak terlalu dekat dengan obstacle terakhir di jalur
+    if (lanes[laneIndex].tail != NULL) {
+        float lastObstacleY = lanes[laneIndex].tail->data.y;
+        if (obstacleY > lastObstacleY - MIN_OBSTACLE_DISTANCE) {
+            obstacleY = lastObstacleY - MIN_OBSTACLE_DISTANCE - (rand() % 200);
+        }
+    }
+    
+    // Buat collision box yang lebih presisi
+    float collisionX = obstacleX + (obstacleWidth * obstacleSpecs[type].offsetXPercent);
+    float collisionY = obstacleY + (obstacleHeight * obstacleSpecs[type].offsetYPercent);
+    float collisionWidth = obstacleWidth * obstacleSpecs[type].widthPercent;
+    float collisionHeight = obstacleHeight * obstacleSpecs[type].heightPercent;
+    
+    // Isi data obstacle
+    newNode->data.x = obstacleX;
+    newNode->data.y = obstacleY;
+    newNode->data.width = obstacleWidth;
+    newNode->data.height = obstacleHeight;
+    newNode->data.type = type;
+    newNode->data.hasPassed = false;
+    newNode->data.hasCollided = false;
+    newNode->data.texture = obstacleTextures[type];
+    newNode->data.collisionBox = (Rectangle){
+        collisionX,
+        collisionY,
+        collisionWidth,
+        collisionHeight
+    };
+    
+    newNode->prev = NULL;
+    newNode->next = NULL;
+    
+    return newNode;
+}
+
+// Fungsi untuk menambahkan obstacle ke lane
+void addObstacleToLane(int laneIndex) {
+    // Jangan tambahkan obstacle jika sudah mencapai batas
+    if (lanes[laneIndex].obstacleCount >= MAX_OBSTACLES_PER_LANE) {
+        return;
+    }
+    
+    ObstacleNode* newNode = createObstacleNode(laneIndex);
+    if (newNode == NULL) return;
+    
+    // Tambahkan ke linked list
+    if (lanes[laneIndex].head == NULL) {
+        // List kosong
+        lanes[laneIndex].head = newNode;
+        lanes[laneIndex].tail = newNode;
+    } else {
+        // Tambahkan di belakang
+        newNode->prev = lanes[laneIndex].tail;
+        lanes[laneIndex].tail->next = newNode;
+        lanes[laneIndex].tail = newNode;
+    }
+    
+    lanes[laneIndex].obstacleCount++;
+}
+
+// Fungsi untuk menghapus obstacle dari lane
+void removeObstacleFromLane(int laneIndex, ObstacleNode* node) {
+    if (node == NULL) return;
+    
+    // Update linked list
+    if (node->prev != NULL) {
+        node->prev->next = node->next;
+    } else {
+        // Node adalah head
+        lanes[laneIndex].head = node->next;
+    }
+    
+    if (node->next != NULL) {
+        node->next->prev = node->prev;
+    } else {
+        // Node adalah tail
+        lanes[laneIndex].tail = node->prev;
+    }
+    
+    free(node);
+    lanes[laneIndex].obstacleCount--;
+}
+
+// Fungsi untuk inisialisasi sistem rintangan
+void initRintangan() {
+    // Seed random number generator
+    srand((unsigned int)time(NULL));
+    
+    // Load textures
+    static bool texturesLoaded = false;
+    if (!texturesLoaded) {
+        loadRintanganTextures();
+        texturesLoaded = true;
+    }
+    
+    // Inisialisasi lanes
+    for (int i = 0; i < MAX_LANES; i++) {
+        lanes[i].head = NULL;
+        lanes[i].tail = NULL;
+        lanes[i].obstacleCount = 0;
+        lanes[i].nextSpawnTime = (float)(rand() % 100) / 100.0f; // Random initial spawn time
+        
+        // Tambahkan obstacle pertama untuk setiap lane dengan posisi eschelon
+        addObstacleToLane(i);
+        if (lanes[i].head != NULL) {
+            lanes[i].head->data.y = -300 - i * 400; // Stagger initial positions
+        }
+    }
+}
+
+// Fungsi untuk membersihkan semua obstacle
+void freeRintangan() {
+    for (int i = 0; i < MAX_LANES; i++) {
+        ObstacleNode* current = lanes[i].head;
+        while (current != NULL) {
+            ObstacleNode* next = current->next;
+            free(current);
+            current = next;
+        }
+        lanes[i].head = NULL;
+        lanes[i].tail = NULL;
+        lanes[i].obstacleCount = 0;
+    }
+}
+
+// Fungsi untuk memperbarui obstacle
+void updateRintangan(Skor *skor, int obstacleSpeed) {
+    float deltaTime = GetFrameTime();
+    
+    // Update spawn timers untuk setiap lane
+    for (int lane = 0; lane < MAX_LANES; lane++) {
+        lanes[lane].nextSpawnTime -= deltaTime;
+        
+        // Jika timer habis dan jumlah obstacle belum maksimum, tambahkan obstacle baru
+        if (lanes[lane].nextSpawnTime <= 0 && lanes[lane].obstacleCount < MAX_OBSTACLES_PER_LANE) {
+            addObstacleToLane(lane);
+            
+            // Reset timer dengan variasi
+            float randomDelay = MIN_SPAWN_DELAY + ((float)rand() / RAND_MAX) * (MAX_SPAWN_DELAY - MIN_SPAWN_DELAY);
+            lanes[lane].nextSpawnTime = randomDelay;
+        }
+    }
+    
+    // Update posisi semua obstacle
+    for (int lane = 0; lane < MAX_LANES; lane++) {
+        ObstacleNode* current = lanes[lane].head;
+        while (current != NULL) {
+            // Ambil pointer ke node berikutnya sebelum kita mungkin menghapus current
+            ObstacleNode* next = current->next;
+            
+            // Gerakkan obstacle ke bawah
+            float moveAmount = obstacleSpeed;
+            current->data.y += moveAmount;
+            
+            // Update collision box - perbarui semua properti untuk memastikan akurasi
+            current->data.collisionBox.x = current->data.x + (current->data.width * obstacleSpecs[current->data.type].offsetXPercent);
+            current->data.collisionBox.y = current->data.y + (current->data.height * obstacleSpecs[current->data.type].offsetYPercent);
+            current->data.collisionBox.width = current->data.width * obstacleSpecs[current->data.type].widthPercent;
+            current->data.collisionBox.height = current->data.height * obstacleSpecs[current->data.type].heightPercent;
+            
+            // Jika obstacle telah melewati layar dan belum dihitung
+            if (current->data.y > SCREEN_HEIGHT && !current->data.hasPassed) {
+                current->data.hasPassed = true;
+                skor->nilai += 10;
+            }
+            
+            // Hapus obstacle jika sudah keluar dari layar
+            if (current->data.y > SCREEN_HEIGHT + current->data.height) {
+                removeObstacleFromLane(lane, current);
+            }
+            
+            current = next;
+        }
+    }
+}
+
+// Fungsi untuk menggambar semua obstacle
+void drawRintangan() {
+    for (int lane = 0; lane < MAX_LANES; lane++) {
+        ObstacleNode* current = lanes[lane].head;
+        while (current != NULL) {
+            if (current->data.y >= -current->data.height) { // Hanya gambar jika terlihat
+                // Gambar texture sesuai ukuran yang telah dihitung
+                DrawTexturePro(
+                    current->data.texture,
+                    (Rectangle){0, 0, current->data.texture.width, current->data.texture.height},
+                    (Rectangle){
+                        current->data.x,
+                        current->data.y,
+                        current->data.width,
+                        current->data.height
+                    },
+                    (Vector2){0, 0},
+                    0.0f,
+                    WHITE
+                );
+            }
+            current = current->next;
+        }
+    }
+}
+
+// Fungsi untuk menggambar collision box untuk debugging
+void drawCollisionBoxes(bool drawPlayerBox, float x, float y, float width, float height) {
+    if (!showCollisionBoxes) return;
+    
+    // Gambar collision box untuk player
+    if (drawPlayerBox) {
+        float playerMarginX = width * 0.25;
+        float playerMarginY = height * 0.10;
+        
+        Rectangle playerRec = {
+            x + playerMarginX,
+            y + playerMarginY,
+            width * 0.50,
+            height * 0.80
+        };
+        
+        DrawRectangleLines(playerRec.x, playerRec.y, playerRec.width, playerRec.height, BLUE);
+    }
+    
+    // Gambar collision box untuk semua obstacle
+    for (int lane = 0; lane < MAX_LANES; lane++) {
+        ObstacleNode* current = lanes[lane].head;
+        while (current != NULL) {
+            if (current->data.y >= -current->data.height) {
+                // Gunakan collision box yang sudah diperbarui di updateRintangan
+                DrawRectangleLines(
+                    current->data.collisionBox.x,
+                    current->data.collisionBox.y,
+                    current->data.collisionBox.width,
+                    current->data.collisionBox.height,
+                    RED);
+            }
+            current = current->next;
+        }
+    }
+}
+
+// Fungsi untuk memeriksa tabrakan dengan obstacle
+int checkCollision(float x, float y, float width, float height) {
+    int collisionCount = 0;
+    
+    // Collision box untuk player - sesuaikan ukuran agar lebih akurat
+    float playerMarginX = width * 0.25;
+    float playerMarginY = height * 0.10;
+    
+    Rectangle playerRec = {
+        x + playerMarginX,
+        y + playerMarginY,
+        width * 0.50,
+        height * 0.80
+    };
+    
+    // Periksa collision dengan semua obstacle
+    for (int lane = 0; lane < MAX_LANES; lane++) {
+        ObstacleNode* current = lanes[lane].head;
+        while (current != NULL) {
+            if (current->data.y >= 0 && !current->data.hasCollided) {
+                // Gunakan collision box yang sudah diperbarui di updateRintangan
+                if (CheckCollisionRecs(playerRec, current->data.collisionBox)) {
+                    current->data.hasCollided = true;
+                    collisionCount++;
+                }
+            }
+            current = current->next;
+        }
+    }
+    
+    return collisionCount;
 }
