@@ -1,70 +1,62 @@
+// src/skor.c
 #include "../include/skor.h"
+#include <raylib.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-// Membuat node baru dengan nilai skor awal
-NodeSkor* buatNodeSkor(int nilaiAwal) {
-    NodeSkor *node = (NodeSkor*) malloc(sizeof(NodeSkor));
-    node->skor.nilai = nilaiAwal;
-    node->next = NULL;
-    return node;
+// callback untuk free setiap Skor*
+static void _freeSkor(void *d) {
+    free(d);
 }
 
-// Menambahkan node baru ke akhir linked list
-void tambahNodeSkor(NodeSkor **head, int nilaiAwal) {
-    NodeSkor *baru = buatNodeSkor(nilaiAwal);
-    if (*head == NULL) {
-        *head = baru;
-    } else {
-        NodeSkor *curr = *head;
-        while (curr->next != NULL) {
-            curr = curr->next;
-        }
-        curr->next = baru;
-    }
+// callback untuk print tiap Skor*
+static void _printSkor(void *d) {
+    Skor *s = d;
+    printf("Skor: %d\n", s->nilai);
 }
 
-// Menampilkan semua skor di list
-void tampilkanSemuaSkor(NodeSkor *head) {
-    NodeSkor *curr = head;
-    int i = 1;
-    while (curr != NULL) {
-        printf("Skor %d: %d\n", i, curr->skor.nilai);
-        curr = curr->next;
-        i++;
-    }
+List* buatDaftarSkor(void) {
+    return buatList();
 }
 
-// Menghapus semua node di list
-void hapusSemuaSkor(NodeSkor **head) {
-    NodeSkor *curr = *head;
-    while (curr != NULL) {
-        NodeSkor *hapus = curr;
-        curr = curr->next;
-        free(hapus);
-    }
-    *head = NULL;
+void hapusDaftarSkor(List *daftar) {
+    // free semua node + data via _freeSkor
+    hapusList(daftar, _freeSkor);
 }
 
-// Menambahkan poin ke skor node
-void tambahSkor(NodeSkor *node, int poin) {
+void tambahSkorKeDaftar(List *daftar, int nilaiAwal) {
+    Skor *s = malloc(sizeof *s);
+    s->nilai = nilaiAwal;
+    tambahData(daftar, s);
+}
+
+void tampilkanSemuaSkor(List *daftar) {
+    // iterasi semua data dan print dengan _printSkor
+    tampilkanList(daftar, _printSkor);
+}
+
+// manipulasi satu skor
+void tambahSkor(Skor *s, int poin) {
+    if (poin > 0) s->nilai += poin;
+}
+
+void kurangiSkor(Skor *s, int poin) {
     if (poin > 0) {
-        node->skor.nilai += poin;
+        s->nilai = (s->nilai < poin) ? 0 : s->nilai - poin;
     }
 }
 
-// Mengurangi poin dari skor node
-void kurangiSkor(NodeSkor *node, int poin) {
-    if (poin > 0) {
-        if (node->skor.nilai < poin) {
-            node->skor.nilai = 0;
-        } else {
-            node->skor.nilai -= poin;
-        }
-    }
+int getSkor(const Skor *s) {
+    return s->nilai;
 }
 
-// Mengambil skor dari node
-int getSkor(const NodeSkor *node) {
-    return node->skor.nilai;
+// tampilkan di layar pakai Raylib
+void tampilkanSkor(const Skor *s) {
+    char buf[32];
+    sprintf(buf, "Score: %d", s->nilai);
+    DrawText(buf, 10, 10, 20, WHITE);
+}
+
+void initSkor(Skor *s) {
+    s->nilai = 0;
 }

@@ -1,26 +1,28 @@
+// include/skor.h
 #ifndef SKOR_H
 #define SKOR_H
 
-// Struktur skor seperti sebelumnya
+#include "single_linked_list.h"  // ADT List
+
 typedef struct {
     int nilai;
 } Skor;
 
-// Node dalam linked list
-typedef struct NodeSkor {
-    Skor skor;               // Menyimpan data skor
-    struct NodeSkor *next;   // Penunjuk ke node berikutnya
-} NodeSkor;
+// Buat dan hapus daftar skor
+List* buatDaftarSkor(void);
+void  hapusDaftarSkor(List *daftar);
 
-// Fungsi dasar untuk linked list skor
-NodeSkor* buatNodeSkor(int nilaiAwal);
-void tambahNodeSkor(NodeSkor **head, int nilaiAwal);
-void tampilkanSemuaSkor(NodeSkor *head);
-void hapusSemuaSkor(NodeSkor **head);
+// Operasi pada daftar
+void  tambahSkorKeDaftar(List *daftar, int nilaiAwal);
+void  tampilkanSemuaSkor(List *daftar);
 
-// Fungsi manipulasi skor dalam node tertentu
-void tambahSkor(NodeSkor *node, int poin);
-void kurangiSkor(NodeSkor *node, int poin);
-int getSkor(const NodeSkor *node);
+// Manipulasi 1 elemen skor
+void  tambahSkor     (Skor *s, int poin);
+void  kurangiSkor    (Skor *s, int poin);
+int   getSkor        (const Skor *s);
 
-#endif
+// Tampilkan 1 skor di layar (Raylib)
+void  tampilkanSkor  (const Skor *s);
+void initSkor(Skor *skor);
+
+#endif // SKOR_H
