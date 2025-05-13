@@ -6,6 +6,9 @@
 // Definisi tinggi layar permainan
 #define SCREEN_HEIGHT 720
 
+#define FINISH_LINE_Y 100// Posisi Y garis finish
+#define FINISH_LINE_HEIGHT 40 // Tinggi garis finish
+
 // Definisi jumlah jalur yang tersedia untuk mobil pemain
 #define MAX_LANES 3
 // Definisi jumlah maksimum rintangan yang bisa ada di layar

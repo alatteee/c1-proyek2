@@ -31,6 +31,7 @@ int main()
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "C1 Brick Racer");
     SetTargetFPS(60);
     InitAudioDevice();
+    InitFinishLine(); // Inisialisasi linked list garis finish
 
     bool isRintanganInitialized = false;
 
@@ -310,6 +311,7 @@ int main()
     UnloadLivesSystem(&livesSystem);
     freeCarList(carList);
     FreeLevels(levelList);
+    FreeFinishLine(); // Bebaskan memori garis finish
 
     CloseAudioDevice();
     CloseWindow();

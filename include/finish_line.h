@@ -1,18 +1,20 @@
 #ifndef FINISH_LINE_H
 #define FINISH_LINE_H
 
-#include "config.h"
-#include "mobil.h"  
+#include <raylib.h>
 #include <stdbool.h>
+#include "mobil.h"
+#include "config.h"
 
-// Definisi posisi Y garis finish di layar (50 pixel dari atas)
-#define FINISH_LINE_Y 50        
-// Definisi tinggi garis finish (10 pixel)
-#define FINISH_LINE_HEIGHT 10   
+typedef struct FinishTile {
+    int x, y;
+    Color color;
+    struct FinishTile *next;
+} FinishTile;
 
-// Deklarasi fungsi untuk menggambar garis finish di layar
+void InitFinishLine(void);
 void DrawFinishLine(void);
-// Deklarasi fungsi untuk memeriksa apakah mobil telah melewati garis finish (tabrakan dengan garis finish)
 bool CheckFinishLineCollision(Car *car);
+void FreeFinishLine(void);
 
-#endif // FINISH_LINE_H
+#endif
