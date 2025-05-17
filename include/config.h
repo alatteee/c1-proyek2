@@ -6,9 +6,6 @@
 // Definisi tinggi layar permainan
 #define SCREEN_HEIGHT 720
 
-#define FINISH_LINE_Y 100// Posisi Y garis finish
-#define FINISH_LINE_HEIGHT 40 // Tinggi garis finish
-
 // Definisi jumlah jalur yang tersedia untuk mobil pemain
 #define MAX_LANES 3
 // Definisi jumlah maksimum rintangan yang bisa ada di layar
@@ -40,6 +37,7 @@ typedef enum
     STATE_LEVEL_MENU,      // Menu untuk memilih level permainan
     STATE_INPUT_NAME,      // Menu untuk memasukkan nama pemain
     STATE_GAME,            // Status permainan saat sedang berjalan
+    STATE_SETTINGS,        // Menu pengaturan permainan
     STATE_COLLISION,       // Status ketika terjadi tabrakan
     STATE_WIN,             // Status ketika pemain menang
     STATE_GAME_OVER,       // Status ketika permainan berakhir
@@ -50,14 +48,14 @@ typedef enum
 
 #define NUM_LEVELS 3        // Jumlah level yang tersedia dalam permainan
 
-// Struktur yang mendefinisikan setiap level permainan
-typedef struct
-{
-    int obstacleSpeed;    // Kecepatan rintangan di level ini
-    int numObstacles;     // Jumlah rintangan yang ada di level ini
-    const char *name;     // Nama level (misalnya: "Level 1")
-    int positions[10][2]; // Posisi rintangan (koordinat X dan Y) di level ini
-} Level;
+// // Struktur yang mendefinisikan setiap level permainan
+// typedef struct
+// {
+//     int obstacleSpeed;    // Kecepatan rintangan di level ini
+//     int numObstacles;     // Jumlah rintangan yang ada di level ini
+//     const char *name;     // Nama level (misalnya: "Level 1")
+//     int positions[10][2]; // Posisi rintangan (koordinat X dan Y) di level ini
+// } Level;
 
 
 #endif

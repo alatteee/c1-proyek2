@@ -1,3 +1,4 @@
+// include/rintangan.h
 #ifndef RINTANGAN_H
 #define RINTANGAN_H
 
@@ -5,57 +6,39 @@
 #include <raylib.h>
 #include "config.h"
 #include "skor.h"
+#include "double_linked_list.h"  // ADT double‐linked list
 
-// Struktur untuk menyimpan data obstacle
+#define MAX_LANES 3
+#define NUM_OBSTACLE_TYPES 6
+
+// Data satu obstacle
 typedef struct {
-    float x, y;
-    float width, height;
-    int type;
-    bool hasPassed;
-    bool hasCollided;
+    float     x, y;
+    float     width, height;
+    int       type;
+    bool      hasPassed;
+    bool      hasCollided;
     Rectangle collisionBox;
     Texture2D texture;
 } ObstacleData;
 
-// Struktur node untuk double linked list
-typedef struct ObstacleNode {
-    ObstacleData data;
-    struct ObstacleNode* prev;
-    struct ObstacleNode* next;
-} ObstacleNode;
-
-// Struktur untuk lane yang menggunakan linked list
+// Satu lane berisi list obstacle
 typedef struct {
-    ObstacleNode* head;
-    ObstacleNode* tail;
-    int obstacleCount;
-    float nextSpawnTime;
+    DoubleList *obstacles;
+    float       nextSpawnTime;
 } Lane;
 
-// Variabel global untuk lanes
 extern Lane lanes[MAX_LANES];
 extern bool showCollisionBoxes;
 
-// Function prototypes
-void initRintangan();
+void initRintangan(void);
 void updateRintangan(Skor *skor, int obstacleSpeed);
-void drawRintangan();
-int checkCollision(float x, float y, float width, float height);
-void freeRintangan();
+void drawRintangan(void);
+int  checkCollision(float x, float y, float width, float height);
+void freeRintangan(void);
 
-// Toggle debug visualization
-void toggleCollisionBoxVisibility();
-
-// Resource management
-void loadRintanganTextures();
-void unloadRintanganTextures();
-
-// Fungsi untuk node management
-ObstacleNode* createObstacleNode(int laneIndex);
-void addObstacleToLane(int laneIndex);
-void removeObstacleFromLane(int laneIndex, ObstacleNode* node);
-
-// Fungsi untuk debug
-void drawCollisionBoxes(bool drawPlayerBox, float x, float y, float width, float height);
+void toggleCollisionBoxVisibility(void);
+void loadRintanganTextures(void);
+void unloadRintanganTextures(void);
 
 #endif // RINTANGAN_H

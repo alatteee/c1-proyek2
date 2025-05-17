@@ -1,168 +1,302 @@
 #include "../include/menu.h"
 #include <raylib.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../include/config.h"
 #include "../include/mobil.h"
 #include "../include/skor.h"
 #include "../include/rintangan.h"
-#include "../include/level.h" 
+#include "../include/level.h"
+#include "../include/mobil_selection.h"
+#include "../include/double_linked_list.h"
+#include "../include/single_linked_list.h"
 
 
-// Fungsi untuk menggambar menu utama
-void DrawMenu(int selectedOption, Texture2D brickTexture)
+// Variabel global untuk menyimpan list dan current menu
+DoubleList *menuList     = NULL;
+MenuNode   *currentMenu  = NULL;
+bool        isMusicEnabled = true;
+Music       menuMusic; // di-load di main.c
+
+// Callback untuk membebaskan satu MenuNode
+void freeMenuNode(void *d) {
+    MenuNode *m = d;
+    if (m->data) free(m->data);  // payload
+    free(m);
+}
+
+// Buat satu MenuNode baru (payload sudah dialok di caller)
+MenuNode *CreateMenuNode(const char *title, GameState state,
+                                void (*drawF)(void*),
+                                void (*inputF)(GameState*),
+                                void *data) {
+    MenuNode *m = malloc(sizeof *m);
+    if (!m) return NULL;
+    strncpy(m->title, title, sizeof m->title-1);
+    m->title[sizeof m->title-1] = '\0';
+    m->state               = state;
+    m->drawFunction        = drawF;
+    m->handleInputFunction = inputF;
+    m->data                = data;
+    return m;
+}
+
+// Inisialisasi seluruh sistem menu
+void InitializeMenuSystem(Texture2D brickTexture, List* levelList, List* carList)
 {
-    const char *options[] = {"Start Game", "Music: On", "Exit Game"}; // Pilihan menu
-    const int NUM_OPTIONS = 3; // Jumlah pilihan menu
-    const int optionSpacing = 60; // Jarak antar pilihan menu
-    const int boxPadding = 10;   // Padding dalam kotak menu
-    const int boxWidth = 200;    // Lebar kotak pilihan menu
-    const int boxHeight = 40;    // Tinggi kotak pilihan menu
+    // Buat list kosong
+    menuList = dl_create();
 
-    // Gambar latar belakang menggunakan tekstur brickTexture
-    DrawTexture(brickTexture, 0, 0, WHITE);
+    // 1) Main Menu
+    MainMenuData *d0 = malloc(sizeof *d0);
+    d0->selectedOption = 0;
+    d0->brickTexture   = brickTexture;
+    dl_append(menuList, CreateMenuNode(
+        "Main Menu", STATE_MENU,
+        DrawMainMenu, HandleMainMenuInput,
+        d0));
 
-    // Gambar judul
-    const char *title = "C1 Brick Racer";
-    int titleWidth = MeasureText(title, 40); // Mengukur lebar judul
-    int titleX = SCREEN_WIDTH / 2 - titleWidth / 2; // Posisi X agar judul di tengah layar
-    int titleY = 250; // Posisi Y untuk judul
-    DrawText(title, titleX, titleY, 40, WHITE); // Gambar teks judul di layar
+    // 2) Level Menu
+    LevelMenuData *d1 = malloc(sizeof *d1);
+    d1->selectedLevel = 0;
+    d1->brickTexture  = brickTexture;
+    d1->levelList     = levelList;
+    dl_append(menuList, CreateMenuNode(
+        "Level Menu", STATE_LEVEL_MENU,
+        DrawLevelMenu, HandleLevelMenuInput,
+        d1));
 
-    // Perbarui teks opsi musik (tampilkan "Music: On" atau "Music: Off")
-    const char *musicOption = isMusicEnabled ? "Music: On" : "Music: Off";
-    options[1] = musicOption;
+    // 3) Input Name
+    InputNameData *d2 = malloc(sizeof *d2);
+    memset(d2->playerName, 0, MAX_NAME_LENGTH);
+    d2->brickTexture = brickTexture;
+    dl_append(menuList, CreateMenuNode(
+        "Input Name", STATE_INPUT_NAME,
+        DrawInputNameMenu, HandleInputNameMenuInput,
+        d2));
 
-    // Gambar pilihan menu
-    for (int i = 0; i < NUM_OPTIONS; i++)
-    {
-        int boxX = SCREEN_WIDTH / 2 - boxWidth / 2; // Posisi X untuk kotak pilihan
-        int boxY = 300 + i * optionSpacing; // Posisi Y untuk kotak pilihan dengan jarak antar pilihan
-        Color boxColor = (i == selectedOption) ? RED : LIGHTGRAY; // Warna kotak berdasarkan pilihan yang dipilih
+    // 4) Car Selection
+    CarSelectionData *d3 = malloc(sizeof *d3);
+    d3->selectedCarIndex = 0;
+    d3->brickTexture     = brickTexture;
+    d3->carList          = carList;
+    dl_append(menuList, CreateMenuNode(
+        "Car Selection", STATE_SELECT_CAR,
+        DrawCarSelectionMenu, HandleCarSelectionMenuInput,
+        d3));
 
-        DrawRectangle(boxX, boxY, boxWidth, boxHeight, boxColor); // Gambar kotak pilihan menu
+    // 5) Settings
+    SettingsData *d4 = malloc(sizeof *d4);
+    d4->brickTexture = brickTexture;
+    dl_append(menuList, CreateMenuNode(
+        "Settings", STATE_SETTINGS,
+        DrawSettingsMenu, HandleSettingsMenuInput,
+        d4));
 
-        const char *text = options[i]; // Ambil teks dari opsi menu
-        int textWidth = MeasureText(text, 20); // Mengukur lebar teks
-        int textX = boxX + (boxWidth - textWidth) / 2; // Posisi X agar teks di tengah kotak
-        int textY = boxY + boxPadding; // Posisi Y untuk teks dalam kotak
-        DrawText(text, textX, textY, 20, BLACK); // Gambar teks pilihan menu
+    // Set default current
+    SetCurrentMenu(STATE_MENU);
+}
+
+// Bebaskan semua node menu
+void FreeMenuSystem(void) {
+    if (menuList) {
+        dl_destroy(menuList, freeMenuNode);
+        menuList    = NULL;
+        currentMenu = NULL;
     }
 }
 
-// Fungsi untuk menangani input dari menu utama
-void handleMenuInput(int *selectedOption, GameState *gameState, Car cars[], int *lives, Skor *skor)
-{
-    const int NUM_OPTIONS = 3; // Jumlah pilihan menu
-
-    if (IsKeyPressed(KEY_UP)) // Jika tombol arah atas ditekan
-    {
-        (*selectedOption)--; // Pilih opsi sebelumnya
-        if (*selectedOption < 0)
-            *selectedOption = NUM_OPTIONS - 1; // Jika mencapai opsi pertama, pilih opsi terakhir
+// Cari dan set currentMenu berdasarkan state
+void SetCurrentMenu(GameState state) {
+    for (DLNode *n = menuList->head; n; n = n->next) {
+        MenuNode *m = n->data;
+        if (m->state == state) {
+            currentMenu = m;
+            return;
+        }
     }
-    if (IsKeyPressed(KEY_DOWN)) // Jika tombol arah bawah ditekan
-    {
-        (*selectedOption)++; // Pilih opsi berikutnya
-        if (*selectedOption >= NUM_OPTIONS)
-            *selectedOption = 0; // Jika mencapai opsi terakhir, pilih opsi pertama
-    }
+    // fallback ke head
+    currentMenu = menuList->head ? menuList->head->data : NULL;
+}
 
-    if (IsKeyPressed(KEY_ENTER)) // Jika tombol Enter ditekan
-    {
-        switch (*selectedOption)
-        {
-        case 0: // Mulai permainan
-            *gameState = STATE_LEVEL_MENU; // Pindah ke menu level
-            break;
-        case 1: // Opsi Musik: Aktifkan/Matiin musik
-            isMusicEnabled = !isMusicEnabled; // Toggle status musik
-            if (isMusicEnabled)
-                PlayMusicStream(menuMusic); // Mainkan musik
-            else
-                StopMusicStream(menuMusic); // Hentikan musik
-            break;
-        case 2: // Keluar dari permainan
-            *gameState = STATE_EXIT; // Set status permainan untuk keluar
-            break;
+// Dispatcher input & draw
+void HandleMenuInput(GameState *state) {
+    if (currentMenu && currentMenu->handleInputFunction)
+        currentMenu->handleInputFunction(state);
+}
+void DrawMenu(void) {
+    if (currentMenu && currentMenu->drawFunction)
+        currentMenu->drawFunction(currentMenu->data);
+}
+
+/* ====== SEMUA FUNGSI DRAW dan HANDLE INPUT DARI MENU ====== */
+
+void DrawMainMenu(void *data) {
+    MainMenuData *d = data;
+    const char *opts[] = { "Start Game", "Settings", "Exit Game" };
+    DrawTexture(d->brickTexture, 0, 0, WHITE);
+    DrawText("C1 Brick Racer",
+             (SCREEN_WIDTH - MeasureText("C1 Brick Racer", 40))/2,
+             250, 40, WHITE);
+    for (int i = 0; i < 3; i++) {
+        int x = SCREEN_WIDTH/2-100, y = 300 + i*60;
+        DrawRectangle(x, y, 200, 40,
+            (i == d->selectedOption) ? RED : LIGHTGRAY);
+        int tw = MeasureText(opts[i], 20);
+        DrawText(opts[i], x + (200-tw)/2, y+10, 20, BLACK);
+    }
+}
+
+void HandleMainMenuInput(GameState *state) {
+    MainMenuData *d = currentMenu->data;
+    if (IsKeyPressed(KEY_UP))   d->selectedOption = (d->selectedOption + 2) % 3;
+    if (IsKeyPressed(KEY_DOWN)) d->selectedOption = (d->selectedOption + 1) % 3;
+    if (IsKeyPressed(KEY_ENTER)) {
+        switch (d->selectedOption) {
+            case 0: *state = STATE_LEVEL_MENU; break;
+            case 1: *state = STATE_SETTINGS;   break;
+            case 2: *state = STATE_EXIT;       break;
         }
     }
 }
 
-void DrawLevelMenu(int selectedLevel, Texture2D brickTexture, LevelNode* levelList)
-{
-    // Gambar latar belakang
-    DrawTexture(brickTexture, 0, 0, WHITE);
+void DrawLevelMenu(void *data) {
+    LevelMenuData *d = data;
+    DrawTexture(d->brickTexture, 0, 0, WHITE);
+    DrawText("Select Level", (SCREEN_WIDTH - MeasureText("Select Level",40))/2, 250, 40, WHITE);
 
-    // Gambar judul
-    const char *title = "Select Level";
-    int titleWidth = MeasureText(title, 40);
-    int titleX = SCREEN_WIDTH / 2 - titleWidth / 2;
-    int titleY = 250;
-    DrawText(title, titleX, titleY, 40, WHITE);
-
-    // Gambar pilihan level
-    LevelNode* current = levelList;
     int i = 0;
+    int total = ukuranList(d->levelList);
+    for (int i = 0; i < total; i++) {
+        Level *lvl = (Level*) ambilData(d->levelList, i);
+        int x = SCREEN_WIDTH/2-100, y=300 + i*60;
+        DrawRectangle(x,y,200,50, (i==d->selectedLevel)?RED:LIGHTGRAY);
+        DrawText(lvl->name, x+10, y+10, 20, BLACK);
+    }
 
-    while (current != NULL) {
-        int boxX = SCREEN_WIDTH / 2 - 100;
-        int boxY = 300 + i * 60;
-        Color boxColor = (i == selectedLevel) ? RED : LIGHTGRAY;
 
-        DrawRectangle(boxX, boxY, 200, 50, boxColor);
-        DrawText(current->name, boxX + 10, boxY + 10, 20, BLACK);
+    // Draw Back button
+    DrawRectangle(SCREEN_WIDTH/2-100,300+i*60,200,50,LIGHTGRAY);
+    DrawText("Back", SCREEN_WIDTH/2 - MeasureText("Back",20)/2, 300+i*60+15, 20, BLACK);
+}
 
-        current = current->next;
-        i++;
+
+void HandleLevelMenuInput(GameState *state) {
+    LevelMenuData *d = currentMenu->data;
+    int cnt = ukuranList(d->levelList);  // fungsi untuk menghitung panjang list
+
+    if (IsKeyPressed(KEY_UP)) {
+        d->selectedLevel--;
+        if (d->selectedLevel < -1)
+            d->selectedLevel = cnt - 1;
+    }
+    if (IsKeyPressed(KEY_DOWN)) {
+        d->selectedLevel++;
+        if (d->selectedLevel >= cnt)
+            d->selectedLevel = -1;
+    }
+
+    if (IsKeyPressed(KEY_ENTER)) {
+        if (d->selectedLevel == -1)
+            *state = STATE_MENU;
+        else
+            *state = STATE_INPUT_NAME;
     }
 }
 
 
-// Fungsi untuk menangani input dari menu level
-void handleLevelMenuInput(int *selectedLevel, GameState *gameState)
-{
-    if (IsKeyPressed(KEY_UP)) // Jika tombol arah atas ditekan
-    {
-        (*selectedLevel)--; // Pilih level sebelumnya
-        if (*selectedLevel < 0)
-            *selectedLevel = NUM_LEVELS - 1; // Jika mencapai level pertama, pilih level terakhir
-    }
-    if (IsKeyPressed(KEY_DOWN)) // Jika tombol arah bawah ditekan
-    {
-        (*selectedLevel)++; // Pilih level berikutnya
-        if (*selectedLevel >= NUM_LEVELS)
-            *selectedLevel = 0; // Jika mencapai level terakhir, pilih level pertama
-    }
+void DrawInputNameMenu(void *data) {
+    InputNameData *d = data;
+    DrawTexture(d->brickTexture, 0, 0, WHITE);
+    DrawText("Enter Your Name",
+             (SCREEN_WIDTH - MeasureText("Enter Your Name",40))/2,
+             250, 40, WHITE);
+    DrawRectangle(SCREEN_WIDTH/2-100, 350, 200, 50, LIGHTGRAY);
+    DrawText(d->playerName, SCREEN_WIDTH/2-90, 360, 20, BLACK);
+    DrawText("ENTER to continue, ESC to back",
+             (SCREEN_WIDTH-MeasureText("ENTER to continue, ESC to back",20))/2,
+             450, 20, WHITE);
+}
 
-    if (IsKeyPressed(KEY_ENTER)) // Jika tombol Enter ditekan
-    {
-        *gameState = STATE_INPUT_NAME; // Pindah ke menu input nama
+void HandleInputNameMenuInput(GameState *state) {
+    InputNameData *d = currentMenu->data;
+    int c = GetCharPressed();
+    if (c > 0 && strlen(d->playerName) < MAX_NAME_LENGTH-1) {
+        size_t len = strlen(d->playerName);
+        d->playerName[len] = c;
+        d->playerName[len+1] = '\0';
+    }
+    if (IsKeyPressed(KEY_BACKSPACE) && strlen(d->playerName)>0) {
+        d->playerName[strlen(d->playerName)-1] = '\0';
+    }
+    if (IsKeyPressed(KEY_ENTER) && strlen(d->playerName)>0) {
+        *state = STATE_SELECT_CAR;
+    }
+    if (IsKeyPressed(KEY_ESCAPE)) {
+        *state = STATE_LEVEL_MENU;
     }
 }
 
-// Fungsi untuk menggambar menu input nama
-void DrawInputName(char *playerName, Texture2D brickTexture)
-{
-    // Gambar latar belakang menggunakan tekstur brickTexture
-    DrawTexture(brickTexture, 0, 0, WHITE);
-
-    // Gambar judul
-    const char *title = "Enter Your Name";
-    int titleWidth = MeasureText(title, 40); // Mengukur lebar judul
-    int titleX = SCREEN_WIDTH / 2 - titleWidth / 2; // Posisi X agar judul di tengah layar
-    int titleY = 250; // Posisi Y untuk judul
-    DrawText(title, titleX, titleY, 40, WHITE); // Gambar teks judul di layar
-
-    // Gambar input box
-    int boxX = SCREEN_WIDTH / 2 - 100; // Posisi X untuk kotak input nama
-    int boxY = 350; // Posisi Y untuk kotak input nama
-    DrawRectangle(boxX, boxY, 200, 50, LIGHTGRAY); // Gambar kotak input
-    DrawText(playerName, boxX + 10, boxY + 10, 20, BLACK); // Gambar nama pemain yang telah dimasukkan
-
-    // Gambar instruksi untuk melanjutkan
-    const char *instruction = "Press ENTER to Continue";
-    int instructionWidth = MeasureText(instruction, 20); // Mengukur lebar instruksi
-    int instructionX = SCREEN_WIDTH / 2 - instructionWidth / 2; // Posisi X agar instruksi di tengah
-    int instructionY = 450; // Posisi Y untuk instruksi
-    DrawText(instruction, instructionX, instructionY, 20, WHITE); // Gambar instruksi
+void DrawCarSelectionMenu(void *data) {
+    CarSelectionData *d = data;
+    DrawTexture(d->brickTexture, 0, 0, WHITE);
+    DrawText("Select Your Car",
+             (SCREEN_WIDTH-MeasureText("Select Your Car",40))/2,
+             150, 40, WHITE);
+    int total = countCars(d->carList);
+    for (int i = 0; i < total; i++) {
+        CarData *cd = getCarByIndex(d->carList, i);
+        int x = SCREEN_WIDTH/2-150, y = 250 + i*120;
+        DrawRectangle(x, y, 300, 100,
+            (i == d->selectedCarIndex) ? RED : LIGHTGRAY);
+        DrawTexture(cd->car.texture, x+10, y+10, WHITE);
+        DrawText(cd->name, x+120, y+40, 20, BLACK);
+    }
+    // back
+    int by = 250 + total*120;
+    DrawRectangle(SCREEN_WIDTH/2-100, by, 200, 50, LIGHTGRAY);
+    DrawText("Back",
+      SCREEN_WIDTH/2-MeasureText("Back",20)/2,
+      by+15, 20, BLACK);
 }
+
+void HandleCarSelectionMenuInput(GameState *state) {
+    CarSelectionData *d = currentMenu->data;
+    int total = countCars(d->carList);
+    if (IsKeyPressed(KEY_UP)) {
+        d->selectedCarIndex = (d->selectedCarIndex + total - 1) % total;
+    }
+    if (IsKeyPressed(KEY_DOWN)) {
+        d->selectedCarIndex = (d->selectedCarIndex + 1) % total;
+    }
+    if (IsKeyPressed(KEY_ENTER)) {
+        *state = (d->selectedCarIndex < 0) ? STATE_INPUT_NAME : STATE_GAME;
+    }
+}
+
+void DrawSettingsMenu(void *data) {
+    SettingsData *d = data;
+    DrawTexture(d->brickTexture, 0, 0, WHITE);
+    DrawText("Settings",
+             (SCREEN_WIDTH-MeasureText("Settings",40))/2,
+             250, 40, WHITE);
+    const char *opt = isMusicEnabled ? "Music: On" : "Music: Off";
+    DrawRectangle(SCREEN_WIDTH/2-100, 350, 200, 50, LIGHTGRAY);
+    DrawText(opt,
+      SCREEN_WIDTH/2-MeasureText(opt,20)/2, 365, 20, BLACK);
+    DrawRectangle(SCREEN_WIDTH/2-100, 430, 200, 50, LIGHTGRAY);
+    DrawText("Back",
+      SCREEN_WIDTH/2-MeasureText("Back",20)/2, 445, 20, BLACK);
+}
+
+void HandleSettingsMenuInput(GameState *state) {
+    if (IsKeyPressed(KEY_ENTER)) {
+        isMusicEnabled = !isMusicEnabled;
+        if (isMusicEnabled) PlayMusicStream(menuMusic);
+        else                StopMusicStream(menuMusic);
+    }
+    if (IsKeyPressed(KEY_ESCAPE)) {
+        *state = STATE_MENU;
+    }
+}
+

@@ -1,19 +1,28 @@
-// level.h
 #ifndef LEVEL_H
 #define LEVEL_H
 
-typedef struct LevelNode {
-    char name[20];               // Nama level
-    int obstacleSpeed;           // Kecepatan rintangan
-    struct LevelNode* next;      // Pointer ke level selanjutnya
-} LevelNode;
+#include "single_linked_list.h"
 
-// Fungsi-fungsi
-LevelNode* CreateLevelNode(const char* name, int speed);
-void AppendLevel(LevelNode** head, const char* name, int speed);
-void FreeLevels(LevelNode* head);
-void PrintLevels(LevelNode* head);  // Untuk testing/debug
-LevelNode* getLevelByIndex(LevelNode* head, int index);
+#define MAX_LEVEL_NAME_LENGTH 20
 
+typedef struct {
+    char name[32];
+    int obstacleSpeed;
+} Level;
 
-#endif
+// ADT List dipakai untuk level
+void AppendLevel(List *list, const char *name, int speed);
+Level* getLevelByIndex(List *list, int index);
+
+// Buat list level kosong
+List* CreateLevelList(void);
+
+// Ambil pointer ke Level pada index (0-based), atau NULL jika out-of-range
+Level* getLevelByIndex(List* list, int index);
+
+List *LoadDefaultLevels(void);
+
+// Bebaskan semua node + data level
+void FreeLevels(List* list);
+
+#endif // LEVEL_H

@@ -1,52 +1,43 @@
-// level.c
-#include <stdio.h>
+#include "../include/level.h"
+#include "../include/single_linked_list.h"
 #include <stdlib.h>
 #include <string.h>
-#include "../include/level.h"
 
-LevelNode* CreateLevelNode(const char* name, int speed) {
-    LevelNode* newNode = (LevelNode*)malloc(sizeof(LevelNode));
-    if (!newNode) return NULL;
-
-    strncpy(newNode->name, name, sizeof(newNode->name) - 1);
-    newNode->name[sizeof(newNode->name) - 1] = '\0';
-    newNode->obstacleSpeed = speed;
-    newNode->next = NULL;
-
-    return newNode;
+// Buat list baru
+List* CreateLevelList(void) {
+    return buatList();
 }
 
-void AppendLevel(LevelNode** head, const char* name, int speed) {
-    LevelNode* newNode = CreateLevelNode(name, speed);
-    if (!*head) {
-        *head = newNode;
-    } else {
-        LevelNode* temp = *head;
-        while (temp->next) temp = temp->next;
-        temp->next = newNode;
-    }
+// Tambah level baru ke list
+void AppendLevel(List* list, const char* name, int speed) {
+    Level* lvl = malloc(sizeof *lvl);
+    if (!lvl) return;
+    // salin nama dengan aman
+    strncpy(lvl->name, name, MAX_LEVEL_NAME_LENGTH);
+    lvl->name[MAX_LEVEL_NAME_LENGTH - 1] = '\0';
+    lvl->obstacleSpeed = speed;
+    tambahData(list, lvl);
 }
 
-void FreeLevels(LevelNode* head) {
-    while (head) {
-        LevelNode* temp = head;
-        head = head->next;
-        free(temp);
-    }
+// Ambil level berdasarkan index
+Level* getLevelByIndex(List* list, int index) {
+    return ambilData(list, index);
 }
 
-void PrintLevels(LevelNode* head) {
-    while (head) {
-        printf("Level: %s, Speed: %d\n", head->name, head->obstacleSpeed);
-        head = head->next;
-    }
+// Fungsi baru: buat dan isi List level bawaan
+List *LoadDefaultLevels(void) {
+    List *list = buatList();
+    // AppendLevel sekarang terima List* bukan LevelNode*
+    AppendLevel(list, "Easy",   5);
+    AppendLevel(list, "Medium", 8);
+    AppendLevel(list, "Hard",   12);
+    return list;
 }
 
-LevelNode* getLevelByIndex(LevelNode* head, int index) {
-    int i = 0;
-    while (head && i < index) {
-        head = head->next;
-        i++;
-    }
-    return head;
+
+
+// Bebaskan semua node dan data level
+void FreeLevels(List* list) {
+    // free() untuk setiap Level*
+    hapusList(list, free);
 }
