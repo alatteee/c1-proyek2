@@ -74,9 +74,11 @@ void drawCarSelection(List *daftar, int selectedIndex, Texture2D bg) {
              startY + (n+2)*spacing, 20, WHITE);
 }
 
-CarData* getCarByIndex(List *daftar, int index) {
-    return ambilData(daftar, index);
+CarData *getCarByIndex(List *list, int index) {
+    if (!list || index < 0 || index >= ukuranList(list)) return NULL;
+    return (CarData *)ambilData(list, index);
 }
+
 
 int countCars(List *daftar) {
     return ukuranList(daftar);

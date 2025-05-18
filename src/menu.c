@@ -299,4 +299,14 @@ void HandleSettingsMenuInput(GameState *state) {
     }
 }
 
-
+MenuNode* FindMenuNodeByState(GameState state) {
+    if (!menuList) return NULL;
+    
+    for (DLNode* n = menuList->head; n != NULL; n = n->next) {
+        MenuNode* m = (MenuNode*)n->data;
+        if (m->state == state) {
+            return m;
+        }
+    }
+    return NULL;
+}

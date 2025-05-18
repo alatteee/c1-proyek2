@@ -17,17 +17,18 @@
 #include "include/double_linked_list.h"
 
 // Musik
-extern Music menuMusic; // di‐load di main.c
+extern Music menuMusic;
 Music gameMusic;
 
+// Deklarasi fungsi helper
+MenuNode* FindMenuNodeByState(GameState state);
+
 int main(void) {
-    // --- Inisialisasi level (single-linked) ---LevelNode
+    // --- Inisialisasi level ---
     List *levelList = CreateLevelList();
-    AppendLevel(levelList, "Easy",   5);
+    AppendLevel(levelList, "Easy", 5);
     AppendLevel(levelList, "Medium", 8);
-    AppendLevel(levelList, "Hard",   12);
-
-
+    AppendLevel(levelList, "Hard", 12);
 
     // --- Window & Audio ---
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "C1 Brick Racer");
@@ -46,7 +47,7 @@ int main(void) {
     LivesSystem livesSystem = InitLivesSystem(
         (Vector2){SCREEN_WIDTH - 150, 10}, 40.0f, 30.0f, NULL);
 
-    // --- Player Car default (sementara) ---
+    // --- Player Car default ---
     Car cars[NUM_CARS];
     initCar(&cars[0],
         MIDDLE_LANE_X,
@@ -63,21 +64,20 @@ int main(void) {
     Skor skor; initSkor(&skor);
 
     // --- Finish line ---
-    List *finishList      = InitFinishLine();
-    bool  finishVisible   = false;
-    float gameTimer       = 0.0f;
-    bool  rInit           = false;
+    List *finishList = InitFinishLine();
+    bool finishVisible = false;
+    float gameTimer = 0.0f;
+    bool rInit = false;
 
     // --- Nama pemain ---
     char playerName[MAX_NAME_LENGTH] = "";
 
-    // --- Inisialisasi menu (double-linked) ---
+    // --- Inisialisasi menu ---
     InitializeMenuSystem(brickTexture, levelList, carList);
-    SetCurrentMenu(STATE_MENU); // Tidak perlu kirim menuSystem
-
+    SetCurrentMenu(STATE_MENU);
 
     GameState gameState = STATE_MENU;
-    bool      quit      = false;
+    bool quit = false;
 
     // --- Game Loop ---
     while (!quit && !WindowShouldClose()) {
@@ -90,11 +90,11 @@ int main(void) {
         }
 
         // --- Input & State Transisi ---
-        if (gameState == STATE_MENU
-         || gameState == STATE_LEVEL_MENU
-         || gameState == STATE_INPUT_NAME
-         || gameState == STATE_SELECT_CAR
-         || gameState == STATE_SETTINGS) {
+        if (gameState == STATE_MENU ||
+            gameState == STATE_LEVEL_MENU ||
+            gameState == STATE_INPUT_NAME ||
+            gameState == STATE_SELECT_CAR ||
+            gameState == STATE_SETTINGS) {
             HandleMenuInput(&gameState);
             SetCurrentMenu(gameState);
         } else {
@@ -107,6 +107,39 @@ int main(void) {
                     gameTimer += dt;
                     if (gameTimer >= 10.0f) finishVisible = true;
 
+                    // [FIXED] Akses mobil yang dipilih dengan aman
+                    MenuNode* selectCarMenu = FindMenuNodeByState(STATE_SELECT_CAR);
+                    if (!selectCarMenu) {
+                        TraceLog(LOG_ERROR, "SELECT_CAR menu not found!");
+                        break;
+                    }
+                    
+                    CarSelectionData* carData = (CarSelectionData*)selectCarMenu->data;
+                    if (!carData || !carData->carList) {
+                        TraceLog(LOG_ERROR, "Invalid car selection data!");
+                        break;
+                    }
+
+                    int totalCars = countCars(carData->carList);
+                    if (carData->selectedCarIndex >= 0 && carData->selectedCarIndex < totalCars) {
+                        CarData *cd = getCarByIndex(carData->carList, carData->selectedCarIndex);
+                        if (cd) {
+                            Texture2D tex = cd->car.texture;
+                            float ar = (float)tex.width / (float)tex.height;
+                            float newW = PLAYER_CAR_WIDTH;
+                            float newH = newW / ar;
+                            cars[0] = cd->car;
+                            cars[0].width = newW;
+                            cars[0].height = newH;
+                            cars[0].x = MIDDLE_LANE_X;
+                            cars[0].y = SCREEN_HEIGHT - newH - 10;
+                        } else {
+                            TraceLog(LOG_ERROR, "Mobil tidak ditemukan!");
+                        }
+                    } else {
+                        TraceLog(LOG_ERROR, "Index mobil tidak valid: %d", carData->selectedCarIndex);
+                    }
+
                     handleCarInput(&cars[0]);
                     Level *selectedLevel = getLevelByIndex(
                         ((LevelMenuData*)currentMenu->data)->levelList,
@@ -114,13 +147,14 @@ int main(void) {
                     );
                     if (selectedLevel)
                         updateRintangan(&skor, selectedLevel->obstacleSpeed);
-                                        if (finishVisible && CheckFinishLineCollision(&cars[0]))
+                    
+                    if (finishVisible && CheckFinishLineCollision(&cars[0]))
                         gameState = STATE_WIN;
 
                     updateCarInvulnerability(&cars[0], dt);
-                    if (!cars[0].isInvulnerable
-                     && checkCollision(cars[0].x,cars[0].y,
-                                       cars[0].width,cars[0].height) > 0) {
+                    if (!cars[0].isInvulnerable &&
+                        checkCollision(cars[0].x, cars[0].y,
+                                      cars[0].width, cars[0].height) > 0) {
                         gameState = ReduceLife(&livesSystem)
                                   ? STATE_GAME_OVER
                                   : STATE_COLLISION;
@@ -128,16 +162,14 @@ int main(void) {
                     break;
 
                 case STATE_COLLISION:
-                    if (IsKeyPressed(KEY_C))      gameState = STATE_GAME;
+                    if (IsKeyPressed(KEY_C)) gameState = STATE_GAME;
                     if (IsKeyPressed(KEY_ESCAPE)) gameState = STATE_MENU;
                     break;
 
                 case STATE_WIN:
                 case STATE_GAME_OVER:
                     if (IsKeyPressed(KEY_ENTER)) {
-                        // ambil nama dari InputNameData
                         InputNameData *in = (InputNameData*)(
-                            // cari node INPUT_NAME di menuList
                             ((DLNode*)menuList->head->next)->data
                         );
                         strcpy(playerName, in->playerName);
@@ -172,11 +204,11 @@ int main(void) {
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        if (gameState == STATE_MENU
-         || gameState == STATE_LEVEL_MENU
-         || gameState == STATE_INPUT_NAME
-         || gameState == STATE_SELECT_CAR
-         || gameState == STATE_SETTINGS) {
+        if (gameState == STATE_MENU ||
+            gameState == STATE_LEVEL_MENU ||
+            gameState == STATE_INPUT_NAME ||
+            gameState == STATE_SELECT_CAR ||
+            gameState == STATE_SETTINGS) {
             DrawMenu();
         } else {
             switch (gameState) {
@@ -191,9 +223,9 @@ int main(void) {
                     DrawText("Press F1 for debug view",
                              10, SCREEN_HEIGHT-20, 10, GRAY);
                     break;
-                case STATE_COLLISION:   /* … */ break;
-                case STATE_WIN:         /* … */ break;
-                case STATE_GAME_OVER:   /* … */ break;
+                case STATE_COLLISION:   /* ... */ break;
+                case STATE_WIN:         /* ... */ break;
+                case STATE_GAME_OVER:   /* ... */ break;
                 case STATE_HIGH_SCORES:
                     DrawHighScores(brickTexture);
                     break;

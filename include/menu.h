@@ -41,8 +41,6 @@ typedef struct {
 typedef struct MenuNode {
     char title[50];
     GameState state;
-    struct MenuNode* prev;
-    struct MenuNode* next;
     void (*drawFunction)(void*);
     void (*handleInputFunction)(GameState*);
     void* data;
@@ -83,5 +81,6 @@ void DrawCarSelectionMenu(void* data);
 void HandleCarSelectionMenuInput(GameState* state);
 void DrawSettingsMenu(void* data);
 void HandleSettingsMenuInput(GameState* state);
+MenuNode* FindMenuNodeByState(GameState state);
 
 #endif // MENU_H
