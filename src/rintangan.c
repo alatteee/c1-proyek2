@@ -215,7 +215,15 @@ void drawRintangan(void) {
 // Check collision player & obstacle, return count hits
 int checkCollision(float x, float y, float w, float h) {
     int hits = 0;
-    Rectangle player = { x, y, w, h };
+    float marginX = w * 0.25f;
+    float marginY = h * 0.10f;
+    Rectangle player = {
+        x + marginX,
+        y + marginY,
+        w * 0.50f,
+        h * 0.80f
+    };
+
 
     for (int i = 0; i < MAX_LANES; i++) {
         if (!lanes[i].obstacles) continue;

@@ -262,8 +262,19 @@ int main(void) {
             // Tambahkan overlay finish
             DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 
                         (Color){0, 0, 0, 180}); // Semi-transparent
-            DrawText(gameState == STATE_WIN ? "YOU WIN!" : "GAME OVER", 
-                    SCREEN_WIDTH/2 - 100, SCREEN_HEIGHT/2 - 30, 40, WHITE);
+            const char* statusText = (gameState == STATE_WIN) ? "YOU WIN!" : "GAME OVER";
+            DrawText(statusText, SCREEN_WIDTH/2 - MeasureText(statusText, 40)/2, SCREEN_HEIGHT/2 - 60, 40, WHITE);
+
+            // Tampilkan skor
+            char scoreText[64];
+            sprintf(scoreText, "Your Score: %d", skor.nilai);
+            DrawText(scoreText, SCREEN_WIDTH/2 - MeasureText(scoreText, 20)/2, SCREEN_HEIGHT/2, 20, WHITE);
+
+            // Tambahkan instruksi
+            DrawText("Press ENTER to return to menu", 
+                    SCREEN_WIDTH/2 - MeasureText("Press ENTER to return to menu", 20)/2,
+                    SCREEN_HEIGHT/2 + 40, 20, GRAY);
+
         } 
 
         if (gameState == STATE_MENU ||
