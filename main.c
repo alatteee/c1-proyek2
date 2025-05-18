@@ -185,18 +185,34 @@ int main(void) {
                 updateCarInvulnerability(&cars[0], dt);
                 
                 // Cek tabrakan
-                if (!cars[0].isInvulnerable && 
-                    checkCollision(cars[0].x, cars[0].y, cars[0].width, cars[0].height) > 0) 
-                {
+                if (checkCarObstacleCollision(&cars[0])) {
                     gameState = ReduceLife(&livesSystem) ? STATE_GAME_OVER : STATE_COLLISION;
                 }
+
                 break;
             }
 
                 case STATE_COLLISION:
-                    if (IsKeyPressed(KEY_C)) gameState = STATE_GAME;
-                    if (IsKeyPressed(KEY_ESCAPE)) gameState = STATE_MENU;
-                    break;
+                ClearBackground(DARKGRAY);
+                draw_lanes();
+                drawRintangan();
+                renderCar(&cars[0]);
+                tampilkanSkor(&skor);
+                DrawLives(livesSystem);
+
+                DrawText("Collision! Press C to continue", SCREEN_WIDTH/2 - 120, SCREEN_HEIGHT/2, 20, RED);
+
+                if (IsKeyPressed(KEY_C)) {
+                    cars[0].isInvulnerable = true;
+                    cars[0].invulnerabilityTime = 2.0f;
+                    gameState = STATE_GAME;
+                }
+
+                if (IsKeyPressed(KEY_ESCAPE)) {
+                    gameState = STATE_MENU;
+                }
+                break;
+
 
                 case STATE_WIN:
                 case STATE_GAME_OVER:
