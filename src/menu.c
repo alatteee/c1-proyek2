@@ -246,14 +246,21 @@ void DrawCarSelectionMenu(void *data) {
 void HandleCarSelectionMenuInput(GameState *state) {
     CarSelectionData *d = currentMenu->data;
     int total = countCars(d->carList);
+    
     if (IsKeyPressed(KEY_UP)) {
         d->selectedCarIndex = (d->selectedCarIndex + total - 1) % total;
+        TraceLog(LOG_INFO, "Selected car index: %d", d->selectedCarIndex); // Tambahkan log
     }
     if (IsKeyPressed(KEY_DOWN)) {
         d->selectedCarIndex = (d->selectedCarIndex + 1) % total;
+        TraceLog(LOG_INFO, "Selected car index: %d", d->selectedCarIndex); // Tambahkan log
     }
     if (IsKeyPressed(KEY_ENTER)) {
-        *state = (d->selectedCarIndex < 0) ? STATE_INPUT_NAME : STATE_GAME;
+        if (d->selectedCarIndex >= 0 && d->selectedCarIndex < total) {
+            *state = STATE_GAME;
+        } else {
+            TraceLog(LOG_ERROR, "Invalid car selection!");
+        }
     }
 }
 

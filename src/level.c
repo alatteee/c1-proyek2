@@ -28,9 +28,9 @@ Level* getLevelByIndex(List* list, int index) {
 List *LoadDefaultLevels(void) {
     List *list = buatList();
     // AppendLevel sekarang terima List* bukan LevelNode*
-    AppendLevel(list, "Easy",   5);
-    AppendLevel(list, "Medium", 8);
-    AppendLevel(list, "Hard",   12);
+    AppendLevel(list, "Easy",   8);
+    AppendLevel(list, "Medium", 10);
+    AppendLevel(list, "Hard",   15);
     return list;
 }
 

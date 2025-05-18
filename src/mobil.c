@@ -137,5 +137,9 @@ void unloadCar(Car *car) {
 
 // Alias untuk unloadCar (untuk kompatibilitas dengan mobil_selection.c)
 void unloadCarTexture(Car *car) {
-    UnloadTexture(car->texture);
+    if (car->texture.id != 0) {
+        TraceLog(LOG_INFO, "Unloading texture ID: %u", car->texture.id);
+        UnloadTexture(car->texture);
+        car->texture.id = 0; // Mark as unloaded
+    }
 }

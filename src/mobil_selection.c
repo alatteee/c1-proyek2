@@ -79,7 +79,6 @@ CarData *getCarByIndex(List *list, int index) {
     return (CarData *)ambilData(list, index);
 }
 
-
 int countCars(List *daftar) {
     return ukuranList(daftar);
 }

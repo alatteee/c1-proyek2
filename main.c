@@ -99,67 +99,102 @@ int main(void) {
             SetCurrentMenu(gameState);
         } else {
             switch (gameState) {
-                case STATE_GAME:
-                    if (!rInit) {
-                        initRintangan();
-                        rInit = true;
-                    }
-                    gameTimer += dt;
-                    if (gameTimer >= 10.0f) finishVisible = true;
+                case STATE_GAME: {
+                // Inisialisasi rintangan hanya sekali
+                if (!rInit) {
+                    initRintangan();
+                    rInit = true;
+                }
 
-                    // [FIXED] Akses mobil yang dipilih dengan aman
+                // Update game timer
+                gameTimer += dt;
+                if (gameTimer >= 10.0f) {
+                    finishVisible = true;
+                }
+
+                // Perbaikan utama: Pindahkan inisialisasi mobil ke STATE_GAME pertama kali saja
+                static bool carInitialized = false;
+                if (!carInitialized) {
+                    // Dapatkan data mobil yang dipilih
                     MenuNode* selectCarMenu = FindMenuNodeByState(STATE_SELECT_CAR);
                     if (!selectCarMenu) {
                         TraceLog(LOG_ERROR, "SELECT_CAR menu not found!");
+                        gameState = STATE_MENU;
                         break;
                     }
                     
                     CarSelectionData* carData = (CarSelectionData*)selectCarMenu->data;
                     if (!carData || !carData->carList) {
                         TraceLog(LOG_ERROR, "Invalid car selection data!");
+                        gameState = STATE_MENU;
                         break;
                     }
 
+                    // Validasi dan load mobil
                     int totalCars = countCars(carData->carList);
                     if (carData->selectedCarIndex >= 0 && carData->selectedCarIndex < totalCars) {
                         CarData *cd = getCarByIndex(carData->carList, carData->selectedCarIndex);
-                        if (cd) {
-                            Texture2D tex = cd->car.texture;
-                            float ar = (float)tex.width / (float)tex.height;
+                        if (cd && cd->car.texture.id != 0) {
+                            // Hitung aspect ratio
+                            float ar = (float)cd->car.texture.width / (float)cd->car.texture.height;
                             float newW = PLAYER_CAR_WIDTH;
                             float newH = newW / ar;
-                            cars[0] = cd->car;
+                            
+                            // Salin data mobil
+                            cars[0] = cd->car;  // Salin seluruh struct
                             cars[0].width = newW;
                             cars[0].height = newH;
                             cars[0].x = MIDDLE_LANE_X;
                             cars[0].y = SCREEN_HEIGHT - newH - 10;
+                            
+                            TraceLog(LOG_INFO, "Car loaded successfully. Texture ID: %u", cd->car.texture.id);
                         } else {
-                            TraceLog(LOG_ERROR, "Mobil tidak ditemukan!");
+                            TraceLog(LOG_ERROR, "Invalid car data or texture!");
+                            gameState = STATE_MENU;
+                            break;
                         }
                     } else {
-                        TraceLog(LOG_ERROR, "Index mobil tidak valid: %d", carData->selectedCarIndex);
+                        TraceLog(LOG_ERROR, "Invalid car index: %d", carData->selectedCarIndex);
+                        gameState = STATE_MENU;
+                        break;
                     }
+                    carInitialized = true;
+                }
 
-                    handleCarInput(&cars[0]);
-                    Level *selectedLevel = getLevelByIndex(
-                        ((LevelMenuData*)currentMenu->data)->levelList,
-                        ((LevelMenuData*)currentMenu->data)->selectedLevel
-                    );
-                    if (selectedLevel)
-                        updateRintangan(&skor, selectedLevel->obstacleSpeed);
-                    
-                    if (finishVisible && CheckFinishLineCollision(&cars[0]))
-                        gameState = STATE_WIN;
+                // Update game logic
+                handleCarInput(&cars[0]);
+                
+                // Dapatkan level yang dipilih
+                Level *selectedLevel = NULL;
+                MenuNode* levelMenu = FindMenuNodeByState(STATE_LEVEL_MENU);
+                if (levelMenu) {
+                    LevelMenuData* levelData = (LevelMenuData*)levelMenu->data;
+                    selectedLevel = getLevelByIndex(levelData->levelList, levelData->selectedLevel);
+                }
+                
+                if (selectedLevel) {
+                    updateRintangan(&skor, selectedLevel->obstacleSpeed);
+                } else {
+                    TraceLog(LOG_WARNING, "No level selected, using default speed");
+                    updateRintangan(&skor, 5.0f); // Default speed
+                }
+                
+                // Cek finish line
+                if (finishVisible && CheckFinishLineCollision(&cars[0])) {
+                    gameState = STATE_WIN;
+                }
 
-                    updateCarInvulnerability(&cars[0], dt);
-                    if (!cars[0].isInvulnerable &&
-                        checkCollision(cars[0].x, cars[0].y,
-                                      cars[0].width, cars[0].height) > 0) {
-                        gameState = ReduceLife(&livesSystem)
-                                  ? STATE_GAME_OVER
-                                  : STATE_COLLISION;
-                    }
-                    break;
+                // Update invulnerability
+                updateCarInvulnerability(&cars[0], dt);
+                
+                // Cek tabrakan
+                if (!cars[0].isInvulnerable && 
+                    checkCollision(cars[0].x, cars[0].y, cars[0].width, cars[0].height) > 0) 
+                {
+                    gameState = ReduceLife(&livesSystem) ? STATE_GAME_OVER : STATE_COLLISION;
+                }
+                break;
+            }
 
                 case STATE_COLLISION:
                     if (IsKeyPressed(KEY_C)) gameState = STATE_GAME;
@@ -202,7 +237,21 @@ int main(void) {
 
         // --- Render ---
         BeginDrawing();
-        ClearBackground(RAYWHITE);
+        ClearBackground(DARKGRAY); // Ganti dengan warna background default
+
+        if (gameState == STATE_WIN || gameState == STATE_GAME_OVER) {
+            // Tetap draw background dan elemen game
+            DrawTexture(brickTexture, 0, 0, WHITE);
+            draw_lanes();
+            drawRintangan();
+            renderCar(&cars[0]);
+            
+            // Tambahkan overlay finish
+            DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 
+                        (Color){0, 0, 0, 180}); // Semi-transparent
+            DrawText(gameState == STATE_WIN ? "YOU WIN!" : "GAME OVER", 
+                    SCREEN_WIDTH/2 - 100, SCREEN_HEIGHT/2 - 30, 40, WHITE);
+        } 
 
         if (gameState == STATE_MENU ||
             gameState == STATE_LEVEL_MENU ||
