@@ -41,7 +41,7 @@ int main(void) {
     PlayMusicStream(menuMusic);
 
     // --- Load Background ---
-    Texture2D brickTexture = LoadTexture("resources/coba.jpg");
+    Texture2D brickTexture = LoadTexture("resources/bg_c1.png");
 
     // --- Lives ---
     LivesSystem livesSystem = InitLivesSystem(

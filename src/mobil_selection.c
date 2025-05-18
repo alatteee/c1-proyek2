@@ -1,11 +1,11 @@
-// mobil_selection.c
 #include "../include/mobil_selection.h"
 #include <stdlib.h>
 #include <string.h>
 
 #define PLAYER_CAR_WIDTH  100
 #define PLAYER_CAR_HEIGHT 200
-#define SCREEN_WIDTH      800
+#define SCREEN_WIDTH      1280
+#define SCREEN_HEIGHT     720
 
 // callback untuk free setiap CarData
 static void freeCarData(void *d) {
@@ -39,39 +39,71 @@ List* createCarList(void) {
 }
 
 void drawCarSelection(List *daftar, int selectedIndex, Texture2D bg) {
-    DrawTexture(bg, 0, 0, WHITE);
-    DrawText("Select Your Car...",
-             SCREEN_WIDTH/2 - MeasureText("Select Your Car...",30)/2,
-             90, 30, YELLOW);
+    ClearBackground(BLACK);
 
-    int previewX = 180, previewY = 280;
+    // Gambar background
+    DrawTexturePro(
+        bg,
+        (Rectangle){ 0, 0, bg.width, bg.height },
+        (Rectangle){ 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT },
+        (Vector2){ 0, 0 },
+        0.0f, WHITE
+    );
+
+    // Judul di tengah kotak atas
+    const char *judul = "SELECT YOUR CAR";
+    int fontTitle = 36;
+    int textW = MeasureText(judul, fontTitle);
+    int textH = fontTitle;
+
+    int textX = 640 - textW / 2;
+    int textY = 135 - textH / 2;
+    DrawText(judul, textX, textY, fontTitle, YELLOW);
+
+    // Posisi list dan layout
+    int listX = SCREEN_WIDTH / 2 + 50;  // Geser list agak kanan
+    int startY = 265;
+    int spacing = 45, fontSize = 22;
     int pw = 150, ph = 120;
-    int listX = SCREEN_WIDTH/2 - 100, startY = 200, spacing = 50, fontSz = 24;
     int n = ukuranList(daftar);
 
     for (int i = 0; i < n; i++) {
         CarData *cd = ambilData(daftar, i);
-        Color clr = (i == selectedIndex) ? RED : WHITE;
-        DrawText(cd->name, listX, startY + i*spacing, fontSz, clr);
+
+        if (i == selectedIndex) {
+            DrawRectangle(listX - 10, startY + i * spacing - 5,
+                          260, spacing, Fade(YELLOW, 0.2f));
+        }
+
+        Color textColor = (i == selectedIndex) ? RED : WHITE;
+        DrawText(cd->name, listX, startY + i * spacing, fontSize, textColor);
+
+        // Preview mobil di kiri list, sejajar secara vertikal
         if (i == selectedIndex) {
             float ar = (float)cd->car.texture.width / cd->car.texture.height;
-            float dw = pw, dh = dw/ar;
-            if (dh > ph) { dh = ph; dw = dh*ar; }
-            Rectangle box = { previewX-20, previewY-20, dw+40, dh+40 };
+            float dw = pw, dh = dw / ar;
+            if (dh > ph) { dh = ph; dw = dh * ar; }
+
+            int previewX = listX - 250;
+            int previewY = startY + i * spacing;
+
+            Rectangle box = { previewX - 20, previewY - dh / 2 - 20, dw + 40, dh + 40 };
             DrawRectangleLinesEx(box, 3, YELLOW);
             DrawTexturePro(cd->car.texture,
-                           (Rectangle){0,0,cd->car.texture.width,cd->car.texture.height},
-                           (Rectangle){previewX, previewY, dw, dh},
-                           (Vector2){0,0}, 0.0f, WHITE);
-            DrawText("Preview", previewX, previewY+dh+10, 20, YELLOW);
+                (Rectangle){ 0, 0, cd->car.texture.width, cd->car.texture.height },
+                (Rectangle){ previewX, previewY - dh / 2, dw, dh },
+                (Vector2){ 0, 0 }, 0.0f, WHITE);
+            DrawText("Preview",
+                previewX + (dw / 2) - MeasureText("Preview", 18) / 2,
+                previewY + dh / 2 + 10, 18, YELLOW);
         }
     }
-    DrawText("Press UP/DOWN to select",
-             SCREEN_WIDTH/2 - MeasureText("Press UP/DOWN to select",20)/2,
-             startY + (n+1)*spacing, 20, WHITE);
-    DrawText("Press ENTER to continue",
-             SCREEN_WIDTH/2 - MeasureText("Press ENTER to continue",20)/2,
-             startY + (n+2)*spacing, 20, WHITE);
+
+    // Petunjuk kontrol
+    const char *navHint = "key UP/DOWN to navigate     ENTER to confirm";
+    DrawText(navHint,
+        SCREEN_WIDTH / 2 - MeasureText(navHint, 20) / 2,
+        startY + (n + 2) * spacing, 20, LIGHTGRAY);
 }
 
 CarData *getCarByIndex(List *list, int index) {
