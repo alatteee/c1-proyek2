@@ -33,7 +33,9 @@ typedef struct {
 
 typedef struct {
     Texture2D brickTexture;
+    int selectedOption; // 0: music, 1: back
 } SettingsData;
+
 
 // Node doubly–linked untuk menu
 typedef struct MenuNode {

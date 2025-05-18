@@ -163,41 +163,41 @@ void HandleMainMenuInput(GameState *state) {
 void DrawLevelMenu(void *data) {
     LevelMenuData *d = data;
     DrawTexture(d->brickTexture, 0, 0, WHITE);
-    DrawText("Select Level", (SCREEN_WIDTH - MeasureText("Select Level",40))/2, 250, 40, WHITE);
+    DrawText("Select Level", (SCREEN_WIDTH - MeasureText("Select Level", 40)) / 2, 250, 40, WHITE);
 
-    int i = 0;
     int total = ukuranList(d->levelList);
+    int x = SCREEN_WIDTH / 2 - 100;
+    int y = 300;
+
     for (int i = 0; i < total; i++) {
-        Level *lvl = (Level*) ambilData(d->levelList, i);
-        int x = SCREEN_WIDTH/2-100, y=300 + i*60;
-        DrawRectangle(x,y,200,50, (i==d->selectedLevel)?RED:LIGHTGRAY);
-        DrawText(lvl->name, x+10, y+10, 20, BLACK);
+        Level *lvl = (Level *)ambilData(d->levelList, i);
+        if (!lvl) continue;
+        Color boxColor = (i == d->selectedLevel) ? RED : LIGHTGRAY;
+        DrawRectangle(x, y + i * 60, 200, 50, boxColor);
+        DrawText(lvl->name, x + 10, y + i * 60 + 10, 20, BLACK);
     }
 
-
-    // Draw Back button
-    DrawRectangle(SCREEN_WIDTH/2-100,300+i*60,200,50,LIGHTGRAY);
-    DrawText("Back", SCREEN_WIDTH/2 - MeasureText("Back",20)/2, 300+i*60+15, 20, BLACK);
+    // Tombol Back di paling bawah
+    Color backColor = (d->selectedLevel == total) ? RED : LIGHTGRAY;
+    DrawRectangle(x, y + total * 60, 200, 50, backColor);
+    DrawText("Back", x + (200 - MeasureText("Back", 20)) / 2, y + total * 60 + 10, 20, BLACK);
 }
 
 
 void HandleLevelMenuInput(GameState *state) {
     LevelMenuData *d = currentMenu->data;
-    int cnt = ukuranList(d->levelList);  // fungsi untuk menghitung panjang list
+    int cnt = ukuranList(d->levelList);  // jumlah level
+    int totalOptions = cnt + 1;          // tambah 1 untuk Back
 
     if (IsKeyPressed(KEY_UP)) {
-        d->selectedLevel--;
-        if (d->selectedLevel < -1)
-            d->selectedLevel = cnt - 1;
+        d->selectedLevel = (d->selectedLevel - 1 + totalOptions) % totalOptions;
     }
     if (IsKeyPressed(KEY_DOWN)) {
-        d->selectedLevel++;
-        if (d->selectedLevel >= cnt)
-            d->selectedLevel = -1;
+        d->selectedLevel = (d->selectedLevel + 1) % totalOptions;
     }
 
     if (IsKeyPressed(KEY_ENTER)) {
-        if (d->selectedLevel == -1)
+        if (d->selectedLevel == cnt)  // terakhir: tombol Back
             *state = STATE_MENU;
         else
             *state = STATE_INPUT_NAME;
@@ -240,24 +240,28 @@ void HandleInputNameMenuInput(GameState *state) {
 void DrawCarSelectionMenu(void *data) {
     CarSelectionData *d = data;
     DrawTexture(d->brickTexture, 0, 0, WHITE);
-    DrawText("Select Your Car",
-             (SCREEN_WIDTH-MeasureText("Select Your Car",40))/2,
-             150, 40, WHITE);
+    DrawText("Select Your Car", (SCREEN_WIDTH-MeasureText("Select Your Car",40))/2, 150, 40, WHITE);
+
     int total = countCars(d->carList);
+    int startY = 250;
+
     for (int i = 0; i < total; i++) {
         CarData *cd = getCarByIndex(d->carList, i);
-        int x = SCREEN_WIDTH/2-150, y = 250 + i*120;
-        DrawRectangle(x, y, 300, 100,
-            (i == d->selectedCarIndex) ? RED : LIGHTGRAY);
-        DrawTexture(cd->car.texture, x+10, y+10, WHITE);
+        int x = SCREEN_WIDTH/2 - 150;
+        int y = startY + i*120;
+        Color color = (i == d->selectedCarIndex) ? RED : LIGHTGRAY;
+
+        DrawRectangle(x, y, 300, 100, color);
         DrawText(cd->name, x+120, y+40, 20, BLACK);
+
+        // Preview mobil (di kiri)
+        DrawTexture(cd->car.texture, x+10, y+10, WHITE);
     }
-    // back
-    int by = 250 + total*120;
-    DrawRectangle(SCREEN_WIDTH/2-100, by, 200, 50, LIGHTGRAY);
-    DrawText("Back",
-      SCREEN_WIDTH/2-MeasureText("Back",20)/2,
-      by+15, 20, BLACK);
+
+    // Back button
+    int backY = startY + total*120;
+    DrawRectangle(SCREEN_WIDTH/2 - 100, backY, 200, 50, LIGHTGRAY);
+    DrawText("Back", SCREEN_WIDTH/2 - MeasureText("Back",20)/2, backY + 15, 20, BLACK);
 }
 
 void HandleCarSelectionMenuInput(GameState *state) {
@@ -278,25 +282,42 @@ void DrawSettingsMenu(void *data) {
     SettingsData *d = data;
     DrawTexture(d->brickTexture, 0, 0, WHITE);
     DrawText("Settings",
-             (SCREEN_WIDTH-MeasureText("Settings",40))/2,
+             (SCREEN_WIDTH - MeasureText("Settings", 40)) / 2,
              250, 40, WHITE);
+
     const char *opt = isMusicEnabled ? "Music: On" : "Music: Off";
-    DrawRectangle(SCREEN_WIDTH/2-100, 350, 200, 50, LIGHTGRAY);
+
+    Color color1 = (d->selectedOption == 0) ? RED : LIGHTGRAY;
+    Color color2 = (d->selectedOption == 1) ? RED : LIGHTGRAY;
+
+    DrawRectangle(SCREEN_WIDTH / 2 - 100, 350, 200, 50, color1);
     DrawText(opt,
-      SCREEN_WIDTH/2-MeasureText(opt,20)/2, 365, 20, BLACK);
-    DrawRectangle(SCREEN_WIDTH/2-100, 430, 200, 50, LIGHTGRAY);
+        SCREEN_WIDTH / 2 - MeasureText(opt, 20) / 2, 365, 20, BLACK);
+
+    DrawRectangle(SCREEN_WIDTH / 2 - 100, 430, 200, 50, color2);
     DrawText("Back",
-      SCREEN_WIDTH/2-MeasureText("Back",20)/2, 445, 20, BLACK);
+        SCREEN_WIDTH / 2 - MeasureText("Back", 20) / 2, 445, 20, BLACK);
 }
 
 void HandleSettingsMenuInput(GameState *state) {
-    if (IsKeyPressed(KEY_ENTER)) {
-        isMusicEnabled = !isMusicEnabled;
-        if (isMusicEnabled) PlayMusicStream(menuMusic);
-        else                StopMusicStream(menuMusic);
+    SettingsData *d = currentMenu->data;
+
+    if (IsKeyPressed(KEY_UP)) {
+        d->selectedOption = (d->selectedOption + 1) % 2;
     }
-    if (IsKeyPressed(KEY_ESCAPE)) {
-        *state = STATE_MENU;
+    if (IsKeyPressed(KEY_DOWN)) {
+        d->selectedOption = (d->selectedOption + 1) % 2;
+    }
+
+    if (IsKeyPressed(KEY_ENTER)) {
+        if (d->selectedOption == 0) {
+            isMusicEnabled = !isMusicEnabled;
+            if (isMusicEnabled) PlayMusicStream(menuMusic);
+            else StopMusicStream(menuMusic);
+        } else if (d->selectedOption == 1) {
+            *state = STATE_MENU;
+        }
     }
 }
+
 
