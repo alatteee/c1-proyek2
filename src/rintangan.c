@@ -77,7 +77,15 @@ static ObstacleData *createObstacleData(int laneIndex) {
     d->texture     = obstacleTextures[type]; // Reference ke texture utama
     d->hasPassed   = false;
     d->hasCollided = false;
-    d->collisionBox = (Rectangle){ d->x, d->y, d->width, d->height };
+    float marginX = d->width * 0.10f;
+    float marginY = d->height * 0.10f;
+    d->collisionBox = (Rectangle){
+        d->x + marginX,
+        d->y + marginY,
+        d->width  - 2 * marginX,
+        d->height - 2 * marginY
+    };
+
 
     return d;
 }
@@ -146,7 +154,11 @@ void updateRintangan(Skor *skor, int speed) {
 
             // Gerak obstacle
             o->y += speed * dt;
+            o->collisionBox.x = o->x;
             o->collisionBox.y = o->y;
+            o->collisionBox.width = o->width;
+            o->collisionBox.height = o->height;
+
 
             // Scoring
             if (o->y > SCREEN_HEIGHT && !o->hasPassed) {
