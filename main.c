@@ -65,6 +65,7 @@ int main(void) {
     bool finishVisible = false;
     float gameTimer = 0.0f;
     bool rInit = false;
+    bool carInitialized = false;
 
     // --- Nama pemain ---
     char playerName[MAX_NAME_LENGTH] = "";
@@ -109,8 +110,6 @@ int main(void) {
                     finishVisible = true;
                 }
 
-                // Perbaikan utama: Pindahkan inisialisasi mobil ke STATE_GAME pertama kali saja
-                static bool carInitialized = false;
                 if (!carInitialized) {
                     // Dapatkan data mobil yang dipilih
                     MenuNode* selectCarMenu = FindMenuNodeByState(STATE_SELECT_CAR);
@@ -235,6 +234,7 @@ int main(void) {
                         finishVisible = false;
                         if (rInit) {
                             freeRintangan();
+                            carInitialized = false;
                             rInit = false;
                         }
                     }
