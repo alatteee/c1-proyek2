@@ -28,13 +28,11 @@ Level* getLevelByIndex(List* list, int index) {
 List *LoadDefaultLevels(void) {
     List *list = buatList();
     // AppendLevel sekarang terima List* bukan LevelNode*
-    AppendLevel(list, "Easy",   8);
-    AppendLevel(list, "Medium", 10);
-    AppendLevel(list, "Hard",   15);
+    AppendLevel(list, "Easy",   200);
+    AppendLevel(list, "Medium", 275);
+    AppendLevel(list, "Hard",   350);
     return list;
 }
-
-
 
 // Bebaskan semua node dan data level
 void FreeLevels(List* list) {

@@ -24,11 +24,8 @@ Music gameMusic;
 MenuNode* FindMenuNodeByState(GameState state);
 
 int main(void) {
-    // --- Inisialisasi level ---
-    List *levelList = CreateLevelList();
-    AppendLevel(levelList, "Easy", 5);
-    AppendLevel(levelList, "Medium", 8);
-    AppendLevel(levelList, "Hard", 12);
+    // --- Inisialisasi level --
+    List *levelList = LoadDefaultLevels(); 
 
     // --- Window & Audio ---
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "C1 Brick Racer");
