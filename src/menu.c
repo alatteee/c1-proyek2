@@ -239,30 +239,9 @@ void HandleInputNameMenuInput(GameState *state) {
 
 void DrawCarSelectionMenu(void *data) {
     CarSelectionData *d = data;
-    DrawTexture(d->brickTexture, 0, 0, WHITE);
-    DrawText("Select Your Car", (SCREEN_WIDTH-MeasureText("Select Your Car",40))/2, 150, 40, WHITE);
-
-    int total = countCars(d->carList);
-    int startY = 250;
-
-    for (int i = 0; i < total; i++) {
-        CarData *cd = getCarByIndex(d->carList, i);
-        int x = SCREEN_WIDTH/2 - 150;
-        int y = startY + i*120;
-        Color color = (i == d->selectedCarIndex) ? RED : LIGHTGRAY;
-
-        DrawRectangle(x, y, 300, 100, color);
-        DrawText(cd->name, x+120, y+40, 20, BLACK);
-
-        // Preview mobil (di kiri)
-        DrawTexture(cd->car.texture, x+10, y+10, WHITE);
-    }
-
-    // Back button
-    int backY = startY + total*120;
-    DrawRectangle(SCREEN_WIDTH/2 - 100, backY, 200, 50, LIGHTGRAY);
-    DrawText("Back", SCREEN_WIDTH/2 - MeasureText("Back",20)/2, backY + 15, 20, BLACK);
+    drawCarSelection(d->carList, d->selectedCarIndex, d->brickTexture);
 }
+
 
 void HandleCarSelectionMenuInput(GameState *state) {
     CarSelectionData *d = currentMenu->data;
