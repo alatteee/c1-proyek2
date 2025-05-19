@@ -8,44 +8,46 @@
 #define PLAYER_CAR_HEIGHT 200 // Adjust value based on your requirements
 #define SCREEN_WIDTH 800      // Adjust value based on your requirements
 
-CarNode *createCarNode(const char *name, const char *texturePath, float x, float y, float w, float h, int speed)
+// Helper function to create and initialize car data
+CarData *createCarData(const char *name, const char *texturePath, float x, float y, float w, float h, int speed)
 {
-  CarNode *node = (CarNode *)malloc(sizeof(CarNode));
-  if (node)
+  CarData *carData = (CarData *)malloc(sizeof(CarData));
+  if (carData)
   {
-    initCar(&node->car, x, y, w, h, speed, texturePath);
-    strncpy(node->name, name, sizeof(node->name));
-    node->name[sizeof(node->name) - 1] = '\0';
-    node->next = NULL;
+    initCar(&carData->car, x, y, w, h, speed, texturePath);
+    strncpy(carData->name, name, sizeof(carData->name));
+    carData->name[sizeof(carData->name) - 1] = '\0';
   }
-  return node;
+  return carData;
 }
 
-CarNode *createCarList()
+// Helper function to free car data
+void freeCarData(void *data)
 {
-  CarNode *head = NULL;
-  CarNode *last = NULL;
-
-  // Isi daftar mobil
-  CarNode *mobil1 = createCarNode("Mobil Biasa Biru", "resources/mobil/biasa_biru.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
-  CarNode *mobil2 = createCarNode("Mobil Biasa Kuning", "resources/mobil/biasa_kuning.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
-  CarNode *mobil3 = createCarNode("Mobil Biasa Merah", "resources/mobil/biasa_red.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
-  CarNode *mobil4 = createCarNode("Mobil Sport Biru", "resources/mobil/sport_biru.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
-  CarNode *mobil5 = createCarNode("Mobil Sport Merah", "resources/mobil/sport_red.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
-  CarNode *mobil6 = createCarNode("Mobil Sport Kuning", "resources/mobil/sport_yellow.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10);
-
-  // Sambungkan node-node
-  head = mobil1;
-  mobil1->next = mobil2;
-  mobil2->next = mobil3;
-  mobil3->next = mobil4;
-  mobil4->next = mobil5;
-  mobil5->next = mobil6;
-
-  return head;
+  if (data)
+  {
+    CarData *carData = (CarData *)data;
+    unloadCarTexture(&carData->car);
+    free(carData);
+  }
 }
 
-void drawCarSelection(CarNode *head, int selectedIndex, Texture2D background)
+List *createCarList()
+{
+  List *carList = buatList();
+
+  // Add cars to the list
+  tambahData(carList, createCarData("Mobil Biasa Biru", "resources/mobil/biasa_biru.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10));
+  tambahData(carList, createCarData("Mobil Biasa Kuning", "resources/mobil/biasa_kuning.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10));
+  tambahData(carList, createCarData("Mobil Biasa Merah", "resources/mobil/biasa_red.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10));
+  tambahData(carList, createCarData("Mobil Sport Biru", "resources/mobil/sport_biru.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10));
+  tambahData(carList, createCarData("Mobil Sport Merah", "resources/mobil/sport_red.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10));
+  tambahData(carList, createCarData("Mobil Sport Kuning", "resources/mobil/sport_yellow.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10));
+
+  return carList;
+}
+
+void drawCarSelection(List *carList, int selectedIndex, Texture2D background)
 {
   // Gambar background
   DrawTexture(background, 0, 0, WHITE);
@@ -65,21 +67,24 @@ void drawCarSelection(CarNode *head, int selectedIndex, Texture2D background)
   int spacing = 50;                   // Spasi antar mobil
   int fontSize = 24;                  // Ukuran font
 
-  int index = 0;
-  CarNode *current = head;
+  int count = ukuranList(carList);
 
   // Gambar semua pilihan mobil
-  while (current != NULL)
+  for (int index = 0; index < count; index++)
   {
+    CarData *carData = (CarData *)ambilData(carList, index);
+    if (!carData)
+      continue;
+
     // Pilihan menu - highlight yang dipilih
     Color color = (index == selectedIndex) ? RED : WHITE;
-    DrawText(current->name, listX, startY + index * spacing, fontSize, color);
+    DrawText(carData->name, listX, startY + index * spacing, fontSize, color);
 
     // Tampilkan preview mobil yang sedang dipilih
     if (index == selectedIndex)
     {
       // Hitung rasio aspek dari texture
-      float aspectRatio = (float)current->car.texture.width / (float)current->car.texture.height;
+      float aspectRatio = (float)carData->car.texture.width / (float)carData->car.texture.height;
 
       // Tentukan ukuran tampilan dengan mempertahankan rasio aspek
       float displayWidth = previewMaxWidth;
@@ -102,8 +107,8 @@ void drawCarSelection(CarNode *head, int selectedIndex, Texture2D background)
 
       // Gambar preview mobil di tengah area preview
       DrawTexturePro(
-          current->car.texture,
-          (Rectangle){0, 0, current->car.texture.width, current->car.texture.height},
+          carData->car.texture,
+          (Rectangle){0, 0, carData->car.texture.width, carData->car.texture.height},
           (Rectangle){previewX, previewY, displayWidth, displayHeight},
           (Vector2){0, 0},
           0.0f,
@@ -112,52 +117,27 @@ void drawCarSelection(CarNode *head, int selectedIndex, Texture2D background)
       // Tambahkan teks keterangan di bawah preview
       DrawText("Preview", previewX, previewY + displayHeight + 10, 20, YELLOW);
     }
-
-    current = current->next;
-    index++;
   }
 
   // Tambahkan instruksi navigasi
   DrawText("Press UP/DOWN to select", SCREEN_WIDTH / 2 - MeasureText("Press UP/DOWN to select", 20) / 2,
-           startY + (index + 1) * spacing, 20, WHITE);
+           startY + (count + 1) * spacing, 20, WHITE);
   DrawText("Press ENTER to continue", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to continue", 20) / 2,
-           startY + (index + 2) * spacing, 20, WHITE);
+           startY + (count + 2) * spacing, 20, WHITE);
 }
 
-CarNode *getCarByIndex(CarNode *head, int index)
+CarData *getCarByIndex(List *carList, int index)
 {
-  int i = 0;
-  CarNode *current = head;
-  while (current != NULL)
-  {
-    if (i == index)
-      return current;
-    current = current->next;
-    i++;
-  }
-  return NULL;
+  return (CarData *)ambilData(carList, index);
 }
 
-int countCars(CarNode *head)
+void freeCarList(List *carList)
 {
-  int count = 0;
-  CarNode *current = head;
-  while (current != NULL)
-  {
-    count++;
-    current = current->next;
-  }
-  return count;
+  hapusList(carList, freeCarData);
 }
 
-void freeCarList(CarNode *head)
+// Count the number of cars in the list
+int countCars(List *carList)
 {
-  CarNode *current = head;
-  while (current != NULL)
-  {
-    CarNode *temp = current;
-    current = current->next;
-    unloadCarTexture(&temp->car); // Unload texture mobil
-    free(temp);
-  }
+  return ukuranList(carList);
 }
