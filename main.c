@@ -57,7 +57,7 @@ int main()
           PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10, "resources/mobil/biasa_kuning.png");
 
   // Inisialisasi linked list pilihan mobil
-  CarNode *carList = createCarList();
+  List *carList = createCarList();
   int selectedCarIndex = 0;
   int totalCars = countCars(carList);
 
@@ -133,10 +133,10 @@ int main()
   }
   if (IsKeyPressed(KEY_ENTER))
   {
-    CarNode *selectedCarNode = getCarByIndex(carList, selectedCarIndex);
+    CarData *selectedCarData = getCarByIndex(carList, selectedCarIndex);
     
     // Dapatkan tekstur mobil yang dipilih
-    Texture2D selectedTexture = selectedCarNode->car.texture;
+    Texture2D selectedTexture = selectedCarData->car.texture;
     
     // Hitung rasio aspek dari texture asli
     float aspectRatio = (float)selectedTexture.width / (float)selectedTexture.height;
@@ -146,7 +146,7 @@ int main()
     float newHeight = newWidth / aspectRatio;
     
     // Salin mobil terpilih
-    cars[0] = selectedCarNode->car;
+    cars[0] = selectedCarData->car;
     
     // Update ukuran dan posisi dengan mempertahankan rasio aspek
     cars[0].width = newWidth;

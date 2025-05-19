@@ -44,12 +44,12 @@ typedef struct {
 // Definisi spec untuk setiap jenis obstacle dengan nilai yang lebih sesuai dengan bentuk visual
 ObstacleSpec obstacleSpecs[NUM_OBSTACLE_TYPES] = {
     // Format: {offsetX, offsetY, widthPercent, heightPercent, sizeScale}
-    {0.25, 0.20, 0.50, 0.60, 0.30}, // bebatuan - sesuaikan sedikit
-    {0.30, 0.08, 0.40, 0.85, 0.80}, // bus kuning - kurangi lebar dan tinggi
-    {0.30, 0.15, 0.40, 0.70, 0.55}, // luxury - kurangi lebar lebih banyak
-    {0.30, 0.15, 0.40, 0.70, 0.55}, // mobil1 - kurangi lebar lebih banyak
-    {0.30, 0.15, 0.40, 0.70, 0.55}, // mobil2 - kurangi lebar lebih banyak
-    {0.30, 0.15, 0.40, 0.70, 0.80}  // truk-sampah hijau - kurangi lebar lebih banyak
+    {0.25, 0.20, 0.50, 0.60, 0.30}, 
+    {0.30, 0.08, 0.40, 0.85, 0.80}, 
+    {0.30, 0.15, 0.40, 0.70, 0.55},
+    {0.30, 0.15, 0.40, 0.70, 0.55}, 
+    {0.30, 0.15, 0.40, 0.70, 0.55}, 
+    {0.30, 0.15, 0.40, 0.70, 0.80} 
 };
 
 // Fungsi untuk toggle collision box visibility
