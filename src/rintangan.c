@@ -1,6 +1,7 @@
 #include "../include/rintangan.h"
 #include "../include/skor.h"
 #include "../include/config.h"
+#include "../include/double_linked_list.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -80,11 +81,11 @@ void unloadRintanganTextures() {
     printf("All obstacle textures unloaded\n");
 }
 
-// Fungsi untuk membuat node obstacle baru
-ObstacleNode* createObstacleNode(int laneIndex) {
-    ObstacleNode* newNode = (ObstacleNode*)malloc(sizeof(ObstacleNode));
-    if (newNode == NULL) {
-        printf("Error: Failed to allocate memory for obstacle node\n");
+// Fungsi untuk membuat obstacle data (tanpa node)
+ObstacleData* createObstacleData(int laneIndex) {
+    ObstacleData* newData = (ObstacleData*)malloc(sizeof(ObstacleData));
+    if (newData == NULL) {
+        printf("Error: Failed to allocate memory for obstacle data\n");
         return NULL;
     }
     
@@ -111,8 +112,9 @@ ObstacleNode* createObstacleNode(int laneIndex) {
     float obstacleY = -obstacleHeight - (rand() % 300);
     
     // Pastikan obstacle tidak terlalu dekat dengan obstacle terakhir di jalur
-    if (lanes[laneIndex].tail != NULL) {
-        float lastObstacleY = lanes[laneIndex].tail->data.y;
+    if (lanes[laneIndex].obstacles && lanes[laneIndex].obstacles->tail) {
+        ObstacleData* lastObstacle = (ObstacleData*)lanes[laneIndex].obstacles->tail->data;
+        float lastObstacleY = lastObstacle->y;
         if (obstacleY > lastObstacleY - MIN_OBSTACLE_DISTANCE) {
             obstacleY = lastObstacleY - MIN_OBSTACLE_DISTANCE - (rand() % 200);
         }
@@ -125,25 +127,22 @@ ObstacleNode* createObstacleNode(int laneIndex) {
     float collisionHeight = obstacleHeight * obstacleSpecs[type].heightPercent;
     
     // Isi data obstacle
-    newNode->data.x = obstacleX;
-    newNode->data.y = obstacleY;
-    newNode->data.width = obstacleWidth;
-    newNode->data.height = obstacleHeight;
-    newNode->data.type = type;
-    newNode->data.hasPassed = false;
-    newNode->data.hasCollided = false;
-    newNode->data.texture = obstacleTextures[type];
-    newNode->data.collisionBox = (Rectangle){
+    newData->x = obstacleX;
+    newData->y = obstacleY;
+    newData->width = obstacleWidth;
+    newData->height = obstacleHeight;
+    newData->type = type;
+    newData->hasPassed = false;
+    newData->hasCollided = false;
+    newData->texture = obstacleTextures[type];
+    newData->collisionBox = (Rectangle){
         collisionX,
         collisionY,
         collisionWidth,
         collisionHeight
     };
     
-    newNode->prev = NULL;
-    newNode->next = NULL;
-    
-    return newNode;
+    return newData;
 }
 
 // Fungsi untuk menambahkan obstacle ke lane
@@ -153,44 +152,26 @@ void addObstacleToLane(int laneIndex) {
         return;
     }
     
-    ObstacleNode* newNode = createObstacleNode(laneIndex);
-    if (newNode == NULL) return;
+    ObstacleData* newData = createObstacleData(laneIndex);
+    if (newData == NULL) return;
     
-    // Tambahkan ke linked list
-    if (lanes[laneIndex].head == NULL) {
-        // List kosong
-        lanes[laneIndex].head = newNode;
-        lanes[laneIndex].tail = newNode;
-    } else {
-        // Tambahkan di belakang
-        newNode->prev = lanes[laneIndex].tail;
-        lanes[laneIndex].tail->next = newNode;
-        lanes[laneIndex].tail = newNode;
-    }
-    
+    // Tambahkan ke double linked list menggunakan ADT
+    dl_append(lanes[laneIndex].obstacles, newData);
     lanes[laneIndex].obstacleCount++;
 }
 
+// Fungsi untuk membebaskan memori obstacle data
+void freeObstacleData(void* data) {
+    if (data) {
+        free(data);
+    }
+}
+
 // Fungsi untuk menghapus obstacle dari lane
-void removeObstacleFromLane(int laneIndex, ObstacleNode* node) {
-    if (node == NULL) return;
+void removeObstacleFromLane(int laneIndex, DLNode* node) {
+    if (!lanes[laneIndex].obstacles || !node) return;
     
-    // Update linked list
-    if (node->prev != NULL) {
-        node->prev->next = node->next;
-    } else {
-        // Node adalah head
-        lanes[laneIndex].head = node->next;
-    }
-    
-    if (node->next != NULL) {
-        node->next->prev = node->prev;
-    } else {
-        // Node adalah tail
-        lanes[laneIndex].tail = node->prev;
-    }
-    
-    free(node);
+    dl_remove(lanes[laneIndex].obstacles, node, freeObstacleData);
     lanes[laneIndex].obstacleCount--;
 }
 
@@ -206,17 +187,18 @@ void initRintangan() {
         texturesLoaded = true;
     }
     
-    // Inisialisasi lanes
+    // Inisialisasi lanes dengan double linked list
     for (int i = 0; i < MAX_LANES; i++) {
-        lanes[i].head = NULL;
-        lanes[i].tail = NULL;
+        lanes[i].obstacles = dl_create();
         lanes[i].obstacleCount = 0;
         lanes[i].nextSpawnTime = (float)(rand() % 100) / 100.0f; // Random initial spawn time
         
         // Tambahkan obstacle pertama untuk setiap lane dengan posisi eschelon
         addObstacleToLane(i);
-        if (lanes[i].head != NULL) {
-            lanes[i].head->data.y = -300 - i * 400; // Stagger initial positions
+        
+        if (lanes[i].obstacles && lanes[i].obstacles->head) {
+            ObstacleData* data = (ObstacleData*)lanes[i].obstacles->head->data;
+            data->y = -300 - i * 400; // Stagger initial positions
         }
     }
 }
@@ -224,14 +206,10 @@ void initRintangan() {
 // Fungsi untuk membersihkan semua obstacle
 void freeRintangan() {
     for (int i = 0; i < MAX_LANES; i++) {
-        ObstacleNode* current = lanes[i].head;
-        while (current != NULL) {
-            ObstacleNode* next = current->next;
-            free(current);
-            current = next;
+        if (lanes[i].obstacles) {
+            dl_destroy(lanes[i].obstacles, freeObstacleData);
+            lanes[i].obstacles = NULL;
         }
-        lanes[i].head = NULL;
-        lanes[i].tail = NULL;
         lanes[i].obstacleCount = 0;
     }
 }
@@ -252,34 +230,35 @@ void updateRintangan(Skor *skor, int obstacleSpeed) {
             float randomDelay = MIN_SPAWN_DELAY + ((float)rand() / RAND_MAX) * (MAX_SPAWN_DELAY - MIN_SPAWN_DELAY);
             lanes[lane].nextSpawnTime = randomDelay;
         }
-    }
-    
-    // Update posisi semua obstacle
-    for (int lane = 0; lane < MAX_LANES; lane++) {
-        ObstacleNode* current = lanes[lane].head;
+        
+        // Jika tidak ada obstacles, lewati
+        if (!lanes[lane].obstacles) continue;
+        
+        // Update posisi semua obstacle
+        DLNode* current = lanes[lane].obstacles->head;
         while (current != NULL) {
-            // Ambil pointer ke node berikutnya sebelum kita mungkin menghapus current
-            ObstacleNode* next = current->next;
+            // Get next node before potentially removing current
+            DLNode* next = current->next;
+            
+            ObstacleData* data = (ObstacleData*)current->data;
             
             // Gerakkan obstacle ke bawah
-            float moveAmount = obstacleSpeed;
-            current->data.y += moveAmount;
+            data->y += obstacleSpeed;
             
-            // Update collision box - perbarui semua properti untuk memastikan akurasi
-            current->data.collisionBox.x = current->data.x + (current->data.width * obstacleSpecs[current->data.type].offsetXPercent);
-            current->data.collisionBox.y = current->data.y + (current->data.height * obstacleSpecs[current->data.type].offsetYPercent);
-            current->data.collisionBox.width = current->data.width * obstacleSpecs[current->data.type].widthPercent;
-            current->data.collisionBox.height = current->data.height * obstacleSpecs[current->data.type].heightPercent;
+            // Update collision box
+            data->collisionBox.x = data->x + (data->width * obstacleSpecs[data->type].offsetXPercent);
+            data->collisionBox.y = data->y + (data->height * obstacleSpecs[data->type].offsetYPercent);
             
             // Jika obstacle telah melewati layar dan belum dihitung
-            if (current->data.y > SCREEN_HEIGHT && !current->data.hasPassed) {
-                current->data.hasPassed = true;
+            if (data->y > SCREEN_HEIGHT && !data->hasPassed) {
+                data->hasPassed = true;
                 skor->nilai += 10;
             }
             
             // Hapus obstacle jika sudah keluar dari layar
-            if (current->data.y > SCREEN_HEIGHT + current->data.height) {
-                removeObstacleFromLane(lane, current);
+            if (data->y > SCREEN_HEIGHT + data->height) {
+                dl_remove(lanes[lane].obstacles, current, freeObstacleData);
+                lanes[lane].obstacleCount--;
             }
             
             current = next;
@@ -287,33 +266,49 @@ void updateRintangan(Skor *skor, int obstacleSpeed) {
     }
 }
 
-// Fungsi untuk menggambar semua obstacle
-void drawRintangan() {
-    for (int lane = 0; lane < MAX_LANES; lane++) {
-        ObstacleNode* current = lanes[lane].head;
-        while (current != NULL) {
-            if (current->data.y >= -current->data.height) { // Hanya gambar jika terlihat
-                // Gambar texture sesuai ukuran yang telah dihitung
-                DrawTexturePro(
-                    current->data.texture,
-                    (Rectangle){0, 0, current->data.texture.width, current->data.texture.height},
-                    (Rectangle){
-                        current->data.x,
-                        current->data.y,
-                        current->data.width,
-                        current->data.height
-                    },
-                    (Vector2){0, 0},
-                    0.0f,
-                    WHITE
-                );
-            }
-            current = current->next;
+// Fungsi untuk menggambar obstacle (helper function untuk dl_for_each)
+void drawObstacle(void* data) {
+    ObstacleData* obstacle = (ObstacleData*)data;
+    
+    if (obstacle->y >= -obstacle->height) { // Hanya gambar jika terlihat
+        DrawTexturePro(
+            obstacle->texture,
+            (Rectangle){0, 0, obstacle->texture.width, obstacle->texture.height},
+            (Rectangle){
+                obstacle->x,
+                obstacle->y,
+                obstacle->width,
+                obstacle->height
+            },
+            (Vector2){0, 0},
+            0.0f,
+            WHITE
+        );
+        
+        // Jika debug mode aktif, gambar collision box
+        if (showCollisionBoxes) {
+            DrawRectangleLines(
+                obstacle->collisionBox.x,
+                obstacle->collisionBox.y,
+                obstacle->collisionBox.width,
+                obstacle->collisionBox.height,
+                RED
+            );
         }
     }
 }
 
-// Fungsi untuk menggambar collision box untuk debugging
+// Fungsi untuk menggambar semua obstacle
+void drawRintangan() {
+    for (int lane = 0; lane < MAX_LANES; lane++) {
+        if (lanes[lane].obstacles) {
+            // Gunakan for_each untuk menggambar setiap obstacle
+            dl_for_each(lanes[lane].obstacles, drawObstacle);
+        }
+    }
+}
+
+// Fungsi untuk menggambar collision boxes
 void drawCollisionBoxes(bool drawPlayerBox, float x, float y, float width, float height) {
     if (!showCollisionBoxes) return;
     
@@ -331,30 +326,13 @@ void drawCollisionBoxes(bool drawPlayerBox, float x, float y, float width, float
         
         DrawRectangleLines(playerRec.x, playerRec.y, playerRec.width, playerRec.height, BLUE);
     }
-    
-    // Gambar collision box untuk semua obstacle
-    for (int lane = 0; lane < MAX_LANES; lane++) {
-        ObstacleNode* current = lanes[lane].head;
-        while (current != NULL) {
-            if (current->data.y >= -current->data.height) {
-                // Gunakan collision box yang sudah diperbarui di updateRintangan
-                DrawRectangleLines(
-                    current->data.collisionBox.x,
-                    current->data.collisionBox.y,
-                    current->data.collisionBox.width,
-                    current->data.collisionBox.height,
-                    RED);
-            }
-            current = current->next;
-        }
-    }
 }
 
-// Fungsi untuk memeriksa tabrakan dengan obstacle
+// Fungsi untuk memeriksa tabrakan
 int checkCollision(float x, float y, float width, float height) {
     int collisionCount = 0;
     
-    // Collision box untuk player - sesuaikan ukuran agar lebih akurat
+    // Collision box untuk player
     float playerMarginX = width * 0.25;
     float playerMarginY = height * 0.10;
     
@@ -367,15 +345,19 @@ int checkCollision(float x, float y, float width, float height) {
     
     // Periksa collision dengan semua obstacle
     for (int lane = 0; lane < MAX_LANES; lane++) {
-        ObstacleNode* current = lanes[lane].head;
+        if (!lanes[lane].obstacles) continue;
+        
+        DLNode* current = lanes[lane].obstacles->head;
         while (current != NULL) {
-            if (current->data.y >= 0 && !current->data.hasCollided) {
-                // Gunakan collision box yang sudah diperbarui di updateRintangan
-                if (CheckCollisionRecs(playerRec, current->data.collisionBox)) {
-                    current->data.hasCollided = true;
+            ObstacleData* data = (ObstacleData*)current->data;
+            
+            if (data->y >= 0 && !data->hasCollided) {
+                if (CheckCollisionRecs(playerRec, data->collisionBox)) {
+                    data->hasCollided = true;
                     collisionCount++;
                 }
             }
+            
             current = current->next;
         }
     }

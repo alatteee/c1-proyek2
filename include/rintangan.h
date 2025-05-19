@@ -5,6 +5,7 @@
 #include <raylib.h>
 #include "config.h"
 #include "skor.h"
+#include "double_linked_list.h"
 
 // Struktur untuk menyimpan data obstacle
 typedef struct {
@@ -17,17 +18,9 @@ typedef struct {
     Texture2D texture;
 } ObstacleData;
 
-// Struktur node untuk double linked list
-typedef struct ObstacleNode {
-    ObstacleData data;
-    struct ObstacleNode* prev;
-    struct ObstacleNode* next;
-} ObstacleNode;
-
 // Struktur untuk lane yang menggunakan linked list
 typedef struct {
-    ObstacleNode* head;
-    ObstacleNode* tail;
+    DoubleList* obstacles;
     int obstacleCount;
     float nextSpawnTime;
 } Lane;
@@ -51,9 +44,10 @@ void loadRintanganTextures();
 void unloadRintanganTextures();
 
 // Fungsi untuk node management
-ObstacleNode* createObstacleNode(int laneIndex);
+ObstacleData* createObstacleData(int laneIndex);
 void addObstacleToLane(int laneIndex);
-void removeObstacleFromLane(int laneIndex, ObstacleNode* node);
+void removeObstacleFromLane(int laneIndex, DLNode* node);
+void freeObstacleData(void* data);
 
 // Fungsi untuk debug
 void drawCollisionBoxes(bool drawPlayerBox, float x, float y, float width, float height);
