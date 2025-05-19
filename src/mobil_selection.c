@@ -45,80 +45,83 @@ CarNode *createCarList()
   return head;
 }
 
-void drawCarSelection(CarNode *head, int selectedIndex, Texture2D background) {
-    // Gambar background
-    DrawTexture(background, 0, 0, WHITE);
+void drawCarSelection(CarNode *head, int selectedIndex, Texture2D background)
+{
+  // Gambar background
+  DrawTexture(background, 0, 0, WHITE);
 
-    // Judul
-    DrawText("Select Your Car...", SCREEN_WIDTH/2 - MeasureText("Select Your Car...", 30)/2, 90, 30, YELLOW);
+  // Judul
+  DrawText("Select Your Car...", SCREEN_WIDTH / 2 - MeasureText("Select Your Car...", 30) / 2, 90, 30, YELLOW);
 
-    // Area preview mobil (pindah ke sebelah kiri)
-    int previewX = 180;  // Posisi X di sebelah kiri
-    int previewY = 280;  // Posisi Y di tengah tampilan mobil
-    int previewMaxWidth = 150;  // Lebar preview lebih besar
-    int previewMaxHeight = 120; // Tinggi preview lebih besar
-    
-    // Posisi daftar mobil (sekarang lebih ke tengah)
-    int listX = SCREEN_WIDTH/2 - 100; // Posisi X menu daftar mobil
-    int startY = 200;    // Posisi Y awal daftar
-    int spacing = 50;    // Spasi antar mobil
-    int fontSize = 24;   // Ukuran font
+  // Area preview mobil (pindah ke sebelah kiri)
+  int previewX = 180;         // Posisi X di sebelah kiri
+  int previewY = 280;         // Posisi Y di tengah tampilan mobil
+  int previewMaxWidth = 150;  // Lebar preview lebih besar
+  int previewMaxHeight = 120; // Tinggi preview lebih besar
 
-    int index = 0;
-    CarNode *current = head;
-    
-    // Gambar semua pilihan mobil
-    while (current != NULL) {
-        // Pilihan menu - highlight yang dipilih
-        Color color = (index == selectedIndex) ? RED : WHITE;
-        DrawText(current->name, listX, startY + index * spacing, fontSize, color);
-        
-        // Tampilkan preview mobil yang sedang dipilih
-        if (index == selectedIndex) {
-            // Hitung rasio aspek dari texture
-            float aspectRatio = (float)current->car.texture.width / (float)current->car.texture.height;
-            
-            // Tentukan ukuran tampilan dengan mempertahankan rasio aspek
-            float displayWidth = previewMaxWidth;
-            float displayHeight = displayWidth / aspectRatio;
-            
-            // Jika tinggi hasil terlalu besar, sesuaikan
-            if (displayHeight > previewMaxHeight) {
-                displayHeight = previewMaxHeight;
-                displayWidth = displayHeight * aspectRatio;
-            }
-            
-            // Gambar kotak kuning sebagai border di sekitar preview mobil
-            Rectangle previewBox = {
-                previewX - 20, 
-                previewY - 20, 
-                displayWidth + 40, 
-                displayHeight + 40
-            };
-            DrawRectangleLinesEx(previewBox, 3, YELLOW);
-            
-            // Gambar preview mobil di tengah area preview
-            DrawTexturePro(
-                current->car.texture,
-                (Rectangle){0, 0, current->car.texture.width, current->car.texture.height},
-                (Rectangle){previewX, previewY, displayWidth, displayHeight},
-                (Vector2){0, 0},
-                0.0f,
-                WHITE);
-                
-            // Tambahkan teks keterangan di bawah preview
-            DrawText("Preview", previewX, previewY + displayHeight + 10, 20, YELLOW);
-        }
-        
-        current = current->next;
-        index++;
+  // Posisi daftar mobil (sekarang lebih ke tengah)
+  int listX = SCREEN_WIDTH / 2 - 100; // Posisi X menu daftar mobil
+  int startY = 200;                   // Posisi Y awal daftar
+  int spacing = 50;                   // Spasi antar mobil
+  int fontSize = 24;                  // Ukuran font
+
+  int index = 0;
+  CarNode *current = head;
+
+  // Gambar semua pilihan mobil
+  while (current != NULL)
+  {
+    // Pilihan menu - highlight yang dipilih
+    Color color = (index == selectedIndex) ? RED : WHITE;
+    DrawText(current->name, listX, startY + index * spacing, fontSize, color);
+
+    // Tampilkan preview mobil yang sedang dipilih
+    if (index == selectedIndex)
+    {
+      // Hitung rasio aspek dari texture
+      float aspectRatio = (float)current->car.texture.width / (float)current->car.texture.height;
+
+      // Tentukan ukuran tampilan dengan mempertahankan rasio aspek
+      float displayWidth = previewMaxWidth;
+      float displayHeight = displayWidth / aspectRatio;
+
+      // Jika tinggi hasil terlalu besar, sesuaikan
+      if (displayHeight > previewMaxHeight)
+      {
+        displayHeight = previewMaxHeight;
+        displayWidth = displayHeight * aspectRatio;
+      }
+
+      // Gambar kotak kuning sebagai border di sekitar preview mobil
+      Rectangle previewBox = {
+          previewX - 20,
+          previewY - 20,
+          displayWidth + 40,
+          displayHeight + 40};
+      DrawRectangleLinesEx(previewBox, 3, YELLOW);
+
+      // Gambar preview mobil di tengah area preview
+      DrawTexturePro(
+          current->car.texture,
+          (Rectangle){0, 0, current->car.texture.width, current->car.texture.height},
+          (Rectangle){previewX, previewY, displayWidth, displayHeight},
+          (Vector2){0, 0},
+          0.0f,
+          WHITE);
+
+      // Tambahkan teks keterangan di bawah preview
+      DrawText("Preview", previewX, previewY + displayHeight + 10, 20, YELLOW);
     }
-    
-    // Tambahkan instruksi navigasi
-    DrawText("Press UP/DOWN to select", SCREEN_WIDTH/2 - MeasureText("Press UP/DOWN to select", 20)/2, 
-             startY + (index + 1) * spacing, 20, WHITE);
-    DrawText("Press ENTER to continue", SCREEN_WIDTH/2 - MeasureText("Press ENTER to continue", 20)/2, 
-             startY + (index + 2) * spacing, 20, WHITE);
+
+    current = current->next;
+    index++;
+  }
+
+  // Tambahkan instruksi navigasi
+  DrawText("Press UP/DOWN to select", SCREEN_WIDTH / 2 - MeasureText("Press UP/DOWN to select", 20) / 2,
+           startY + (index + 1) * spacing, 20, WHITE);
+  DrawText("Press ENTER to continue", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to continue", 20) / 2,
+           startY + (index + 2) * spacing, 20, WHITE);
 }
 
 CarNode *getCarByIndex(CarNode *head, int index)
