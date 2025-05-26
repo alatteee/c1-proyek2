@@ -1,120 +1,131 @@
 #include "../include/mobil_selection.h"
 #include <stdlib.h>
 #include <string.h>
+#include <raylib.h>
 
-#define PLAYER_CAR_WIDTH  100
-#define PLAYER_CAR_HEIGHT 200
-#define SCREEN_WIDTH      1280
-#define SCREEN_HEIGHT     720
+// Define missing constants
+#define PLAYER_CAR_WIDTH 100  // Adjust value based on your requirements
+#define PLAYER_CAR_HEIGHT 200 // Adjust value based on your requirements
+#define SCREEN_WIDTH 800      // Adjust value based on your requirements
 
-// callback untuk free setiap CarData
-static void freeCarData(void *d) {
-    CarData *cd = d;
-    unloadCarTexture(&cd->car);
-    free(cd);
-}
-
-// Inisialisasi List berisi CarData*
-List* createCarList(void) {
-    List *lst = buatList();
-    const struct {
-        const char *name, *tex;
-    } items[] = {
-        { "Mobil Biasa Biru",    "resources/mobil/biasa_biru.png" },
-        { "Mobil Biasa Kuning",  "resources/mobil/biasa_kuning.png" },
-        { "Mobil Biasa Merah",   "resources/mobil/biasa_red.png" },
-        { "Mobil Sport Biru",    "resources/mobil/sport_biru.png" },
-        { "Mobil Sport Merah",   "resources/mobil/sport_red.png" },
-        { "Mobil Sport Kuning",  "resources/mobil/sport_yellow.png" },
-    };
-    size_t count = sizeof items / sizeof *items;
-    for (size_t i = 0; i < count; i++) {
-        CarData *cd = malloc(sizeof *cd);
-        initCar(&cd->car, 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10, items[i].tex);
-        strncpy(cd->name, items[i].name, sizeof cd->name);
-        cd->name[sizeof cd->name -1] = '\0';
-        tambahData(lst, cd);
+// Helper function to create and initialize car data
+CarData* createCarData(const char *name, const char *texturePath, float x, float y, float w, float h, int speed) {
+    CarData *carData = (CarData *)malloc(sizeof(CarData));
+    if (carData) {
+        initCar(&carData->car, x, y, w, h, speed, texturePath);
+        strncpy(carData->name, name, sizeof(carData->name));
+        carData->name[sizeof(carData->name) - 1] = '\0';
     }
-    return lst;
+    return carData;
 }
 
-void drawCarSelection(List *daftar, int selectedIndex, Texture2D bg) {
-    ClearBackground(BLACK);
+// Helper function to free car data
+void freeCarData(void *data) {
+    if (data) {
+        CarData *carData = (CarData*)data;
+        unloadCarTexture(&carData->car);
+        free(carData);
+    }
+}
 
+List* createCarList() {
+    List *carList = buatList();
+    
+    // Add cars to the list
+    tambahData(carList, createCarData("Mobil Biasa Biru", "resources/mobil/biasa_biru.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10));
+    tambahData(carList, createCarData("Mobil Biasa Kuning", "resources/mobil/biasa_kuning.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10));
+    tambahData(carList, createCarData("Mobil Biasa Merah", "resources/mobil/biasa_red.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10));
+    tambahData(carList, createCarData("Mobil Sport Biru", "resources/mobil/sport_biru.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10));
+    tambahData(carList, createCarData("Mobil Sport Merah", "resources/mobil/sport_red.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10));
+    tambahData(carList, createCarData("Mobil Sport Kuning", "resources/mobil/sport_yellow.png", 0, 0, PLAYER_CAR_WIDTH, PLAYER_CAR_HEIGHT, 10));
+    
+    return carList;
+}
+
+void drawCarSelection(List *carList, int selectedIndex, Texture2D background) {
     // Gambar background
-    DrawTexturePro(
-        bg,
-        (Rectangle){ 0, 0, bg.width, bg.height },
-        (Rectangle){ 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT },
-        (Vector2){ 0, 0 },
-        0.0f, WHITE
-    );
+    DrawTexture(background, 0, 0, WHITE);
 
-    // Judul di tengah kotak atas
-    const char *judul = "SELECT YOUR CAR";
-    int fontTitle = 36;
-    int textW = MeasureText(judul, fontTitle);
-    int textH = fontTitle;
+    // Judul
+    DrawText("Select Your Car...", SCREEN_WIDTH/2 - MeasureText("Select Your Car...", 30)/2, 90, 30, YELLOW);
 
-    int textX = 640 - textW / 2;
-    int textY = 135 - textH / 2;
-    DrawText(judul, textX, textY, fontTitle, YELLOW);
+    // Area preview mobil (pindah ke sebelah kiri)
+    int previewX = 180;  // Posisi X di sebelah kiri
+    int previewY = 280;  // Posisi Y di tengah tampilan mobil
+    int previewMaxWidth = 150;  // Lebar preview lebih besar
+    int previewMaxHeight = 120; // Tinggi preview lebih besar
+    
+    // Posisi daftar mobil (sekarang lebih ke tengah)
+    int listX = SCREEN_WIDTH/2 - 100; // Posisi X menu daftar mobil
+    int startY = 200;    // Posisi Y awal daftar
+    int spacing = 50;    // Spasi antar mobil
+    int fontSize = 24;   // Ukuran font
 
-    // Posisi list dan layout
-    int listX = SCREEN_WIDTH / 2 + 50;  // Geser list agak kanan
-    int startY = 265;
-    int spacing = 45, fontSize = 22;
-    int pw = 150, ph = 120;
-    int n = ukuranList(daftar);
-
-    for (int i = 0; i < n; i++) {
-        CarData *cd = ambilData(daftar, i);
-
-        if (i == selectedIndex) {
-            DrawRectangle(listX - 10, startY + i * spacing - 5,
-                          260, spacing, Fade(YELLOW, 0.2f));
-        }
-
-        Color textColor = (i == selectedIndex) ? RED : WHITE;
-        DrawText(cd->name, listX, startY + i * spacing, fontSize, textColor);
-
-        // Preview mobil di kiri list, sejajar secara vertikal
-        if (i == selectedIndex) {
-            float ar = (float)cd->car.texture.width / cd->car.texture.height;
-            float dw = pw, dh = dw / ar;
-            if (dh > ph) { dh = ph; dw = dh * ar; }
-
-            int previewX = listX - 250;
-            int previewY = startY + i * spacing;
-
-            Rectangle box = { previewX - 20, previewY - dh / 2 - 20, dw + 40, dh + 40 };
-            DrawRectangleLinesEx(box, 3, YELLOW);
-            DrawTexturePro(cd->car.texture,
-                (Rectangle){ 0, 0, cd->car.texture.width, cd->car.texture.height },
-                (Rectangle){ previewX, previewY - dh / 2, dw, dh },
-                (Vector2){ 0, 0 }, 0.0f, WHITE);
-            DrawText("Preview",
-                previewX + (dw / 2) - MeasureText("Preview", 18) / 2,
-                previewY + dh / 2 + 10, 18, YELLOW);
+    int count = ukuranList(carList);
+    
+    // Gambar semua pilihan mobil
+    for (int index = 0; index < count; index++) {
+        CarData *carData = (CarData*)ambilData(carList, index);
+        if (!carData) continue;
+        
+        // Pilihan menu - highlight yang dipilih
+        Color color = (index == selectedIndex) ? RED : WHITE;
+        DrawText(carData->name, listX, startY + index * spacing, fontSize, color);
+        
+        // Tampilkan preview mobil yang sedang dipilih
+        if (index == selectedIndex) {
+            // Hitung rasio aspek dari texture
+            float aspectRatio = (float)carData->car.texture.width / (float)carData->car.texture.height;
+            
+            // Tentukan ukuran tampilan dengan mempertahankan rasio aspek
+            float displayWidth = previewMaxWidth;
+            float displayHeight = displayWidth / aspectRatio;
+            
+            // Jika tinggi hasil terlalu besar, sesuaikan
+            if (displayHeight > previewMaxHeight) {
+                displayHeight = previewMaxHeight;
+                displayWidth = displayHeight * aspectRatio;
+            }
+            
+            // Gambar kotak kuning sebagai border di sekitar preview mobil
+            Rectangle previewBox = {
+                previewX - 20, 
+                previewY - 20, 
+                displayWidth + 40, 
+                displayHeight + 40
+            };
+            DrawRectangleLinesEx(previewBox, 3, YELLOW);
+            
+            // Gambar preview mobil di tengah area preview
+            DrawTexturePro(
+                carData->car.texture,
+                (Rectangle){0, 0, carData->car.texture.width, carData->car.texture.height},
+                (Rectangle){previewX, previewY, displayWidth, displayHeight},
+                (Vector2){0, 0},
+                0.0f,
+                WHITE);
+                
+            // Tambahkan teks keterangan di bawah preview
+            DrawText("Preview", previewX, previewY + displayHeight + 10, 20, YELLOW);
         }
     }
-
-    // Petunjuk kontrol
-    const char *navHint = "key UP/DOWN to navigate     ENTER to confirm";
-    DrawText(navHint,
-        SCREEN_WIDTH / 2 - MeasureText(navHint, 20) / 2,
-        startY + (n + 2) * spacing, 20, LIGHTGRAY);
+    
+    // Tambahkan instruksi navigasi
+    DrawText("Press UP/DOWN to select", SCREEN_WIDTH/2 - MeasureText("Press UP/DOWN to select", 20)/2, 
+             startY + (count + 1) * spacing, 20, WHITE);
+    DrawText("Press ENTER to continue", SCREEN_WIDTH/2 - MeasureText("Press ENTER to continue", 20)/2, 
+             startY + (count + 2) * spacing, 20, WHITE);
 }
 
-CarData *getCarByIndex(List *list, int index) {
-    if (!list || index < 0 || index >= ukuranList(list)) return NULL;
-    return (CarData *)ambilData(list, index);
+CarData* getCarByIndex(List *carList, int index) {
+    return (CarData*)ambilData(carList, index);
 }
 
-int countCars(List *daftar) {
-    return ukuranList(daftar);
+void freeCarList(List *carList) {
+    hapusList(carList, freeCarData);
 }
 
-void freeCarList(List *daftar) {
-    hapusList(daftar, freeCarData);
+// Count the number of cars in the list
+int countCars(List *carList) {
+    return ukuranList(carList);
 }

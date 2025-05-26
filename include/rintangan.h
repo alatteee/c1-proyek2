@@ -1,4 +1,3 @@
-// include/rintangan.h
 #ifndef RINTANGAN_H
 #define RINTANGAN_H
 
@@ -6,39 +5,51 @@
 #include <raylib.h>
 #include "config.h"
 #include "skor.h"
-#include "double_linked_list.h"  // ADT double‐linked list
+#include "double_linked_list.h"
 
-#define MAX_LANES 3
-#define NUM_OBSTACLE_TYPES 6
-
-// Data satu obstacle
+// Struktur untuk menyimpan data obstacle
 typedef struct {
-    float     x, y;
-    float     width, height;
-    int       type;
-    bool      hasPassed;
-    bool      hasCollided;
+    float x, y;
+    float width, height;
+    int type;
+    bool hasPassed;
+    bool hasCollided;
     Rectangle collisionBox;
     Texture2D texture;
 } ObstacleData;
 
-// Satu lane berisi list obstacle
+// Struktur untuk lane yang menggunakan linked list
 typedef struct {
-    DoubleList *obstacles;
-    float       nextSpawnTime;
+    DoubleList* obstacles;
+    int obstacleCount;
+    float nextSpawnTime;
 } Lane;
 
+// Variabel global untuk lanes
 extern Lane lanes[MAX_LANES];
 extern bool showCollisionBoxes;
 
-void initRintangan(void);
+// Function prototypes
+void initRintangan();
 void updateRintangan(Skor *skor, int obstacleSpeed);
-void drawRintangan(void);
-int  checkCollision(float x, float y, float width, float height);
-void freeRintangan(void);
+void drawRintangan();
+int checkCollision(float x, float y, float width, float height);
+void freeRintangan();
 
-void toggleCollisionBoxVisibility(void);
-void loadRintanganTextures(void);
-void unloadRintanganTextures(void);
+// Toggle debug visualization
+void toggleCollisionBoxVisibility();
+
+// Resource management
+void loadRintanganTextures();
+void unloadRintanganTextures();
+
+// Fungsi untuk node management
+ObstacleData* createObstacleData(int laneIndex);
+void addObstacleToLane(int laneIndex);
+void removeObstacleFromLane(int laneIndex, DLNode* node);
+void freeObstacleData(void* data);
+
+// Fungsi untuk debug
+void drawCollisionBoxes(bool drawPlayerBox, float x, float y, float width, float height);
 
 #endif // RINTANGAN_H

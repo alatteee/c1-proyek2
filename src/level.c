@@ -1,41 +1,41 @@
 #include "../include/level.h"
-#include "../include/single_linked_list.h"
 #include <stdlib.h>
 #include <string.h>
 
-// Buat list baru
-List* CreateLevelList(void) {
-    return buatList();
+// Membuat data level baru
+LevelData* createLevelData(const char* name, int speed) {
+    LevelData* data = malloc(sizeof(LevelData));
+    if (data) {
+        strcpy(data->name, name);
+        data->obstacleSpeed = speed;
+    }
+    return data;
 }
 
-// Tambah level baru ke list
-void AppendLevel(List* list, const char* name, int speed) {
-    Level* lvl = malloc(sizeof *lvl);
-    if (!lvl) return;
-    // salin nama dengan aman
-    strncpy(lvl->name, name, MAX_LEVEL_NAME_LENGTH);
-    lvl->name[MAX_LEVEL_NAME_LENGTH - 1] = '\0';
-    lvl->obstacleSpeed = speed;
-    tambahData(list, lvl);
+// Membebaskan data level
+void freeLevelData(void* data) {
+    if (data) {
+        free(data);
+    }
 }
 
-// Ambil level berdasarkan index
-Level* getLevelByIndex(List* list, int index) {
-    return ambilData(list, index);
+// Membuat list level dengan data default
+List* createLevelList(void) {
+    List* levelList = buatList();
+    
+    tambahData(levelList, createLevelData("Easy", 3));
+    tambahData(levelList, createLevelData("Medium", 5));
+    tambahData(levelList, createLevelData("Hard", 7));
+    
+    return levelList;
 }
 
-// Fungsi baru: buat dan isi List level bawaan
-List *LoadDefaultLevels(void) {
-    List *list = buatList();
-    // AppendLevel sekarang terima List* bukan LevelNode*
-    AppendLevel(list, "Easy",   200);
-    AppendLevel(list, "Medium", 275);
-    AppendLevel(list, "Hard",   350);
-    return list;
+// Mendapatkan level berdasarkan index
+LevelData* getLevelByIndex(List* levelList, int index) {
+    return (LevelData*)ambilData(levelList, index);
 }
 
-// Bebaskan semua node dan data level
-void FreeLevels(List* list) {
-    // free() untuk setiap Level*
-    hapusList(list, free);
+// Membebaskan seluruh list level
+void freeLevelList(List* levelList) {
+    hapusList(levelList, freeLevelData);
 }

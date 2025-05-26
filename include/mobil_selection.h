@@ -1,30 +1,28 @@
-// mobil_selection.h
 #ifndef MOBIL_SELECTION_H
 #define MOBIL_SELECTION_H
 
-#include "single_linked_list.h"
 #include "mobil.h"
-#include <raylib.h>
+#include "single_linked_list.h"
 
-// Ini menggantikan CarNode
-typedef struct {
-    Car    car;
-    char   name[50];
+// Car data structure to be stored in the List
+typedef struct CarData {
+    Car car;           // The car object
+    char name[50];     // Name of the car
 } CarData;
 
-// Buat daftar mobil pakai ADT List
-List*    createCarList(void);
+// Function to create a list of cars
+List* createCarList();
 
-// Gambar pilihan mobil
-void     drawCarSelection(List *daftar, int selectedIndex, Texture2D bg);
+// Function to draw car selection UI
+void drawCarSelection(List *carList, int selectedIndex, Texture2D background);
 
-// Ambil mobil terpilih
-CarData* getCarByIndex(List *daftar, int index);
+// Function to get car data by index
+CarData* getCarByIndex(List *carList, int index);
 
-// Hitung jumlah mobil
-int      countCars(List *daftar);
+// Function to free car list and car data
+void freeCarList(List *carList);
 
-// Hapus semua mobil (free & unload texture)
-void     freeCarList(List *daftar);
+// Function to count the number of cars in the list
+int countCars(List *carList);
 
 #endif

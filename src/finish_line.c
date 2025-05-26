@@ -1,53 +1,98 @@
 #include "../include/finish_line.h"
+#include "../include/config.h"
 #include <stdlib.h>
 
-// Ukuran kotak finish
-#define TILE_SIZE 20
-
-// Callback buat gambar satu tile
-static void _drawTile(void *d) {
-    FinishTile *t = d;
-    DrawRectangle(t->x, t->y, TILE_SIZE, TILE_SIZE, t->color);
+// Membuat segmen finish line
+FinishLineSegment *createFinishLineSegment(int x, int y, int width, int height, Color color)
+{
+  FinishLineSegment *segment = malloc(sizeof(FinishLineSegment));
+  if (segment)
+  {
+    segment->x = x;
+    segment->y = y;
+    segment->width = width;
+    segment->height = height;
+    segment->color = color;
+  }
+  return segment;
 }
 
-// Buat dan isi list tile
-List* InitFinishLine(void) {
-    List *lst = buatList();
-    int numCols = SCREEN_WIDTH / TILE_SIZE;
-    for (int i = 0; i < numCols; i++) {
-        for (int j = 0; j < 2; j++) {
-            FinishTile *t = malloc(sizeof *t);
-            t->x     = i * TILE_SIZE;
-            t->y     = FINISH_LINE_Y + j * TILE_SIZE;
-            t->color = ((i + j) % 2 == 0) ? BLACK : WHITE;
-            tambahData(lst, t);
-        }
+// Membebaskan segmen finish line
+void freeFinishLineSegment(void *data)
+{
+  if (data)
+  {
+    free(data);
+  }
+}
+
+// Menggambar segmen finish line
+void drawFinishLineSegment(void *data)
+{
+  FinishLineSegment *segment = (FinishLineSegment *)data;
+  DrawRectangle(segment->x, segment->y, segment->width, segment->height, segment->color);
+}
+
+// Membuat list segmen finish line
+List *createFinishLineSegments(void)
+{
+  List *segments = buatList();
+
+  int squareSize = 20; // Ukuran kotak untuk pola checkerboard
+
+  // Membuat pola checkerboard untuk finish line
+  for (int i = 0; i < SCREEN_WIDTH / squareSize; i++)
+  {
+    for (int j = 0; j < 2; j++)
+    { // 2 baris kotak
+      int x = i * squareSize;
+      int y = FINISH_LINE_Y + (j * squareSize);
+
+      // Tentukan warna berdasarkan posisi (pola checkerboard)
+      Color squareColor = ((i + j) % 2 == 0) ? WHITE : BLACK;
+
+      FinishLineSegment *segment = createFinishLineSegment(x, y, squareSize, squareSize, squareColor);
+      if (segment)
+      {
+        tambahData(segments, segment);
+      }
     }
-    return lst;
+  }
+
+  // Tambahkan border atas dan bawah
+  FinishLineSegment *topBorder = createFinishLineSegment(0, FINISH_LINE_Y - 2, SCREEN_WIDTH, 2, RED);
+  FinishLineSegment *bottomBorder = createFinishLineSegment(0, FINISH_LINE_Y + (2 * squareSize), SCREEN_WIDTH, 2, RED);
+
+  if (topBorder)
+    tambahData(segments, topBorder);
+  if (bottomBorder)
+    tambahData(segments, bottomBorder);
+
+  return segments;
 }
 
-// Gambar semua kotak, garis & teks
-void DrawFinishLine(List* finishList) {
-    // gambar kotak-kotak
-    tampilkanList(finishList, _drawTile);
+// Menggambar garis finish menggunakan single linked list
+void DrawFinishLine(void)
+{
+  static List *finishLineSegments = NULL;
 
-    // garis merah atas/bawah
-    DrawRectangle(0, FINISH_LINE_Y - 2, SCREEN_WIDTH, 2, RED);
-    DrawRectangle(0, FINISH_LINE_Y + FINISH_LINE_HEIGHT, SCREEN_WIDTH, 2, RED);
+  // Buat segmen hanya sekali
+  if (!finishLineSegments)
+  {
+    finishLineSegments = createFinishLineSegments();
+  }
 
-    // teks FINISH di atas
-    const char *txt = "FINISH";
-    int fw = MeasureText(txt, 40);
-    DrawText(txt, (SCREEN_WIDTH - fw)/2, FINISH_LINE_Y - 50, 40, RED);
+  // Gambar semua segmen
+  tampilkanList(finishLineSegments, drawFinishLineSegment);
 }
 
-// Cek kalau mobil nyentuh finish line
-bool CheckFinishLineCollision(Car* car) {
-    return (car->y + car->height/2) <= (FINISH_LINE_Y + FINISH_LINE_HEIGHT);
-}
-
-// Free semua node + data
-void FreeFinishLine(List* finishList) {
-    // free masing-masing FinishTile dengan free()
-    hapusList(finishList, free);
+// Fungsi untuk memeriksa apakah mobil telah melewati garis finish
+bool CheckFinishLineCollision(Car *car)
+{
+  // Cek apakah posisi Y mobil telah melewati atau mencapai garis finish
+  if (car->y <= FINISH_LINE_Y + FINISH_LINE_HEIGHT)
+  {
+    return true; // Pemain mencapai garis finish
+  }
+  return false; // Pemain belum mencapai garis finish
 }

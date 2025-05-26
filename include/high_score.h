@@ -1,26 +1,28 @@
 #ifndef HIGH_SCORE_H
 #define HIGH_SCORE_H
 
-#include "single_linked_list.h"
 #include <raylib.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "single_linked_list.h"
 
-#define MAX_NAME_LENGTH   20
-#define MAX_HIGH_SCORES   10
+#define MAX_NAME_LENGTH 20
+#define MAX_HIGH_SCORES 10
 
-// Tipe data untuk satu entri high score
 typedef struct {
     char name[MAX_NAME_LENGTH];
-    int  score;
-} HighScoreEntry;
+    int score;
+} HighScoreData;
 
-// Tambah dan simpan satu entri baru
+// Fungsi utama
 void SaveHighScore(const char *name, int score);
-
-// Gambar daftar high score ke layar
 void DrawHighScores(Texture2D brickTexture);
 
-// Kalau butuh akses List langsung
-List *LoadHighScoreList(void);
-void  FreeHighScoreList(List *lst);
+// Helper functions untuk single linked list
+HighScoreData* createHighScoreData(const char *name, int score);
+void freeHighScoreData(void* data);
+int compareHighScore(const void *a, const void *b);
+void printHighScore(void* data);
 
-#endif // HIGH_SCORE_H
+#endif

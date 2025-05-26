@@ -9,6 +9,21 @@
 #include "../include/rintangan.h"
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
+
+// Helper function untuk mendapatkan posisi X dari lane
+float getLaneXPosition(LanePosition lane) {
+    switch (lane) {
+        case LANE_LEFT:
+            return LEFT_LANE_X;
+        case LANE_MIDDLE:
+            return MIDDLE_LANE_X;
+        case LANE_RIGHT:
+            return RIGHT_LANE_X;
+        default:
+            return MIDDLE_LANE_X;
+    }
+}
 
 // Menginisialisasi mobil dengan posisi dan ukuran tertentu
 void initCar(Car *car, float x, float y, float width, float height, float speed, const char *texturePath) {
@@ -23,39 +38,45 @@ void initCar(Car *car, float x, float y, float width, float height, float speed,
     strcpy(car->texturePath, texturePath);
     car->texture = LoadTexture(texturePath);
     
+    // Initialize lane-based movement (teleport system only)
+    car->currentLane = LANE_MIDDLE;
+    
     // Log jika texture berhasil dimuat
     if (car->texture.id > 0) {
-        TraceLog(LOG_INFO, "Car texture loaded successfully: %s", texturePath);
+        printf("Car texture loaded successfully: %s (%dx%d)\n", 
+               texturePath, car->texture.width, car->texture.height);
     } else {
-        TraceLog(LOG_ERROR, "Failed to load car texture: %s", texturePath);
+        printf("Failed to load car texture: %s\n", texturePath);
     }
 }
 
-// Menggambar mobil dengan texture
+// Menggambar mobil dengan texture (dengan efek invulnerable) - ukuran naik 15%
 void renderCar(Car *car) {
-    // Gunakan alpha untuk efek invulnerable
-    Color tint = car->isInvulnerable ? 
-                (((int)(car->invulnerabilityTime * 10) % 2 == 0) ? 
-                 GRAY : WHITE) : WHITE;
+    // Tentukan warna berdasarkan status invulnerable (kedip-kedip saat invulnerable)
+    Color tint = WHITE;
+    if (car->isInvulnerable) {
+        // Efek kedip-kedip dengan menggunakan sin untuk transparansi
+        float alpha = (sin(car->invulnerabilityTime * 10.0f) + 1.0f) / 2.0f;
+        tint = (Color){255, 255, 255, (unsigned char)(alpha * 255)};
+    }
     
     // Hitung rasio aspek asli dari texture
     float originalAspectRatio = (float)car->texture.width / (float)car->texture.height;
     
-    // Faktor skala untuk ukuran mobil (25% lebih besar)
-    float scaleFactor = 1.25f;
-    
-    // Hitung ukuran render yang mempertahankan rasio aspek dengan faktor skala baru
-    float renderWidth = car->width * scaleFactor;
+    // Mulai dengan ukuran berdasarkan lebar yang dialokasikan (naik 15%)
+    float renderWidth = car->width * 1.15f;
     float renderHeight = renderWidth / originalAspectRatio;
     
+    // Faktor skala untuk menjaga proporsionalitas dalam area yang dialokasikan
+    float scaleFactor = 1.0f; // 100% dari area yang dialokasikan
+    
     // Jika tinggi hasil lebih besar dari tinggi yang tersedia, sesuaikan ulang
-    if (renderHeight > car->height * scaleFactor) {
-        renderHeight = car->height * scaleFactor;
+    if (renderHeight > car->height * scaleFactor * 1.15f) {
+        renderHeight = car->height * scaleFactor * 1.15f;
         renderWidth = renderHeight * originalAspectRatio;
     }
     
     // Hitung offset untuk memusatkan mobil pada area yang dialokasikan
-    // (offset negatif untuk mobil yang lebih besar agar tetap di tengah)
     float offsetX = (car->width - renderWidth) / 2;
     float offsetY = (car->height - renderHeight) / 2;
     
@@ -67,21 +88,40 @@ void renderCar(Car *car) {
         0.0f,
         tint);
         
-    // Rectangle untuk collision detection tetap menggunakan ukuran asli
-    // untuk menjaga gameplay balance
+    // Rectangle untuk collision detection menggunakan ukuran yang diperbesar
     car->rect = (Rectangle){car->x, car->y, car->width, car->height};
 }
 
-// Memindahkan mobil berdasarkan input pemain
+// Function untuk teleport mobil ke lane tertentu
+void teleportToLane(Car *car, LanePosition targetLane) {
+    if (car->currentLane == targetLane) {
+        return; // Sudah di lane target
+    }
+    
+    car->currentLane = targetLane;
+    car->x = getLaneXPosition(targetLane);
+    
+    // Perbarui rectangle untuk collision detection
+    car->rect = (Rectangle){car->x, car->y, car->width, car->height};
+    
+    printf("Teleported to lane %d at position X: %.2f\n", car->currentLane, car->x);
+}
+
+// Memindahkan mobil berdasarkan input pemain (teleport antar lane)
 void handleCarInput(Car *car) {
-    if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
-        car->x -= car->speed;
-        if (car->x < 0) car->x = 0;
+    // Input untuk pindah lane (teleport) - ALWAYS WORKS, no blocking conditions
+    if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A)) {
+        if (car->currentLane > LANE_LEFT) {
+            teleportToLane(car, car->currentLane - 1);
+        }
     }
-    if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) {
-        car->x += car->speed;
-        if (car->x > SCREEN_WIDTH - car->width) car->x = SCREEN_WIDTH - car->width;
+    if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)) {
+        if (car->currentLane < LANE_RIGHT) {
+            teleportToLane(car, car->currentLane + 1);
+        }
     }
+    
+    // Kontrol vertikal tetap bisa digunakan
     if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) {
         car->y -= car->speed;
         if (car->y < 0) car->y = 0;

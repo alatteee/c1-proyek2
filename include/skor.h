@@ -1,28 +1,31 @@
-// include/skor.h
 #ifndef SKOR_H
 #define SKOR_H
 
-#include "single_linked_list.h"  // ADT List
+#include <raylib.h>
+#include "config.h"
 
+// Struktur untuk menyimpan nilai skor pemain
 typedef struct {
-    int nilai;
+    int nilai; // Nilai skor pemain
 } Skor;
 
-// Buat dan hapus daftar skor
-List* buatDaftarSkor(void);
-void  hapusDaftarSkor(List *daftar);
-
-// Operasi pada daftar
-void  tambahSkorKeDaftar(List *daftar, int nilaiAwal);
-void  tampilkanSemuaSkor(List *daftar);
-
-// Manipulasi 1 elemen skor
-void  tambahSkor     (Skor *s, int poin);
-void  kurangiSkor    (Skor *s, int poin);
-int   getSkor        (const Skor *s);
-
-// Tampilkan 1 skor di layar (Raylib)
-void  tampilkanSkor  (const Skor *s);
+// Fungsi untuk menginisialisasi nilai skor
 void initSkor(Skor *skor);
+
+// Fungsi untuk menambah poin ke nilai skor
+void tambahSkor(Skor *skor, int poin);
+
+// Fungsi untuk mengurangi poin dari nilai skor (tidak boleh menjadi nilai negatif)
+void kurangiSkor(Skor *skor, int poin);
+
+// Fungsi untuk mengambil nilai skor saat ini
+int getSkor(const Skor *skor);
+
+// Fungsi untuk menampilkan nilai skor ke dalam log Raylib
+void tampilkanSkor(const Skor *skor);
+
+// FIXED: Tambahkan deklarasi fungsi yang hilang
+void resetSkor(Skor *skor);
+void freeSkor(Skor *skor);
 
 #endif // SKOR_H
