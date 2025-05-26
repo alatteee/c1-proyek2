@@ -128,7 +128,7 @@ void DrawHighScores(Texture2D brickTexture) {
     
     const char *instruction = "Press ENTER or ESC to return";
     int instructionWidth = MeasureText(instruction, 20);
-    DrawText(instruction, SCREEN_WIDTH / 2 - instructionWidth / 2, 500, 20, WHITE);
+    DrawText(instruction, SCREEN_WIDTH / 2 - instructionWidth / 2, 600, 20, WHITE);
     
     hapusList(scoreList, freeHighScoreData);
 }
