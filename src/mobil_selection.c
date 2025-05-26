@@ -47,17 +47,17 @@ void drawCarSelection(List *carList, int selectedIndex, Texture2D background) {
     DrawTexture(background, 0, 0, WHITE);
 
     // Judul
-    DrawText("Select Your Car...", SCREEN_WIDTH/2 - MeasureText("Select Your Car...", 30)/2, 90, 30, YELLOW);
+    DrawText("Select Your Car...", 500, 200, 30, YELLOW); // langsung atur nilai X dan Y manual
 
     // Area preview mobil (pindah ke sebelah kiri)
-    int previewX = 180;  // Posisi X di sebelah kiri
-    int previewY = 280;  // Posisi Y di tengah tampilan mobil
+    int previewX = 460;  // Posisi X di sebelah kiri
+    int previewY = 300;  // Posisi Y di tengah tampilan mobil
     int previewMaxWidth = 150;  // Lebar preview lebih besar
     int previewMaxHeight = 120; // Tinggi preview lebih besar
     
     // Posisi daftar mobil (sekarang lebih ke tengah)
-    int listX = SCREEN_WIDTH/2 - 100; // Posisi X menu daftar mobil
-    int startY = 200;    // Posisi Y awal daftar
+    int listX = 620; // Posisi X menu daftar mobil
+    int startY = 280;    // Posisi Y awal daftar
     int spacing = 50;    // Spasi antar mobil
     int fontSize = 24;   // Ukuran font
 
@@ -111,10 +111,9 @@ void drawCarSelection(List *carList, int selectedIndex, Texture2D background) {
     }
     
     // Tambahkan instruksi navigasi
-    DrawText("Press UP/DOWN to select", SCREEN_WIDTH/2 - MeasureText("Press UP/DOWN to select", 20)/2, 
-             startY + (count + 1) * spacing, 20, WHITE);
-    DrawText("Press ENTER to continue", SCREEN_WIDTH/2 - MeasureText("Press ENTER to continue", 20)/2, 
-             startY + (count + 2) * spacing, 20, WHITE);
+    DrawText("Press UP/DOWN to select", 500, 600, 20, WHITE);
+    DrawText("Press ENTER to continue", 500, 640, 20, WHITE);
+
 }
 
 CarData* getCarByIndex(List *carList, int index) {
