@@ -11,16 +11,14 @@
 // Definisi jumlah maksimum rintangan yang bisa ada di layar
 #define MAX_OBSTACLES 5
 
-// Definisi ukuran mobil pemain (lebar dan tinggi)
-#define PLAYER_CAR_WIDTH 100   // Lebar mobil
-#define PLAYER_CAR_HEIGHT 140 // Tinggi mobil 
+// Definisi ukuran mobil pemain (lebar dan tinggi) - naik 15%
+#define PLAYER_CAR_WIDTH 115   // Lebar mobil (100 + 15%)
+#define PLAYER_CAR_HEIGHT 161  // Tinggi mobil (140 + 15%)
 
-// Posisi X untuk jalur kiri, diatur agar mobil berada di tengah jalur
-#define LEFT_LANE_X (SCREEN_WIDTH / 4 - PLAYER_CAR_WIDTH / 2)
-// Posisi X untuk jalur tengah, diatur agar mobil berada di tengah jalur
+// Posisi X untuk jalur - mobil tetap di tengah jalur yang sama
+#define LEFT_LANE_X (SCREEN_WIDTH / 6 - PLAYER_CAR_WIDTH / 2)
 #define MIDDLE_LANE_X (SCREEN_WIDTH / 2 - PLAYER_CAR_WIDTH / 2)
-// Posisi X untuk jalur kanan, diatur agar mobil berada di tengah jalur
-#define RIGHT_LANE_X (3 * SCREEN_WIDTH / 4 - PLAYER_CAR_WIDTH / 2)
+#define RIGHT_LANE_X (5 * SCREEN_WIDTH / 6 - PLAYER_CAR_WIDTH / 2)
 
 #define NUM_CARS 1           // Jumlah mobil pemain (hanya 1 mobil)
 #define OBSTACLE_SPEED 5     // Kecepatan rintangan yang muncul
@@ -29,6 +27,14 @@
 #define MAX_NAME_LENGTH 20
 // Definisi jumlah high scores yang bisa disimpan
 #define MAX_HIGH_SCORES 10
+
+// Enum untuk lane position
+typedef enum
+{
+    LANE_LEFT = 0,
+    LANE_MIDDLE = 1,
+    LANE_RIGHT = 2
+} LanePosition;
 
 // Enum yang mendefinisikan status permainan (menu, level, game over, dll)
 typedef enum
@@ -41,6 +47,7 @@ typedef enum
     STATE_WIN,             // Status ketika pemain menang
     STATE_GAME_OVER,       // Status ketika permainan berakhir
     STATE_HIGH_SCORES,     // Menu untuk menampilkan skor tertinggi
+    STATE_SETTINGS,        // Menu settings
     STATE_EXIT,          // Status keluar dari permainan
     STATE_SELECT_CAR
 } GameState;
@@ -55,6 +62,5 @@ typedef struct
     const char *name;     // Nama level (misalnya: "Level 1")
     int positions[10][2]; // Posisi rintangan (koordinat X dan Y) di level ini
 } Level;
-
 
 #endif

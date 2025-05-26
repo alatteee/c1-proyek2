@@ -14,16 +14,20 @@ extern bool isMusicEnabled;
 
 // Deklarasi fungsi untuk menggambar menu utama permainan
 void DrawMenu(int selectedOption, Texture2D brickTexture);
-// Deklarasi fungsi untuk menangani input dari menu utama (mengubah status game berdasarkan input)
-void handleMenuInput(int *selectedOption, GameState *gameState, Car cars[], int *lives, Skor *skor); // Hapus parameter yang tidak digunakan
+// Deklarasi fungsi untuk menangani input dari menu utama
+void handleMenuInput(int *selectedOption, GameState *gameState, Car cars[], int *lives, Skor *skor);
 
 // Deklarasi fungsi untuk menggambar menu pemilihan level
-void DrawLevelMenu(int selectedLevel, Texture2D brickTexture, LevelNode* levelList);
+void DrawLevelMenu(int selectedLevel, Texture2D brickTexture, List *levelList);
 
 // Deklarasi fungsi untuk menangani input dari menu pemilihan level
-void handleLevelMenuInput(int *selectedLevel, GameState *gameState);
+void handleLevelMenuInput(int *selectedLevel, GameState *gameState, List *levelList);
 
 // Deklarasi fungsi untuk menggambar menu input nama pemain
 void DrawInputName(char *playerName, Texture2D brickTexture);
+
+// Deklarasi fungsi untuk settings menu
+void DrawSettingsMenu(int selectedOption, Texture2D brickTexture);
+void handleSettingsInput(int *selectedOption, GameState *gameState);
 
 #endif

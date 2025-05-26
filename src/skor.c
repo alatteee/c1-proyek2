@@ -47,3 +47,23 @@ void tampilkanSkor(const Skor *skor)
     snprintf(skorText, sizeof(skorText), "Skor: %d", skor->nilai);  // Menyusun teks untuk skor
     DrawText(skorText, 10, 10, 20, WHITE); // Menampilkan teks skor di posisi kiri atas layar
 }
+
+// FIXED: Implementasi fungsi resetSkor yang hilang
+void resetSkor(Skor *skor)
+{
+    if (skor) {
+        skor->nilai = 0; // Reset skor menjadi 0
+    }
+}
+
+// FIXED: Implementasi fungsi freeSkor yang hilang
+void freeSkor(Skor *skor)
+{
+    // Untuk struct sederhana seperti Skor, tidak perlu free memory khusus
+    // Tapi kita bisa reset nilai untuk safety
+    if (skor) {
+        skor->nilai = 0;
+    }
+    // Note: Fungsi ini tetap diperlukan untuk konsistensi dengan interface
+    // meskipun struct Skor tidak mengalokasi memory dinamis
+}

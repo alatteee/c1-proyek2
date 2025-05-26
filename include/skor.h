@@ -24,4 +24,8 @@ int getSkor(const Skor *skor);
 // Fungsi untuk menampilkan nilai skor ke dalam log Raylib
 void tampilkanSkor(const Skor *skor);
 
+// FIXED: Tambahkan deklarasi fungsi yang hilang
+void resetSkor(Skor *skor);
+void freeSkor(Skor *skor);
+
 #endif // SKOR_H
