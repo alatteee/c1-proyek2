@@ -377,6 +377,11 @@ int main(void) {
             tampilkanSkor(&skor);
             DrawLives(livesSystem);
             DrawText("You Win!", SCREEN_WIDTH / 2 - MeasureText("You Win!", 40) / 2, SCREEN_HEIGHT / 2 - 50, 40, GREEN);
+
+            char winScoreText[50];
+            snprintf(winScoreText, sizeof(winScoreText), "Your Score: %d", getSkor(&skor));
+            DrawText(winScoreText, SCREEN_WIDTH / 2 - MeasureText(winScoreText, 30) / 2, SCREEN_HEIGHT / 2, 30, YELLOW);
+
             DrawText("Press ENTER to continue", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to continue", 20) / 2, SCREEN_HEIGHT / 2 + 50, 20, WHITE);
             break;
 
