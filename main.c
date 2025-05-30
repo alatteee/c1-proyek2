@@ -19,7 +19,7 @@ Music menuMusic;
 Music gameMusic;
 bool isMusicEnabled = true;
 
-// FIXED: Tambahkan fungsi helper untuk reset complete game state
+// fungsi helper untuk reset complete game state
 void resetCompleteGameState(bool *isRintanganInitialized, float *gameTimer, bool *finishLineVisible, 
                            LivesSystem *livesSystem, Skor *skor, Car *car) {
     // 1. Cleanup rintangan yang ada
@@ -49,7 +49,7 @@ void resetCompleteGameState(bool *isRintanganInitialized, float *gameTimer, bool
     car->rect = (Rectangle){car->x, car->y, car->width, car->height};
 }
 
-// FIXED: Tambahkan fungsi untuk switch music berdasarkan state
+// Tambahkan fungsi untuk switch music berdasarkan state
 void updateMusicForState(GameState gameState) {
     if (!isMusicEnabled) {
         StopMusicStream(menuMusic);
@@ -402,7 +402,7 @@ int main(void) {
         EndDrawing();
     }
 
-    // FIXED: Final cleanup sebelum program berakhir
+    // Final cleanup sebelum program berakhir
     resetCompleteGameState(&isRintanganInitialized, &gameTimer, &finishLineVisible, 
                          &livesSystem, &skor, &cars[0]);
     
