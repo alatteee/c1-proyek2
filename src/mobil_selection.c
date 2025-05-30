@@ -4,9 +4,9 @@
 #include <raylib.h>
 
 // Define missing constants
-#define PLAYER_CAR_WIDTH 100  // Adjust value based on your requirements
-#define PLAYER_CAR_HEIGHT 200 // Adjust value based on your requirements
-#define SCREEN_WIDTH 800      // Adjust value based on your requirements
+#define PLAYER_CAR_WIDTH 100  
+#define PLAYER_CAR_HEIGHT 200 
+#define SCREEN_WIDTH 800      
 
 // Helper function to create and initialize car data
 CarData* createCarData(const char *name, const char *texturePath, float x, float y, float w, float h, int speed) {
