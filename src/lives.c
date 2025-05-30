@@ -1,8 +1,5 @@
 /* ----------------------------------------------------------------------------- */
 /* File        : lives.c                                                         */
-/* Deskripsi   : File implementasi untuk mengelola sistem nyawa (lives) dalam    */
-/*              game. Berisi fungsi-fungsi untuk menggambar hati, menginisialisasi*/
-/*              sistem nyawa, menggambar nyawa, mengurangi nyawa, mereset nyawa, */
 /* ----------------------------------------------------------------------------- */
 
 #include "../include/lives.h"  // File header untuk sistem nyawa
